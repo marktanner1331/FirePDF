@@ -49,5 +49,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FirePDF\FirePDF.csproj">
+      <Project>{39DD1D79-4922-47CE-9AEC-AFA41712582C}</Project>
+      <Name>FirePDF</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
