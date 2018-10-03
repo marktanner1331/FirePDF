@@ -11,9 +11,16 @@ namespace FirePDF
 {
     class XREFTable
     {
+        private Dictionary<long, long> usedRecords;
+
         public XREFTable()
         {
+            usedRecords = new Dictionary<long, long>();
+        }
 
+        public long getOffsetForRecord(int objectNumber, int generation)
+        {
+            return usedRecords[(((long)objectNumber) << 32) + generation];
         }
 
         /// <summary>
@@ -73,7 +80,14 @@ namespace FirePDF
                 int generation = int.Parse(record.Substring(11, 6));
                 char type = record[17];
 
-                Debug.WriteLine($"{offset.ToString("0000000000")} {generation.ToString("000000")} {type}");
+                if(type == 'n')
+                {
+                    long objectNumber = firstObjectNumber + i;
+                    long hash = objectNumber << 32;
+                    hash += generation;
+
+                    usedRecords[hash] = offset;
+                }
             }
 
             return true;
