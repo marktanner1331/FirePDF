@@ -41,10 +41,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Catalog.cs" />
     <Compile Include="FileReader.cs" />
+    <Compile Include="ObjectReference.cs" />
+    <Compile Include="Page.cs" />
+    <Compile Include="PageTreeNode.cs" />
     <Compile Include="PDF.cs" />
     <Compile Include="PDFReaderLevel1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Trailer.cs" />
     <Compile Include="XREFTable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

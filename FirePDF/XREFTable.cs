@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FirePDF
 {
-    class XREFTable
+    public class XREFTable
     {
         private Dictionary<long, long> usedRecords;
 
@@ -24,47 +24,61 @@ namespace FirePDF
         }
 
         /// <summary>
+        /// merges the given table into this table
+        /// if a record exists in both tables then it will not be overwritten
+        /// </summary>
+        public void mergeIn(XREFTable table)
+        {
+            foreach(var pair in table.usedRecords)
+            {
+                if(usedRecords.ContainsKey(pair.Key))
+                {
+                    continue;
+                }
+
+                usedRecords[pair.Key] = pair.Value;
+            }
+        }
+
+        /// <summary>
         /// parses an xref table from the stream at the current position
         /// </summary>
         public void fromStream(Stream stream)
         {
-            using (StreamReader reader = new StreamReader(stream))
+            long lastPosition = stream.Position;
+            while (parseXREFSection(stream))
             {
-                long lastPosition = reader.BaseStream.Position;
-                while (parseXREFSection(reader))
-                {
-                    lastPosition = reader.BaseStream.Position;
-                }
-
-                reader.BaseStream.Position = lastPosition;
+                lastPosition = stream.Position;
             }
+
+            stream.Position = lastPosition;
         }
 
-        private bool parseXREFSection(StreamReader reader)
+        private bool parseXREFSection(Stream stream)
         {
-            string firstLine = reader.ReadLine();
+            string firstLine = FileReader.readLine(stream);
             if (firstLine != "xref")
             {
                 return false;
             }
-
-            long lastPosition = reader.BaseStream.Position;
-            while (parseXREFSubSection(reader))
+            
+            long lastPosition = stream.Position;
+            while (parseXREFSubSection(stream))
             {
-                lastPosition = reader.BaseStream.Position;
+                lastPosition = stream.Position;
             }
 
-            reader.BaseStream.Position = lastPosition;
+            stream.Position = lastPosition;
 
             return true;
         }
 
-        private bool parseXREFSubSection(StreamReader reader)
+        private bool parseXREFSubSection(Stream stream)
         {
-            string header = reader.ReadLine();
+            string header = FileReader.readLine(stream);
             Match headerMatch = Regex.Match(header, @"^(\d+) (\d+)$");
 
-            if(headerMatch.Success == false)
+            if (headerMatch.Success == false)
             {
                 return false;
             }
@@ -74,13 +88,13 @@ namespace FirePDF
 
             for (int i = 0; i < length; i++)
             {
-                string record = reader.ReadLine();
+                string record = FileReader.readLine(stream);
 
                 long offset = long.Parse(record.Substring(0, 10));
                 int generation = int.Parse(record.Substring(11, 6));
                 char type = record[17];
 
-                if(type == 'n')
+                if (type == 'n')
                 {
                     long objectNumber = firstObjectNumber + i;
                     long hash = objectNumber << 32;

@@ -9,33 +9,65 @@ namespace FirePDF
 {
     public class PDF
     {
-        private Stream stream;
+        public Stream stream;
+        public XREFTable readTable;
+        private Catalog catalog;
 
         public PDF(string fullFilePath) : this(File.OpenRead(fullFilePath))
         {
 
         }
 
-        public PDF(Stream stream)
+        public PDF(Stream stream) : this()
         {
             this.stream = stream;
+            
             parse();
+        }
+
+        public PDF()
+        {
+            readTable = new XREFTable();
+            catalog = new Catalog(this);
         }
 
         private void parse()
         {
-            parseXREFTables();
-        }
+            Queue<long> xrefOffsets = new Queue<long>();
+            HashSet<long> readOffsets = new HashSet<long>();
 
-        private void parseXREFTables()
-        {
             stream.Position = Math.Max(0, stream.Length - 1024);
             string chunk = FileReader.readASCIIString(stream, 1024);
-            long xrefOffset = PDFReaderLevel1.readLastStartXREF(chunk);
+            long lastOffset = PDFReaderLevel1.readLastStartXREF(chunk);
+            xrefOffsets.Enqueue(lastOffset);
+            
+            Queue<long> xrefStreams = new Queue<long>();
+            ObjectReference root = null;
+            
+            while (xrefOffsets.Any())
+            {
+                stream.Position = xrefOffsets.Dequeue();
 
-            stream.Position = xrefOffset;
-            XREFTable table = new XREFTable();
-            table.fromStream(stream);
+                XREFTable table = new XREFTable();
+                table.fromStream(stream);
+
+                readTable.mergeIn(table);
+
+                Trailer trailer = new Trailer();
+                trailer.fromStream(stream);
+
+                if(root == null)
+                {
+                    root = trailer.root;
+                }
+
+                if (trailer.prev.HasValue && readOffsets.Contains(trailer.prev.Value) == false)
+                {
+                    xrefOffsets.Enqueue(trailer.prev.Value);
+                }
+            }
+
+            catalog.fromStream(root);
         }
     }
 }
