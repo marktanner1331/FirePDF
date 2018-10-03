@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2003
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirePDF", "FirePDF\FirePDF.csproj", "{39DD1D79-4922-47CE-9AEC-AFA41712582C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{D86EE5A9-D23E-47C9-BD01-C323EC0AD171}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39DD1D79-4922-47CE-9AEC-AFA41712582C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39DD1D79-4922-47CE-9AEC-AFA41712582C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39DD1D79-4922-47CE-9AEC-AFA41712582C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39DD1D79-4922-47CE-9AEC-AFA41712582C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D86EE5A9-D23E-47C9-BD01-C323EC0AD171}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D86EE5A9-D23E-47C9-BD01-C323EC0AD171}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D86EE5A9-D23E-47C9-BD01-C323EC0AD171}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D86EE5A9-D23E-47C9-BD01-C323EC0AD171}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {45CE5855-0DE2-4146-B1A1-FCF2C9B4B11A}
+	EndGlobalSection
+EndGlobal
