@@ -25,9 +25,14 @@ namespace FirePDF
             pagesRoot.fromStream((ObjectReference)dict["Pages"]);
         }
 
-        internal int getNumPages()
+        public int getNumPages()
         {
             return pagesRoot.getNumPages();
+        }
+
+        public Page getPage(int oneBasedPageNumber)
+        {
+            return pagesRoot.getPage(oneBasedPageNumber);
         }
     }
 }

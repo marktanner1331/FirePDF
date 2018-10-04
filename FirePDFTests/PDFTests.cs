@@ -33,5 +33,42 @@ namespace FirePDF.Tests
 
             Assert.AreEqual(19, pdf.getNumPages());
         }
+
+        [TestMethod()]
+        public void getPageTest()
+        {
+            string file = getPDFFolder() + "pb13332-cop-cats-091204.pdf";
+            PDF pdf = new PDF(file);
+
+            Page page = pdf.getPage(1);
+            Assert.IsNotNull(page);
+        }
+
+        [TestMethod()]
+        public void getPageTest2()
+        {
+            string file = getPDFFolder() + "pb13332-cop-cats-091204.pdf";
+            PDF pdf = new PDF(file);
+
+            Page page = pdf.getPage(19);
+            Assert.IsNotNull(page);
+        }
+
+        [TestMethod()]
+        public void getPageTest3()
+        {
+            string file = getPDFFolder() + "pb13332-cop-cats-091204.pdf";
+            PDF pdf = new PDF(file);
+
+            try
+            {
+                Page page = pdf.getPage(20);
+                Assert.Fail();
+            }
+            catch
+            {
+
+            }
+        }
     }
 }

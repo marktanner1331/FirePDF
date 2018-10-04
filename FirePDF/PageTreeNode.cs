@@ -47,6 +47,39 @@ namespace FirePDF
             }
         }
 
+        internal Page getPage(int oneBasedPageNumber)
+        {
+            int pageCounter = 1;
+            foreach (object node in pages)
+            {
+                if (node is PageTreeNode)
+                {
+                    int numPages = ((PageTreeNode)node).getNumPages();
+                    if(pageCounter + numPages > oneBasedPageNumber)
+                    {
+                        return ((PageTreeNode)node).getPage(oneBasedPageNumber - pageCounter + 1);
+                    }
+                    else
+                    {
+                        pageCounter += numPages;
+                    }
+                }
+                else
+                {
+                    if(pageCounter == oneBasedPageNumber)
+                    {
+                        return (Page)node;
+                    }
+                    else
+                    {
+                        pageCounter++;
+                    }
+                }
+            }
+
+            throw new Exception("Page not found in catalog");
+        }
+
         internal int getNumPages()
         {
             int numPages = 0;

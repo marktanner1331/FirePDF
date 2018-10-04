@@ -31,6 +31,11 @@ namespace FirePDF
             catalog = new Catalog(this);
         }
 
+        public Page getPage(int oneBasedPageNumber)
+        {
+            return catalog.getPage(oneBasedPageNumber);
+        }
+
         public int getNumPages()
         {
             return catalog.getNumPages();
