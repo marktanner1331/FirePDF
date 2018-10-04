@@ -36,7 +36,12 @@ namespace FirePDF.Tests
             PDF pdf = new PDF(file);
 
             Page page = pdf.getPage(1);
-            page.getContentStream();
+            Stream s = page.getContentStream();
+
+            using (System.IO.StreamReader streamReader = new System.IO.StreamReader(s))
+            {
+                string str = streamReader.ReadToEnd();
+            }
         }
     }
 }

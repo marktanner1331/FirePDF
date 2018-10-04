@@ -37,15 +37,20 @@ namespace FirePDF
 
         public Stream getContentStream()
         {
-            MemoryStream stream = new MemoryStream();
+            MemoryStream compositeStream = new MemoryStream();
 
             List<object> contents = (List<object>)underlyingDict["Contents"];
             foreach(ObjectReference objectReference in contents)
             {
-                
+                PDFContentStream contentStream = PDFReaderLevel1.readContentStream(pdf, objectReference);
+                using (Stream stream = contentStream.readStream())
+                {
+                    stream.CopyTo(compositeStream);
+                }
             }
 
-            return stream;
+            compositeStream.Position = 0;
+            return compositeStream;
         }
 
         public IEnumerable<Image> getImages()
