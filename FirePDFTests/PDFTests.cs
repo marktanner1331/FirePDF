@@ -24,5 +24,14 @@ namespace FirePDF.Tests
             string file = getPDFFolder() + "pb13332-cop-cats-091204.pdf";
             PDF pdf = new PDF(file);
         }
+
+        [TestMethod()]
+        public void numPagesTest()
+        {
+            string file = getPDFFolder() + "pb13332-cop-cats-091204.pdf";
+            PDF pdf = new PDF(file);
+
+            Assert.AreEqual(19, pdf.getNumPages());
+        }
     }
 }

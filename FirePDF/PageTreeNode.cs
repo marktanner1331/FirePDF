@@ -46,5 +46,23 @@ namespace FirePDF
                 }
             }
         }
+
+        internal int getNumPages()
+        {
+            int numPages = 0;
+            foreach(object node in pages)
+            {
+                if(node is PageTreeNode)
+                {
+                    numPages += ((PageTreeNode)node).getNumPages();
+                }
+                else
+                {
+                    numPages++;
+                }
+            }
+
+            return numPages;
+        }
     }
 }

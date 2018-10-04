@@ -31,6 +31,11 @@ namespace FirePDF
             catalog = new Catalog(this);
         }
 
+        public int getNumPages()
+        {
+            return catalog.getNumPages();
+        }
+
         private void parse()
         {
             Queue<long> xrefOffsets = new Queue<long>();

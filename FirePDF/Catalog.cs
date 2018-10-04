@@ -15,14 +15,19 @@ namespace FirePDF
         public Catalog(PDF pdf)
         {
             this.pdf = pdf;
+            pagesRoot = new PageTreeNode(pdf);
         }
 
         public void fromStream(ObjectReference objectReference)
         {
             Dictionary<string, object> dict = (Dictionary<string, object>)PDFReaderLevel1.readIndirectObject(pdf, objectReference);
-
-            pagesRoot = new PageTreeNode(pdf);
+            
             pagesRoot.fromStream((ObjectReference)dict["Pages"]);
+        }
+
+        internal int getNumPages()
+        {
+            return pagesRoot.getNumPages();
         }
     }
 }
