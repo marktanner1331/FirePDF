@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,6 +51,7 @@
     <Compile Include="PDFReaderLevel1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Trailer.cs" />
+    <Compile Include="XObjectImage.cs" />
     <Compile Include="XREFTable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
