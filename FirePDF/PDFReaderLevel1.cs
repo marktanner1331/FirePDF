@@ -10,6 +10,21 @@ namespace FirePDF
 {
     public static class PDFReaderLevel1
     {
+        public static PDFContentStream readContentStream(PDF pdf, ObjectReference objectReference)
+        {
+            Dictionary<string, object> dict = readIndirectDictionary(pdf, objectReference);
+            skipOverWhiteSpace(pdf.stream);
+            long startOfStream = pdf.stream.Position;
+
+            switch((string)dict["Filter"])
+            {
+                case "FlateDecode":
+                    return new FlateContentStream(pdf, dict, startOfStream);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         public static long readLastStartXREF(string chunk)
         {
             int offset = chunk.LastIndexOf("startxref");

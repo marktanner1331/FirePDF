@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,11 +16,36 @@ namespace FirePDF
         public Page(PDF pdf)
         {
             this.pdf = pdf;
+            
+            underlyingDict = getEmptyUnderlyingDict();
+        }
+
+        private Dictionary<string, object> getEmptyUnderlyingDict()
+        {
+            //TODO finish this
+            //and do the same with other underlying dicts?
+            return new Dictionary<string, object>
+            {
+                { "Contents", new List<ObjectReference>() }
+            };
         }
 
         public void fromDictionary(Dictionary<string, object> dict)
         {
             this.underlyingDict = dict;
+        }
+
+        public Stream getContentStream()
+        {
+            MemoryStream stream = new MemoryStream();
+
+            List<object> contents = (List<object>)underlyingDict["Contents"];
+            foreach(ObjectReference objectReference in contents)
+            {
+                
+            }
+
+            return stream;
         }
 
         public IEnumerable<Image> getImages()

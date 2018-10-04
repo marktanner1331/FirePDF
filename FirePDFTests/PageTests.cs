@@ -28,5 +28,15 @@ namespace FirePDF.Tests
             Page page = pdf.getPage(1);
             Assert.AreEqual(1, page.getImages().Count());
         }
+
+        [TestMethod()]
+        public void getContentStreamTest()
+        {
+            string file = getPDFFolder() + "pb13332-cop-cats-091204.pdf";
+            PDF pdf = new PDF(file);
+
+            Page page = pdf.getPage(1);
+            page.getContentStream();
+        }
     }
 }
