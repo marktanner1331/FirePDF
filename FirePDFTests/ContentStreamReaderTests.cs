@@ -26,7 +26,9 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
             Stream s = page.getContentStream();
-            ContentStreamReader.readContentStream(s);
+            List<Operation> operations = ContentStreamReader.readContentStream(s);
+
+            Assert.AreEqual(4858, operations.Count);
         }
     }
 }

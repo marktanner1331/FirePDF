@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FirePDF
 {
-    public static class PDFReaderLevel1
+    public static class PDFObjectReader
     {
         public static PDFContentStream readContentStream(PDF pdf, ObjectReference objectReference)
         {
@@ -180,7 +180,13 @@ namespace FirePDF
             }
         }
 
-        private static object readString(Stream stream)
+        /// <summary>
+        /// reads a string (wrapped in brackets) from the stream.
+        /// the position of the stream should be at the '('
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static object readString(Stream stream)
         {
             //skip over the (
             stream.Position++;
@@ -244,7 +250,11 @@ namespace FirePDF
                              .ToArray();
         }
 
-        private static List<object> readArray(Stream stream)
+        /// <summary>
+        /// reads an array from the stream. The streams position should be 
+        /// at the '['
+        /// </summary>
+        public static List<object> readArray(Stream stream)
         {
             //skip over the [
             stream.Position++;
@@ -268,7 +278,11 @@ namespace FirePDF
             }
         }
 
-        private static object readNumber(Stream stream)
+        /// <summary>
+        /// reads a number from the stream
+        /// the position of the stream should be the first character of the number
+        /// </summary>
+        public static object readNumber(Stream stream)
         {
             StringBuilder sb = new StringBuilder();
             while (true)
@@ -323,7 +337,13 @@ namespace FirePDF
             return new ObjectReference(number, generation);
         }
 
-        private static string readName(Stream stream)
+        /// <summary>
+        /// reads a name from the stream.
+        /// the position of the stream should be at the '/'
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static string readName(Stream stream)
         {
             //skip over the /
             stream.Position++;
