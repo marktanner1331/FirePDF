@@ -42,7 +42,7 @@ namespace FirePDF
             List<object> contents = (List<object>)underlyingDict["Contents"];
             foreach(ObjectReference objectReference in contents)
             {
-                PDFContentStream contentStream = PDFReaderLevel1.readContentStream(pdf, objectReference);
+                PDFContentStream contentStream = PDFObjectReader.readContentStream(pdf, objectReference);
                 using (Stream stream = contentStream.readStream())
                 {
                     stream.CopyTo(compositeStream);
@@ -70,7 +70,7 @@ namespace FirePDF
             Dictionary<string, object> xObjects = (Dictionary<string, object>)resources["XObject"];
             foreach(ObjectReference objectReference in xObjects.Values)
             {
-                Dictionary<string, object> xObjectDict = PDFReaderLevel1.readIndirectDictionary(pdf, objectReference);
+                Dictionary<string, object> xObjectDict = PDFObjectReader.readIndirectDictionary(pdf, objectReference);
                 if((string)xObjectDict["Subtype"] != "Image")
                 {
                     continue;

@@ -30,7 +30,7 @@ namespace FirePDF
         private static void readTokens(Stream stream, Action<string> foundOperator, Action<object> foundOperand)
         {
             char current = (char)stream.ReadByte();
-            if(current == )
+           
         }
     }
 }

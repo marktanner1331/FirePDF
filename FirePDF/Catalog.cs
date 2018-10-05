@@ -20,7 +20,7 @@ namespace FirePDF
 
         public void fromStream(ObjectReference objectReference)
         {
-            Dictionary<string, object> dict = (Dictionary<string, object>)PDFReaderLevel1.readIndirectObject(pdf, objectReference);
+            Dictionary<string, object> dict = (Dictionary<string, object>)PDFObjectReader.readIndirectObject(pdf, objectReference);
             
             pagesRoot.fromStream((ObjectReference)dict["Pages"]);
         }

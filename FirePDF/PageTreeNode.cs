@@ -20,7 +20,7 @@ namespace FirePDF
 
         public void fromStream(ObjectReference objectReference)
         {
-            Dictionary<string, object> dict = PDFReaderLevel1.readIndirectDictionary(pdf, objectReference);
+            Dictionary<string, object> dict = PDFObjectReader.readIndirectDictionary(pdf, objectReference);
             fromDictionary(dict);
         }
 
@@ -28,7 +28,7 @@ namespace FirePDF
         {
             foreach(ObjectReference objectReference in (List<object>)dict["Kids"])
             {
-                Dictionary<string, object> KidsDict = PDFReaderLevel1.readIndirectDictionary(pdf, objectReference);
+                Dictionary<string, object> KidsDict = PDFObjectReader.readIndirectDictionary(pdf, objectReference);
                 switch(KidsDict["Type"])
                 {
                     case "Page":

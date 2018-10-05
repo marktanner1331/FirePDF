@@ -48,7 +48,7 @@ namespace FirePDF
 
             stream.Position = Math.Max(0, stream.Length - 1024);
             string chunk = FileReader.readASCIIString(stream, 1024);
-            long lastOffset = PDFReaderLevel1.readLastStartXREF(chunk);
+            long lastOffset = PDFObjectReader.readLastStartXREF(chunk);
             xrefOffsets.Enqueue(lastOffset);
             
             Queue<long> xrefStreams = new Queue<long>();
