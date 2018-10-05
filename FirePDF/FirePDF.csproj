@@ -46,6 +46,7 @@
     <Compile Include="FileReader.cs" />
     <Compile Include="FlateContentStream.cs" />
     <Compile Include="ObjectReference.cs" />
+    <Compile Include="Operation.cs" />
     <Compile Include="Page.cs" />
     <Compile Include="PageTreeNode.cs" />
     <Compile Include="PDF.cs" />

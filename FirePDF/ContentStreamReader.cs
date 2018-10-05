@@ -9,11 +9,28 @@ namespace FirePDF
 {
     public static class ContentStreamReader
     {
-        public static void readContentStream(Stream decompressedStream)
+        public static List<Operation> readContentStream(Stream decompressedStream)
         {
-            StreamReader reader = new StreamReader(decompressedStream);
-            string commands = reader.ReadToEnd();
-            
+            List<Operation> operations = new List<Operation>();
+            Operation currentOperation = new Operation();
+
+            readTokens(
+                decompressedStream,
+                operatorName =>
+                {
+                    currentOperation.operatorName = operatorName;
+                    operations.Add(currentOperation);
+                    currentOperation = new Operation();
+                },
+                operand => currentOperation.operands.Add(operand));
+
+            return operations;
+        }
+
+        private static void readTokens(Stream stream, Action<string> foundOperator, Action<object> foundOperand)
+        {
+            char current = (char)stream.ReadByte();
+            if(current == )
         }
     }
 }
