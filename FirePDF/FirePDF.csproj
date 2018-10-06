@@ -45,6 +45,8 @@
     <Compile Include="Catalog.cs" />
     <Compile Include="FileReader.cs" />
     <Compile Include="FlateContentStream.cs" />
+    <Compile Include="GraphicsState.cs" />
+    <Compile Include="GraphicsStateProcessor.cs" />
     <Compile Include="ObjectReference.cs" />
     <Compile Include="Operation.cs" />
     <Compile Include="Page.cs" />
