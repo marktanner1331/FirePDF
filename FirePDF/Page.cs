@@ -36,6 +36,7 @@ namespace FirePDF
             this.underlyingDict = dict;
         }
 
+        //TODO move to PDFResources
         public IEnumerable<XObjectForm> getXObjectForms()
         {
             Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("Resources", "XObject");
@@ -58,6 +59,7 @@ namespace FirePDF
         /// returns the object at the given path, or null if it cannot be found
         /// automatically resolves any indirect references before returning them
         /// </summary>
+        /// TODO deprecate this as we can use PDFResources instead for most things
         public object getObjectAtPath(params string[] path)
         {
             if (path[0] == "Resources" && underlyingDict.ContainsKey("Resources") == false)
@@ -107,6 +109,7 @@ namespace FirePDF
             return root;
         }
 
+        //TODO move to PDFResources
         public IEnumerable<Image> getImages()
         {
             Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("Resources", "XObject");

@@ -23,10 +23,17 @@ namespace FirePDF.Model
 
         public Rectangle(List<object> array)
         {
-            left = (float)array[0];
-            bottom = (float)array[1];
-            right = (float)array[2];
-            top = (float)array[3];
+            left = objectToFloat(array[0]);
+            bottom = objectToFloat(array[1]);
+            right = objectToFloat(array[2]);
+            top = objectToFloat(array[3]);
+        }
+
+        private float objectToFloat(object value)
+        {
+            return value is int
+                ? (int)value
+                : (float)value;
         }
     }
 }

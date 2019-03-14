@@ -43,11 +43,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Catalog.cs" />
+    <Compile Include="Model\Rectangle.cs" />
     <Compile Include="Reading\ASCIIReader.cs" />
     <Compile Include="FlateContentStream.cs" />
     <Compile Include="GraphicsState.cs" />
     <Compile Include="GraphicsStateProcessor.cs" />
-    <Compile Include="IStreamProcessor.cs" />
+    <Compile Include="IStreamOwner.cs" />
     <Compile Include="ObjectReference.cs" />
     <Compile Include="Operation.cs" />
     <Compile Include="Page.cs" />
@@ -68,7 +69,6 @@
     <Compile Include="XREFTable.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Model\" />
     <Folder Include="Writing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

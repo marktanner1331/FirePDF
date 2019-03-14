@@ -41,6 +41,7 @@ namespace FirePDF
         /// returns the object at the given path, or null if it cannot be found
         /// automatically resolves any indirect references before returning them
         /// </summary>
+        /// TODO deprecate this as we can use PDFResources instead for most things
         public object getObjectAtPath(params string[] path)
         {
             object root = underlyingDict;
@@ -86,7 +87,8 @@ namespace FirePDF
 
         public PDFResources getResources()
         {
-            
+            Dictionary<string, object> resources = (Dictionary<string, object>)underlyingDict["Resources"];
+            return new PDFResources(pdf, resources);
         }
     }
 }

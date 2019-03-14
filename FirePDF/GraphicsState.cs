@@ -10,7 +10,7 @@ namespace FirePDF
     {
         public GraphicsState clone()
         {
-            throw new NotImplementedException();
+            return new GraphicsState();
         }
     }
 }
