@@ -47,7 +47,7 @@
     <Compile Include="Reading\ASCIIReader.cs" />
     <Compile Include="StreamHelpers\FlateContentStream.cs" />
     <Compile Include="Model\GraphicsState.cs" />
-    <Compile Include="GraphicsStateProcessor.cs" />
+    <Compile Include="Processors\GraphicsStateProcessor.cs" />
     <Compile Include="Model\IStreamOwner.cs" />
     <Compile Include="Model\ObjectReference.cs" />
     <Compile Include="Model\Operation.cs" />

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FirePDF
+namespace FirePDF.Processors
 {
     public class GraphicsStateProcessor
     {
