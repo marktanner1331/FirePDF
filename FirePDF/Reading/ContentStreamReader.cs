@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FirePDF
+namespace FirePDF.Reading
 {
     public static class ContentStreamReader
     {
@@ -39,25 +39,28 @@ namespace FirePDF
                 {
                     case '<': //either start of dict or hex string
                         {
-                            object obj = PDFObjectReader.readObject(stream);
+                            object obj = PDFReaderLayer1.readObject(stream);
                             foundOperand(obj);
                         }
                         break;
                     case '[':
                         {
-                            object obj = PDFObjectReader.readArray(stream);
+                            string s = ASCIIReader.readASCIIString(stream, 50);
+                            stream.Position -= 50;
+
+                            object obj = PDFReaderLayer1.readArray(stream);
                             foundOperand(obj);
                         }
                         break;
                     case '(':
                         {
-                            object obj = PDFObjectReader.readString(stream);
+                            object obj = PDFReaderLayer1.readString(stream);
                             foundOperand(obj);
                         }
                         break;
                     case '/':
                         {
-                            object obj = PDFObjectReader.readName(stream);
+                            object obj = PDFReaderLayer1.readName(stream);
                             foundOperand(obj);
                         }
                         break;
@@ -110,7 +113,6 @@ namespace FirePDF
                         }
                         break;
                     case 't':
-                    case 'R':
                     case 'I':
                     case ']':
                         throw new NotImplementedException("token not supported: " + current);
@@ -128,8 +130,19 @@ namespace FirePDF
                     case '+':
                     case '.':
                         {
-                            object obj = PDFObjectReader.readNumber(stream);
+                            object obj = PDFReaderLayer1.readNumber(stream);
                             foundOperand(obj);
+                        }
+                        break;
+                    case 'R':
+                        {
+                            string operatorName = readString(stream);
+                            switch (operatorName)
+                            {
+                                case "RG":
+                                    foundOperator(operatorName);
+                                    break;
+                            }
                         }
                         break;
                     default: //if it matches none of the above cases then it must be an operator
@@ -147,14 +160,28 @@ namespace FirePDF
             while (true)
             {
                 while (stream.ReadByte() != 'E') { }
-                if (stream.ReadByte() == 'I')
-                {
-                    return new List<object>();
-                }
-                else
+                if (stream.ReadByte() != 'I')
                 {
                     stream.Position--;
+                    continue;
                 }
+
+                byte nextByte = (byte)stream.ReadByte();
+                switch (nextByte)
+                {
+                    case 0x0d:
+                    case 0x0a:
+                    case 0x20:
+                        break;
+                    default:
+                        stream.Position -= 2;
+                        continue;
+                }
+
+                //TODO need more checks to ensure we are not in the middle of an inline image
+                //see PDFBox - PDFStreamParser.hasNoFollowingBinData() for more info
+
+                return new List<object>();
             }
         }
 

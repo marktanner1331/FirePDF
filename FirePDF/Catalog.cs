@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirePDF.Reading;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace FirePDF
 
         public void fromStream(ObjectReference objectReference)
         {
-            Dictionary<string, object> dict = (Dictionary<string, object>)PDFObjectReader.readIndirectObject(pdf, objectReference);
+            Dictionary<string, object> dict = (Dictionary<string, object>)PDFReaderLayer1.readIndirectObject(pdf, objectReference);
             
             pagesRoot.fromStream((ObjectReference)dict["Pages"]);
         }

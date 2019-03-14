@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirePDF.Reading;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -10,13 +11,13 @@ namespace FirePDF
 {
     public class Page
     {
-        private PDF pdf;
+        public PDF pdf { get; private set; }
         private Dictionary<string, object> underlyingDict;
 
         public Page(PDF pdf)
         {
             this.pdf = pdf;
-            
+
             underlyingDict = getEmptyUnderlyingDict();
         }
 
@@ -35,64 +36,93 @@ namespace FirePDF
             this.underlyingDict = dict;
         }
 
-        public Stream getContentStream()
+        public IEnumerable<XObjectForm> getXObjectForms()
         {
-            MemoryStream compositeStream = new MemoryStream();
-
-            List<object> contents;
-            if(underlyingDict["Contents"] is List<object>)
+            Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("Resources", "XObject");
+            if (xObjects == null)
             {
-                contents = (List<object>)underlyingDict["Contents"];
-            }
-            else if(underlyingDict["Contents"] is ObjectReference)
-            {
-                contents = (List<object>)PDFObjectReader.readIndirectObject(pdf, (ObjectReference)underlyingDict["Contents"]);
-            }
-            else
-            {
-                throw new Exception();
+                yield break;
             }
 
-            foreach(ObjectReference objectReference in contents)
+            foreach (ObjectReference objectReference in xObjects.Values)
             {
-                PDFContentStream contentStream = PDFObjectReader.readContentStream(pdf, objectReference);
-                using (Stream stream = contentStream.readStream())
+                object xObject = PDFReaderLayer1.readXObject(pdf, objectReference);
+                if (xObject is XObjectForm)
                 {
-                    stream.CopyTo(compositeStream);
+                    yield return (XObjectForm)xObject;
                 }
             }
-
-            compositeStream.Position = 0;
-            return compositeStream;
         }
 
-        public IEnumerable<Image> getImages()
+        /// <summary>
+        /// returns the object at the given path, or null if it cannot be found
+        /// automatically resolves any indirect references before returning them
+        /// </summary>
+        public object getObjectAtPath(params string[] path)
         {
-            if(underlyingDict.ContainsKey("Resources") == false)
+            if (path[0] == "Resources" && underlyingDict.ContainsKey("Resources") == false)
             {
                 //resources are inherited from tree
                 throw new NotImplementedException();
             }
 
-            Dictionary<string, object> resources = (Dictionary<string, object>)underlyingDict["Resources"];
-            if(resources.ContainsKey("XObject") == false)
+            object root = underlyingDict;
+            foreach (string part in path)
+            {
+                if (root is Dictionary<string, object>)
+                {
+                    Dictionary<string, object> temp = (Dictionary<string, object>)root;
+                    if (temp.ContainsKey(part))
+                    {
+                        root = temp[part];
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else if (root is List<object>)
+                {
+                    int index;
+                    if (int.TryParse(part, out index) == false)
+                    {
+                        return null;
+                    }
+
+                    List<object> temp = (List<object>)root;
+                    if (temp.Count <= index)
+                    {
+                        return null;
+                    }
+
+                    root = temp[index];
+                }
+
+                if (root is ObjectReference)
+                {
+                    root = PDFReaderLayer1.readIndirectObject(pdf, (ObjectReference)root);
+                }
+            }
+
+            return root;
+        }
+
+        public IEnumerable<Image> getImages()
+        {
+            Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("Resources", "XObject");
+            if (xObjects == null)
             {
                 yield break;
             }
 
-            Dictionary<string, object> xObjects = (Dictionary<string, object>)resources["XObject"];
-            foreach(ObjectReference objectReference in xObjects.Values)
+            foreach (ObjectReference objectReference in xObjects.Values)
             {
-                Dictionary<string, object> xObjectDict = PDFObjectReader.readIndirectDictionary(pdf, objectReference);
-                if((string)xObjectDict["Subtype"] != "Image")
+                object xObject = PDFReaderLayer1.readXObject(pdf, objectReference);
+                if (xObject is XObjectImage)
                 {
-                    continue;
+                    XObjectImage image = (XObjectImage)xObject;
+                    yield return image.getImage();
                 }
-
-                XObjectImage xObject = new XObjectImage(pdf);
-                xObject.fromDictionary(xObjectDict);
-
-                yield return xObject.getImage();
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirePDF.Reading;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,7 +49,7 @@ namespace FirePDF
 
             stream.Position = Math.Max(0, stream.Length - 1024);
             string chunk = ASCIIReader.readASCIIString(stream, 1024);
-            long lastOffset = PDFObjectReader.readLastStartXREF(chunk);
+            long lastOffset = PDFReaderLayer1.readLastStartXREF(chunk);
             xrefOffsets.Enqueue(lastOffset);
 
             Queue<long> xrefStreams = new Queue<long>();
@@ -59,7 +60,7 @@ namespace FirePDF
                 stream.Position = xrefOffsets.Dequeue();
 
                 Trailer trailer;
-                if (PDFObjectReader.isObjectHeader(stream))
+                if (PDFReaderLayer1.isObjectHeader(stream))
                 {
                     XREFStream xrefStream = new XREFStream();
                     xrefStream.fromStream(this);

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.IO;
 using System.Drawing;
+using FirePDF.Reading;
 
 namespace FirePDF.Tests
 {
@@ -30,13 +31,30 @@ namespace FirePDF.Tests
         }
 
         [TestMethod()]
+        public void readFormTest()
+        {
+            string file = getPDFFolder() + "page 24 fixed.pdf";
+            PDF pdf = new PDF(file);
+
+            Page page = pdf.getPage(1);
+
+            List<XObjectForm> forms = page.getXObjectForms().ToList();
+            XObjectForm form = forms.First();
+
+            Stream s = PDFReaderLayer2.readContentStream(form);
+            List<Operation> operations = ContentStreamReader.readContentStream(s);
+
+            Assert.AreEqual(600, operations.Count);
+        }
+
+        [TestMethod()]
         public void getContentStreamTest()
         {
             string file = getPDFFolder() + "pb13332-cop-cats-091204.pdf";
             PDF pdf = new PDF(file);
 
             Page page = pdf.getPage(1);
-            Stream s = page.getContentStream();
+            Stream s = PDFReaderLayer2.readContentStream(page);
 
             using (System.IO.StreamReader streamReader = new System.IO.StreamReader(s))
             {

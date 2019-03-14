@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using FirePDF.Reading;
 
 namespace FirePDF
 {
+    //pdf 7.5.8
     public class XREFStream
     {
         public Trailer trailer { get; private set; }
@@ -15,21 +17,33 @@ namespace FirePDF
         /// </summary>
         public void fromStream(PDF pdf)
         {
-            PDFObjectReader.skipOverObjectHeader(pdf.stream);
-            Dictionary<string, object> dict = PDFObjectReader.readDictionary(pdf.stream);
+            PDFReaderLayer1.skipOverObjectHeader(pdf.stream);
+            Dictionary<string, object> dict = PDFReaderLayer1.readDictionary(pdf.stream);
 
             trailer = new Trailer();
             trailer.fromDictionary(dict);
 
-            PDFObjectReader.skipOverWhiteSpace(pdf.stream);
+            PDFReaderLayer1.skipOverWhiteSpace(pdf.stream);
             long startOfStream = pdf.stream.Position;
 
-            PDFContentStream contentStream = PDFObjectReader.readContentStream(pdf, dict, startOfStream);
+            PDFContentStream contentStream = PDFReaderLayer1.readContentStream(pdf, dict, startOfStream);
 
             using (Stream inner = contentStream.readStream())
             {
                 int size = (int)dict["Size"];
-                List<int> index = ((List<object>)dict["Index"]).Cast<int>().ToList();
+
+                //An array containing a pair of integers for each subsection in this section.
+                //Default value: [0 Size].
+                List<int> index;
+                if(dict.ContainsKey("Index"))
+                {
+                    index = ((List<object>)dict["Index"]).Cast<int>().ToList();
+                }
+                else
+                {
+                    index = new List<int> { 0, size };
+                }
+
                 List<int> w = ((List<object>)dict["W"]).Cast<int>().ToList();
 
                 List<Tuple<int, int>> sections = new List<Tuple<int, int>>();

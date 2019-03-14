@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Reflection;
+using FirePDF.Reading;
 
 namespace FirePDF.Tests
 {
@@ -25,7 +26,7 @@ namespace FirePDF.Tests
             PDF pdf = new PDF(file);
 
             Page page = pdf.getPage(1);
-            Stream s = page.getContentStream();
+            Stream s = PDFReaderLayer2.readContentStream(page);
             List<Operation> operations = ContentStreamReader.readContentStream(s);
 
             Assert.AreEqual(4858, operations.Count);

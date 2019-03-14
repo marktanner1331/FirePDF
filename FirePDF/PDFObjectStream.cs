@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirePDF.Reading;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace FirePDF
         /// <param name="objectNumber">the indirect reference to the object</param>
         public PDFObjectStream(PDF pdf, int objectNumber)
         {
-            contentStream = PDFObjectReader.readContentStream(pdf, objectNumber, 0);
+            contentStream = PDFReaderLayer1.readContentStream(pdf, objectNumber, 0);
 
             if((string)contentStream.streamDictionary["Type"] != "ObjStm")
             {
@@ -74,7 +75,7 @@ namespace FirePDF
 
                 stream.Position = offset;
 
-                return PDFObjectReader.readObject(stream);
+                return PDFReaderLayer1.readObject(stream);
             }
         }
     }

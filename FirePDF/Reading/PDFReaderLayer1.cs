@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace FirePDF
+namespace FirePDF.Reading
 {
-    public static class PDFObjectReader
+    public static class PDFReaderLayer1
     {
         public static PDFContentStream readContentStream(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
@@ -89,6 +90,31 @@ namespace FirePDF
             }
 
             skipOverWhiteSpace(stream);
+        }
+
+        /// <summary>
+        /// reads an xObject at the given objectReference
+        /// </summary>
+        /// <returns>either an XObjectImage, XObjectForm</returns>
+        public static object readXObject(PDF pdf, ObjectReference objectReference)
+        {
+            Dictionary<string, object> dict = readIndirectDictionary(pdf, objectReference);
+            skipOverWhiteSpace(pdf.stream);
+            long startOfStream = pdf.stream.Position;
+
+            if ((string)dict["Subtype"] == "Form")
+            {
+                return new XObjectForm(pdf, dict, startOfStream);
+            }
+            else if((string)dict["Subtype"] == "Image")
+            {
+                XObjectImage image = new XObjectImage(pdf);
+                image.fromDictionary(dict);
+
+                return image;
+            }
+
+            throw new Exception($"XObject not found at {objectReference.ToString()}");
         }
 
         public static Dictionary<string, object> readIndirectDictionary(PDF pdf, ObjectReference objectReference)
@@ -405,8 +431,6 @@ namespace FirePDF
 
             while (true)
             {
-                array.Add(readObject(stream));
-
                 skipOverWhiteSpace(stream);
 
                 if (stream.ReadByte() == ']')
@@ -417,6 +441,8 @@ namespace FirePDF
                 {
                     stream.Position--;
                 }
+
+                array.Add(readObject(stream));
             }
         }
 

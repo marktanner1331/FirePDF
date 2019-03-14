@@ -1,25 +1,27 @@
-﻿using System;
+﻿using FirePDF.Model;
+using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FirePDF
 {
-    class GraphicsStateProcessor
+    public class GraphicsStateProcessor
     {
-        private IStreamProcessor streamProcessor;
+        private IStreamOwner streamOwner;
         private Stack<GraphicsState> graphicsStack;
         
         /// <summary>
         /// initializes a new graphics state processor
         /// </summary>
-        /// <param name="streamProcessor">the graphics state processor will need access to the resources, i.e. for fonts, color spaces etc</param>
-        public GraphicsStateProcessor(IStreamProcessor streamProcessor, RectangleF initialClippingPath)
+        /// <param name="streamOwner">the graphics state processor will need access to the resources, i.e. for fonts, color spaces etc</param>
+        public GraphicsStateProcessor(IStreamOwner streamOwner, Rectangle initialClippingPath)
         {
-            this.streamProcessor = streamProcessor;
+            this.streamOwner = streamOwner;
+
             this.graphicsStack = new Stack<GraphicsState>();
+            this.graphicsStack.Push(new GraphicsState());
         }
 
         public void processOperation(Operation operation)

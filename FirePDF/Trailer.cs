@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirePDF.Reading;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,8 +27,8 @@ namespace FirePDF
                 throw new Exception("trailer not found at current position");
             }
 
-            PDFObjectReader.skipOverWhiteSpace(stream);
-            Dictionary<string, object> dict = PDFObjectReader.readDictionary(stream);
+            PDFReaderLayer1.skipOverWhiteSpace(stream);
+            Dictionary<string, object> dict = PDFReaderLayer1.readDictionary(stream);
 
             fromDictionary(dict);
         }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FirePDF
 {
-    public interface IStreamProcessor
+    public interface IStreamOwner
     {
         PDFResources getResources();
     }

@@ -16,5 +16,10 @@ namespace FirePDF
             this.objectNumber = objectNumber;
             this.generation = generation;
         }
+
+        public override string ToString()
+        {
+            return $"{objectNumber} {generation} R";
+        }
     }
 }
