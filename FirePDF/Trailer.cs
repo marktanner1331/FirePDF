@@ -20,8 +20,8 @@ namespace FirePDF
 
         public void fromStream(Stream stream)
         {
-            string keyword = FileReader.readASCIIString(stream, 7);
-            if(keyword != "trailer")
+            string keyword = ASCIIReader.readASCIIString(stream, 7);
+            if (keyword != "trailer")
             {
                 throw new Exception("trailer not found at current position");
             }
@@ -29,9 +29,14 @@ namespace FirePDF
             PDFObjectReader.skipOverWhiteSpace(stream);
             Dictionary<string, object> dict = PDFObjectReader.readDictionary(stream);
 
-            foreach(var pair in dict)
+            fromDictionary(dict);
+        }
+
+        public void fromDictionary(Dictionary<string, object> dict)
+        {
+            foreach (var pair in dict)
             {
-                switch(pair.Key)
+                switch (pair.Key)
                 {
                     case "Size":
                         size = (int)pair.Value;
@@ -43,7 +48,19 @@ namespace FirePDF
                         info = (ObjectReference)pair.Value;
                         break;
                     case "ID":
-                        id = ((List<object>)pair.Value).Cast<byte[]>().ToList();
+                        if (((List<object>)pair.Value).All(X => X is string))
+                        {
+                            id = ((List<object>)pair.Value)
+                                .Select(x => ((string)x)
+                                    .ToCharArray()
+                                    .Select(y => (byte)y)
+                                    .ToArray())
+                                .ToList();
+                        }
+                        else
+                        {
+                            id = ((List<object>)pair.Value).Cast<byte[]>().ToList();
+                        }
                         break;
                     case "Prev":
                         prev = (int)pair.Value;

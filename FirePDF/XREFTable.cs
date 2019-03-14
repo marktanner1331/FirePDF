@@ -11,16 +11,80 @@ namespace FirePDF
 {
     public class XREFTable
     {
-        private Dictionary<long, long> usedRecords;
+        public struct XREFRecord
+        {
+            public int objectNumber;
+            public int generation;
+            public bool isCompressed;
+
+            /// <summary>
+            /// if isCompressed is false, this is the offset of the object
+            /// </summary>
+            public long offset;
+
+            /// <summary>
+            /// if isCompressed, this is the number of the object whose stream stores this object
+            /// </summary>
+            public int compressedObjectNumber;
+        }
+
+        private Dictionary<long, XREFRecord> usedRecords;
+
+        /// <summary>
+        /// a set of free records, stored as hashes
+        /// </summary>
+        private HashSet<long> freeRecords;
 
         public XREFTable()
         {
-            usedRecords = new Dictionary<long, long>();
+            usedRecords = new Dictionary<long, XREFRecord>();
+            freeRecords = new HashSet<long>();
         }
 
-        public long getOffsetForRecord(int objectNumber, int generation)
+        /// <summary>
+        /// manually add an xref record to the table. if it already exists then it will be overwritten
+        /// </summary>
+        public void addRecord(XREFRecord record)
         {
-            return usedRecords[(((long)objectNumber) << 32) + generation];
+            long hash = ((record.objectNumber & 0xffffffff) << 16) + (record.generation & 0xffff);
+            usedRecords[hash] = record;
+
+            //just in case its marked as free
+            freeRecords.Remove(hash);
+        }
+
+        /// <summary>
+        /// marks an object as free. if it already exists as a used record then it is skipped
+        /// </summary>
+        public void addFreeRecord(int objectNumber, int generation)
+        {
+            long hash = ((objectNumber & 0xffffffff) << 16) + (generation & 0xffff);
+
+            if (usedRecords.ContainsKey(hash))
+            {
+                return;
+            }
+
+            freeRecords.Add(hash);
+        }
+
+        private void getRecordFromHash(long hash, out int objectNumber, out int generation)
+        {
+            generation = (int)(hash & 0xffff);
+            hash >>= 16;
+
+            objectNumber = (int)(hash & 0xffffffff);
+        }
+
+        public XREFRecord getXREFRecord(ObjectReference indirectReference)
+        {
+            return getXREFRecord(indirectReference.objectNumber, indirectReference.generation);
+        }
+
+        public XREFRecord getXREFRecord(int objectNumber, int generation)
+        {
+            long hash = ((objectNumber & 0xffffffff) << 16) + (generation & 0xffff);
+            return usedRecords[hash];
         }
 
         /// <summary>
@@ -38,6 +102,13 @@ namespace FirePDF
 
                 usedRecords[pair.Key] = pair.Value;
             }
+
+            foreach(long hash in table.freeRecords)
+            {
+                freeRecords.Add(hash);
+            }
+
+            freeRecords.RemoveWhere(x => usedRecords.ContainsKey(x));
         }
 
         /// <summary>
@@ -56,7 +127,7 @@ namespace FirePDF
 
         private bool parseXREFSection(Stream stream)
         {
-            string firstLine = FileReader.readLine(stream);
+            string firstLine = ASCIIReader.readLine(stream);
             if (firstLine != "xref")
             {
                 return false;
@@ -75,7 +146,7 @@ namespace FirePDF
 
         private bool parseXREFSubSection(Stream stream)
         {
-            string header = FileReader.readLine(stream);
+            string header = ASCIIReader.readLine(stream);
             Match headerMatch = Regex.Match(header, @"^(\d+) (\d+)$");
 
             if (headerMatch.Success == false)
@@ -88,19 +159,28 @@ namespace FirePDF
 
             for (int i = 0; i < length; i++)
             {
-                string record = FileReader.readLine(stream);
+                int objectNumber = firstObjectNumber + i;
+
+                string record = ASCIIReader.readLine(stream);
 
                 long offset = long.Parse(record.Substring(0, 10));
                 int generation = int.Parse(record.Substring(11, 6));
                 char type = record[17];
 
+                long hash = ((objectNumber & 0xffffffff) << 16) + (generation & 0xffff);
+
                 if (type == 'n')
                 {
-                    long objectNumber = firstObjectNumber + i;
-                    long hash = objectNumber << 32;
-                    hash += generation;
-
-                    usedRecords[hash] = offset;
+                    usedRecords[hash] = new XREFRecord
+                    {
+                        objectNumber = objectNumber,
+                        generation = generation,
+                        offset = offset
+                    };
+                }
+                else
+                {
+                    freeRecords.Add(hash);
                 }
             }
 

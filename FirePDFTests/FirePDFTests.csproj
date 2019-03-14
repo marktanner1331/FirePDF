@@ -58,9 +58,13 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ContentStreamReaderTests.cs" />
+    <Compile Include="MiscTests.cs" />
     <Compile Include="PageTests.cs" />
+    <Compile Include="PDFObjectReaderTests.cs" />
     <Compile Include="PDFTests.cs" />
+    <Compile Include="PNGPredictorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XREFStreamTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

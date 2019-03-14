@@ -10,7 +10,7 @@ namespace FirePDF
     public class PDF
     {
         public Stream stream;
-        public XREFTable readTable;
+        public XREFTable readableTable;
         private Catalog catalog;
 
         public PDF(string fullFilePath) : this(File.OpenRead(fullFilePath))
@@ -21,13 +21,13 @@ namespace FirePDF
         public PDF(Stream stream) : this()
         {
             this.stream = stream;
-            
+
             parse();
         }
 
         public PDF()
         {
-            readTable = new XREFTable();
+            readableTable = new XREFTable();
             catalog = new Catalog(this);
         }
 
@@ -47,26 +47,39 @@ namespace FirePDF
             HashSet<long> readOffsets = new HashSet<long>();
 
             stream.Position = Math.Max(0, stream.Length - 1024);
-            string chunk = FileReader.readASCIIString(stream, 1024);
+            string chunk = ASCIIReader.readASCIIString(stream, 1024);
             long lastOffset = PDFObjectReader.readLastStartXREF(chunk);
             xrefOffsets.Enqueue(lastOffset);
-            
+
             Queue<long> xrefStreams = new Queue<long>();
             ObjectReference root = null;
-            
+
             while (xrefOffsets.Any())
             {
                 stream.Position = xrefOffsets.Dequeue();
 
-                XREFTable table = new XREFTable();
-                table.fromStream(stream);
+                Trailer trailer;
+                if (PDFObjectReader.isObjectHeader(stream))
+                {
+                    XREFStream xrefStream = new XREFStream();
+                    xrefStream.fromStream(this);
 
-                readTable.mergeIn(table);
+                    readableTable.mergeIn(xrefStream.table);
 
-                Trailer trailer = new Trailer();
-                trailer.fromStream(stream);
+                    trailer = xrefStream.trailer;
+                }
+                else
+                {
+                    XREFTable table = new XREFTable();
+                    table.fromStream(stream);
 
-                if(root == null)
+                    readableTable.mergeIn(table);
+
+                    trailer = new Trailer();
+                    trailer.fromStream(stream);
+                }
+                
+                if (root == null)
                 {
                     root = trailer.root;
                 }

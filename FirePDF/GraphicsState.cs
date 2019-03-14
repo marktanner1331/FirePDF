@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace FirePDF
 {
-    class GraphicsState
+    public class GraphicsState
     {
+        public GraphicsState clone()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -39,7 +39,20 @@ namespace FirePDF
         {
             MemoryStream compositeStream = new MemoryStream();
 
-            List<object> contents = (List<object>)underlyingDict["Contents"];
+            List<object> contents;
+            if(underlyingDict["Contents"] is List<object>)
+            {
+                contents = (List<object>)underlyingDict["Contents"];
+            }
+            else if(underlyingDict["Contents"] is ObjectReference)
+            {
+                contents = (List<object>)PDFObjectReader.readIndirectObject(pdf, (ObjectReference)underlyingDict["Contents"]);
+            }
+            else
+            {
+                throw new Exception();
+            }
+
             foreach(ObjectReference objectReference in contents)
             {
                 PDFContentStream contentStream = PDFObjectReader.readContentStream(pdf, objectReference);

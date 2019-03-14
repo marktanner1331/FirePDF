@@ -10,8 +10,6 @@ namespace FirePDF
 {
     class FlateContentStream : PDFContentStream
     {
-        private PDF pdf;
-        private Dictionary<string, object> dict;
         private long startOfStream;
 
         /// <summary>
@@ -20,18 +18,19 @@ namespace FirePDF
         /// <param name="pdf"></param>
         /// <param name="dict">the stream dictionary</param>
         /// <param name="startOfStream">the offset of the 'stream' keywords</param>
-        public FlateContentStream(PDF pdf, Dictionary<string, object> dict, long startOfStream)
+        public FlateContentStream(PDF pdf, Dictionary<string, object> dict, long startOfStream) : base(pdf, dict)
         {
-            this.pdf = pdf;
-            this.dict = dict;
             this.startOfStream = startOfStream;
         }
 
+        /// <summary>
+        /// returns a seekable stream
+        /// </summary>
         public override Stream readStream()
         {
             pdf.stream.Position = startOfStream;
-            string chunk = FileReader.readASCIIString(pdf.stream, 6);
-            if(chunk != "stream")
+            string chunk = ASCIIReader.readASCIIString(pdf.stream, 6);
+            if (chunk != "stream")
             {
                 throw new Exception();
             }
@@ -41,18 +40,39 @@ namespace FirePDF
             //http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
             pdf.stream.Position += 2;
 
-            int length = (int)dict["Length"];
+            int length = (int)streamDictionary["Length"] - 2;
+
             byte[] buffer = new byte[length];
             pdf.stream.Read(buffer, 0, length);
-            
+
             PDFObjectReader.skipOverWhiteSpace(pdf.stream);
-            chunk = FileReader.readASCIIString(pdf.stream, 9);
+            chunk = ASCIIReader.readASCIIString(pdf.stream, 9);
             if (chunk != "endstream")
             {
                 throw new Exception();
             }
 
-            return new DeflateStream(new MemoryStream(buffer), CompressionMode.Decompress);
+            using (DeflateStream decompressionStream = new DeflateStream(new MemoryStream(buffer), CompressionMode.Decompress))
+            {
+                MemoryStream decompressed = new MemoryStream();
+                decompressionStream.CopyTo(decompressed);
+
+                if (streamDictionary.ContainsKey("DecodeParms") == false)
+                {
+                    decompressed.Seek(0, SeekOrigin.Begin);
+                    return decompressed;
+                }
+                else
+                {
+                    int columns = (int)((Dictionary<string, object>)streamDictionary["DecodeParms"])["Columns"];
+
+                    byte[] predictedBytes = decompressed.ToArray();
+                    byte[] plainBytes = PNGPredictor.decompress(predictedBytes, columns);
+
+                    decompressed.Dispose();
+                    return new MemoryStream(plainBytes);
+                }
+            }
         }
     }
 }

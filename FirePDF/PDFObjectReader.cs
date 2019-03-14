@@ -10,21 +10,44 @@ namespace FirePDF
 {
     public static class PDFObjectReader
     {
+        public static PDFContentStream readContentStream(PDF pdf, XREFTable.XREFRecord xrefRecord)
+        {
+            Dictionary<string, object> dict = readIndirectDictionary(pdf, xrefRecord);
+            skipOverWhiteSpace(pdf.stream);
+            long startOfStream = pdf.stream.Position;
+
+            return readContentStream(pdf, dict, startOfStream);
+        }
+
         public static PDFContentStream readContentStream(PDF pdf, ObjectReference objectReference)
         {
             Dictionary<string, object> dict = readIndirectDictionary(pdf, objectReference);
             skipOverWhiteSpace(pdf.stream);
             long startOfStream = pdf.stream.Position;
 
-            switch((string)dict["Filter"])
+            return readContentStream(pdf, dict, startOfStream);
+        }
+
+        public static PDFContentStream readContentStream(PDF pdf, Dictionary<string, object> streamDictionary, long startOfStream)
+        {
+            switch ((string)streamDictionary["Filter"])
             {
                 case "FlateDecode":
-                    return new FlateContentStream(pdf, dict, startOfStream);
+                    return new FlateContentStream(pdf, streamDictionary, startOfStream);
                 default:
                     throw new NotImplementedException();
             }
         }
 
+        public static PDFContentStream readContentStream(PDF pdf, int objectNumber, int generation)
+        {
+            Dictionary<string, object> dict = readIndirectDictionary(pdf, objectNumber, generation);
+            skipOverWhiteSpace(pdf.stream);
+            long startOfStream = pdf.stream.Position;
+
+            return readContentStream(pdf, dict, startOfStream);
+        }
+        
         public static long readLastStartXREF(string chunk)
         {
             int offset = chunk.LastIndexOf("startxref");
@@ -33,22 +56,34 @@ namespace FirePDF
             return long.Parse(Regex.Match(chunk, @"(\d+)").Groups[1].Value);
         }
 
+        /// <summary>
+        /// returns true if the streams position is currently at an object header
+        /// does not modify the position of the stream
+        /// </summary>
+        public static bool isObjectHeader(Stream stream)
+        {
+            string start = ASCIIReader.readASCIIString(stream, 32);
+            stream.Position -= 32;
+
+            return Regex.IsMatch(start, @"^\d+ \d+ obj");
+        }
+
         public static void skipOverObjectHeader(Stream stream)
         {
-            int objectNumber = FileReader.readASCIIInteger(stream);
-            if(stream.ReadByte() != ' ')
+            int objectNumber = ASCIIReader.readASCIIInteger(stream);
+            if (stream.ReadByte() != ' ')
             {
                 throw new Exception();
             }
 
-            int generation = FileReader.readASCIIInteger(stream);
-            if(stream.ReadByte() != ' ')
+            int generation = ASCIIReader.readASCIIInteger(stream);
+            if (stream.ReadByte() != ' ')
             {
                 throw new Exception();
             }
 
-            string s = FileReader.readASCIIString(stream, 3);
-            if(s != "obj")
+            string s = ASCIIReader.readASCIIString(stream, 3);
+            if (s != "obj")
             {
                 throw new Exception();
             }
@@ -61,14 +96,48 @@ namespace FirePDF
             return (Dictionary<string, object>)readIndirectObject(pdf, objectReference);
         }
 
+        public static Dictionary<string, object> readIndirectDictionary(PDF pdf, XREFTable.XREFRecord xrefRecord)
+        {
+            return (Dictionary<string, object>)readIndirectObject(pdf, xrefRecord);
+        }
+
+        public static Dictionary<string, object> readIndirectDictionary(PDF pdf, int objectNumber, int generation)
+        {
+            return (Dictionary<string, object>)readIndirectObject(pdf, objectNumber, generation);
+        }
+
         /// <summary>
         /// reads an indirect object from the PDF
         /// </summary>
         public static object readIndirectObject(PDF pdf, ObjectReference objectReference)
         {
-            pdf.stream.Position = pdf.readTable.getOffsetForRecord(objectReference.objectNumber, objectReference.generation);
+            XREFTable.XREFRecord record = pdf.readableTable.getXREFRecord(objectReference);
+            return readIndirectObject(pdf, record);
+        }
+
+        public static object readIndirectObject(PDF pdf, int objectNumber, int generation)
+        {
+            XREFTable.XREFRecord record = pdf.readableTable.getXREFRecord(objectNumber, generation);
+            return readIndirectObject(pdf, record);
+        }
+
+        public static object readIndirectObject(PDF pdf, XREFTable.XREFRecord xrefRecord)
+        {
+            if (xrefRecord.isCompressed)
+            {
+                return readCompressedObject(pdf, xrefRecord);
+            }
+
+            pdf.stream.Position = xrefRecord.offset;
             skipOverObjectHeader(pdf.stream);
+
             return readObject(pdf.stream);
+        }
+
+        private static object readCompressedObject(PDF pdf, XREFTable.XREFRecord xrefRecord)
+        {
+            PDFObjectStream objectStream = new PDFObjectStream(pdf, xrefRecord.compressedObjectNumber);
+            return objectStream.readObject(xrefRecord.objectNumber);
         }
 
         /// <summary>
@@ -118,25 +187,25 @@ namespace FirePDF
             {
                 return readName(stream);
             }
-            else if(current == '(')
+            else if (current == '(')
             {
                 return readString(stream);
             }
-            else if(current == '[')
+            else if (current == '[')
             {
                 return readArray(stream);
             }
-            else if(current == 't')
+            else if (current == 't')
             {
                 return readBoolean(stream);
             }
-            else if(current == '<')
+            else if (current == '<')
             {
                 stream.Position++;
                 char current2 = (char)stream.ReadByte();
                 stream.Position -= 2;
 
-                if(current2 == '<')
+                if (current2 == '<')
                 {
                     return readDictionary(stream);
                 }
@@ -167,8 +236,8 @@ namespace FirePDF
 
         private static object readBoolean(Stream stream)
         {
-            string text = FileReader.readASCIIString(stream, 4);
-            switch(text)
+            string text = ASCIIReader.readASCIIString(stream, 4);
+            switch (text)
             {
                 case "true":
                     return true;
@@ -184,10 +253,10 @@ namespace FirePDF
         /// reads a string (wrapped in brackets) from the stream.
         /// the position of the stream should be at the '('
         /// </summary>
-        /// <param name="stream"></param>
-        /// <returns></returns>
-        public static object readString(Stream stream)
+        public static string readString(Stream stream)
         {
+            //7.3.4.2
+
             //skip over the (
             stream.Position++;
 
@@ -200,14 +269,77 @@ namespace FirePDF
                 switch ((char)current)
                 {
                     case '\\':
-                        throw new Exception();
+                        current = (byte)stream.ReadByte();
+                        switch ((char)current)
+                        {
+                            case 'n':
+                                sb.Append('\n');
+                                break;
+                            case 'r':
+                                sb.Append('\r');
+                                break;
+                            case 't':
+                                sb.Append('\t');
+                                break;
+                            case 'b':
+                                sb.Append('\b');
+                                break;
+                            case 'f':
+                                sb.Append('\f');
+                                break;
+                            case '(':
+                            case ')':
+                            case '\\':
+                                goto default;
+                            case '\r':
+                                if (stream.ReadByte() == '\n')
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    stream.Position--;
+                                    continue;
+                                }
+                            case '\n':
+                                continue;
+                            case '0':
+                            case '1':
+                            case '2':
+                            case '3':
+                            case '4':
+                            case '5':
+                            case '6':
+                            case '7':
+                            case '8':
+                            case '9':
+                                int k = current - '0';
+                                for (int i = 0; i < 2; i++)
+                                {
+                                    current = (byte)stream.ReadByte();
+                                    if (current < '0' || current > '9')
+                                    {
+                                        stream.Position--;
+                                        break;
+                                    }
+
+                                    k *= 8;
+                                    k += current - '0';
+                                }
+
+                                sb.Append((char)k);
+                                break;
+                            default:
+                                sb.Append((char)current);
+                                break;
+                        }
                         break;
                     case '(':
                         count++;
                         goto default;
                     case ')':
                         count--;
-                        if(count == 0)
+                        if (count == 0)
                         {
                             return sb.ToString();
                         }
@@ -215,6 +347,16 @@ namespace FirePDF
                         {
                             goto default;
                         }
+                    case '\r':
+                        sb.Append((char)0x0a);
+                        if (stream.ReadByte() != '\n')
+                        {
+                            stream.Position--;
+                        }
+                        break;
+                    case '\n':
+                        sb.Append((char)0x0a);
+                        break;
                     default:
                         sb.Append((char)current);
                         break;
@@ -261,13 +403,13 @@ namespace FirePDF
 
             List<object> array = new List<object>();
 
-            while(true)
+            while (true)
             {
                 array.Add(readObject(stream));
 
                 skipOverWhiteSpace(stream);
 
-                if(stream.ReadByte() == ']')
+                if (stream.ReadByte() == ']')
                 {
                     return array;
                 }
@@ -292,7 +434,7 @@ namespace FirePDF
                 {
                     sb.Append((char)current);
                 }
-                else if(".-".Contains((char)current))
+                else if (".-".Contains((char)current))
                 {
                     sb.Append((char)current);
                 }
@@ -300,7 +442,7 @@ namespace FirePDF
                 {
                     stream.Position--;
                     float f = float.Parse(sb.ToString());
-                    if(f == (int)f)
+                    if (f == (int)f)
                     {
                         return (int)f;
                     }
@@ -314,14 +456,14 @@ namespace FirePDF
 
         private static ObjectReference readObjectReference(Stream stream)
         {
-            int number = FileReader.readASCIIInteger(stream);
-            
-            if(stream.ReadByte() != ' ')
+            int number = ASCIIReader.readASCIIInteger(stream);
+
+            if (stream.ReadByte() != ' ')
             {
                 throw new Exception();
             }
 
-            int generation = FileReader.readASCIIInteger(stream);
+            int generation = ASCIIReader.readASCIIInteger(stream);
 
             if (stream.ReadByte() != ' ')
             {
@@ -329,7 +471,7 @@ namespace FirePDF
             }
 
             char r = (char)stream.ReadByte();
-            if(r != 'R')
+            if (r != 'R')
             {
                 throw new Exception();
             }
@@ -350,10 +492,10 @@ namespace FirePDF
 
             StringBuilder sb = new StringBuilder();
 
-            while(true)
+            while (true)
             {
                 byte current = (byte)stream.ReadByte();
-                if(current >= 'a' && current <= 'z')
+                if (current >= 'a' && current <= 'z')
                 {
                     sb.Append((char)current);
                 }
@@ -361,11 +503,11 @@ namespace FirePDF
                 {
                     sb.Append((char)current);
                 }
-                else if(current >='0' && current <= '9')
+                else if (current >= '0' && current <= '9')
                 {
                     sb.Append((char)current);
                 }
-                else if(current == '_')
+                else if (current == '_' || current == '.')
                 {
                     sb.Append((char)current);
                 }
