@@ -1,4 +1,5 @@
-﻿using FirePDF.Reading;
+﻿using FirePDF.Model;
+using FirePDF.Reading;
 using System;
 using System.Collections.Generic;
 using System.IO;

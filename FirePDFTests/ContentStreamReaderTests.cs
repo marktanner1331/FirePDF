@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Reflection;
 using FirePDF.Reading;
+using FirePDF.Model;
 
 namespace FirePDF.Tests
 {

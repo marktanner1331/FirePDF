@@ -9,6 +9,7 @@ using System.Reflection;
 using System.IO;
 using System.Drawing;
 using FirePDF.Reading;
+using FirePDF.Model;
 
 namespace FirePDF.Tests
 {

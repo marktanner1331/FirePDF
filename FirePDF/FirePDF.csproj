@@ -42,31 +42,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Catalog.cs" />
+    <Compile Include="Model\Catalog.cs" />
     <Compile Include="Model\Rectangle.cs" />
     <Compile Include="Reading\ASCIIReader.cs" />
-    <Compile Include="FlateContentStream.cs" />
-    <Compile Include="GraphicsState.cs" />
+    <Compile Include="StreamHelpers\FlateContentStream.cs" />
+    <Compile Include="Model\GraphicsState.cs" />
     <Compile Include="GraphicsStateProcessor.cs" />
-    <Compile Include="IStreamOwner.cs" />
-    <Compile Include="ObjectReference.cs" />
-    <Compile Include="Operation.cs" />
+    <Compile Include="Model\IStreamOwner.cs" />
+    <Compile Include="Model\ObjectReference.cs" />
+    <Compile Include="Model\Operation.cs" />
     <Compile Include="Page.cs" />
-    <Compile Include="PageTreeNode.cs" />
+    <Compile Include="Model\PageTreeNode.cs" />
     <Compile Include="PDF.cs" />
-    <Compile Include="PDFContentStream.cs" />
+    <Compile Include="Model\PDFContentStream.cs" />
     <Compile Include="Reading\PDFReaderLayer1.cs" />
-    <Compile Include="PDFObjectStream.cs" />
+    <Compile Include="Model\PDFObjectStream.cs" />
     <Compile Include="Reading\PDFReaderLayer2.cs" />
-    <Compile Include="PDFResources.cs" />
-    <Compile Include="PNGPredictor.cs" />
+    <Compile Include="Model\PDFResources.cs" />
+    <Compile Include="StreamHelpers\PNGPredictor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reading\ContentStreamReader.cs" />
-    <Compile Include="Trailer.cs" />
-    <Compile Include="XObjectForm.cs" />
-    <Compile Include="XObjectImage.cs" />
-    <Compile Include="XREFStream.cs" />
-    <Compile Include="XREFTable.cs" />
+    <Compile Include="Model\Trailer.cs" />
+    <Compile Include="Model\XObjectForm.cs" />
+    <Compile Include="Model\XObjectImage.cs" />
+    <Compile Include="Model\XREFStream.cs" />
+    <Compile Include="Model\XREFTable.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Writing\" />

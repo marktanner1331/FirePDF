@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FirePDF.Model;
+using FirePDF.StreamHelpers;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;

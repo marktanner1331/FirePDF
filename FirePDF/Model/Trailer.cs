@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace FirePDF
+namespace FirePDF.Model
 {
     public class Trailer
     {

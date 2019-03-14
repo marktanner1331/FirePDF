@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using FirePDF.Reading;
 
-namespace FirePDF
+namespace FirePDF.Model
 {
     //pdf 7.5.8
     public class XREFStream

@@ -1,4 +1,5 @@
-﻿using FirePDF.Reading;
+﻿using FirePDF.Model;
+using FirePDF.Reading;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FirePDF
+namespace FirePDF.StreamHelpers
 {
     class FlateContentStream : PDFContentStream
     {

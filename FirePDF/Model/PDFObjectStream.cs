@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FirePDF
+namespace FirePDF.Model
 {
     /// <summary>
     /// a class that wraps a pdf object stream and provides methods to access objects in its compressed stream
