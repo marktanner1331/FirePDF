@@ -42,7 +42,7 @@ namespace FirePDF.Model
             for (int i = 0; i < points.Length; i++)
             {
                 int j = i * 2;
-                points[i] = new PointF((float)Convert.ToDouble(operands[i]), (float)Convert.ToDouble(operands[i + 1]));
+                points[i] = new PointF((float)Convert.ToDouble(operands[j]), (float)Convert.ToDouble(operands[j + 1]));
             }
 
             return points;
