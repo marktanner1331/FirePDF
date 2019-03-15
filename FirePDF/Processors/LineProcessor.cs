@@ -93,7 +93,7 @@ namespace FirePDF.Processors
                         return;
                     }
 
-                    endPath();
+                    currentPath.CloseFigure();
                     break;
                 case "l":
                     {

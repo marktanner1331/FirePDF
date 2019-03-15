@@ -40,7 +40,8 @@ namespace FirePDF.Rendering
 
         public override void strokePath(GraphicsPath path)
         {
-            throw new NotImplementedException();
+            Pen p = new Pen(Color.Blue);
+            graphics.DrawPath(p, path);
         }
     }
 }
