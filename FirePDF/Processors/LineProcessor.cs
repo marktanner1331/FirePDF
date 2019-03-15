@@ -2,7 +2,9 @@
 using FirePDF.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,21 +17,23 @@ namespace FirePDF.Processors
     /// </summary>
     public class LineProcessor
     {
-        private Func<GraphicsState> getGraphicsState;
+        private Func<Model.GraphicsState> getGraphicsState;
         private IRenderer renderer;
-        private Path currentPath;
+
+        private PointF? currentPoint;
+        private GraphicsPath currentPath;
 
         //if this is not null then the current path should be used as a clipping path upon the next painting operation
         //see PDF 8.5.4 for mor details
         //we can't simply store this in currentPath.windingRule as this could be used for real painting with a different winding rule
         //i.e. the operations could go W F*
-        WindingRule? shouldClipPath = null;
+        FillMode? shouldClipPath = null;
 
-        public LineProcessor(Func<GraphicsState> getGraphicsState, IRenderer renderer)
+        public LineProcessor(Func<Model.GraphicsState> getGraphicsState, IRenderer renderer)
         {
             this.getGraphicsState = getGraphicsState;
             this.renderer = renderer;
-            this.currentPath = new Path();
+            this.currentPath = new GraphicsPath();
         }
 
         public void processOperation(Operation operation)
@@ -45,40 +49,45 @@ namespace FirePDF.Processors
                     processOperation(new Operation("B*", null));
                     break;
                 case "B":
-                    renderer.fillAndStrokePath(currentPath, WindingRule.NON_ZERO);
+                    currentPath.FillMode = FillMode.Winding;
+                    renderer.fillAndStrokePath(currentPath);
                     endPath();
                     break;
                 case "B*":
-                    renderer.fillAndStrokePath(currentPath, WindingRule.EVEN_ODD);
+                    currentPath.FillMode = FillMode.Alternate;
+                    renderer.fillAndStrokePath(currentPath);
                     endPath();
                     break;
                 case "c":
                     {
-                        List<double> operands = operation.getOperationsAsDoubles();
-                        scaleListOfCoordinatesByCTM(operands);
-
-                        if (currentPath.getCurrentPoint() == null)
+                        PointF[] points = operation.getOperationsAsPointFs();
+                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
+                        
+                        if (currentPoint == null)
                         {
-                            logWarning("curveTo (" + operands[4] + "," + operands[5] + ") without initial MoveTo");
-                            currentPath.moveTo(operands[4], operands[5]);
+                            logWarning("curveTo (" + points[2].X + "," + points[2].Y + ") without initial MoveTo");
+                            currentPoint = points[2];
                         }
                         else
                         {
-                            currentPath.cubicCurveTo(operands.ToArray());
+                            currentPath.AddCurve(new PointF[] { currentPoint.Value, points[0], points[1], points[2] });
+                            currentPoint = points[2];
                         }
                     }
                     break;
                 case "f":
                 case "F":
-                    renderer.fillPath(currentPath, WindingRule.NON_ZERO);
+                    currentPath.FillMode = FillMode.Winding;
+                    renderer.fillPath(currentPath);
                     endPath();
                     break;
                 case "f*":
-                    renderer.fillPath(currentPath, WindingRule.EVEN_ODD);
+                    currentPath.FillMode = FillMode.Alternate;
+                    renderer.fillPath(currentPath);
                     endPath();
                     break;
                 case "h":
-                    if (currentPath.getCurrentPoint() == null)
+                    if (currentPoint == null)
                     {
                         logWarning("ClosePath without initial MoveTo");
                         return;
@@ -88,26 +97,27 @@ namespace FirePDF.Processors
                     break;
                 case "l":
                     {
-                        List<double> operands = operation.getOperationsAsDoubles();
-                        scaleListOfCoordinatesByCTM(operands);
-                        
-                        if (currentPath.getCurrentPoint() == null)
+                        PointF[] points = operation.getOperationsAsPointFs();
+                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
+
+                        if (currentPoint == null)
                         {
-                            logWarning("lineTo (" + operands[0] + "," + operands[1] + ") without initial MoveTo");
-                            currentPath.moveTo(operands);
+                            logWarning("lineTo (" + points[0].X + "," + points[0].Y + ") without initial MoveTo");
+                            currentPoint = points[0];
                         }
                         else
                         {
-                            currentPath.lineTo(operands);
+                            currentPath.AddLine(currentPoint.Value, points[0]);
+                            currentPoint = points[0];
                         }
                     }
                     break;
                 case "m":
                     {
-                        List<double> operands = operation.getOperationsAsDoubles();
-                        scaleListOfCoordinatesByCTM(operands);
+                        PointF[] points = operation.getOperationsAsPointFs();
+                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
 
-                        currentPath.moveTo(operands);
+                        currentPoint = points[0];
                     }
                     break;
                 case "n":
@@ -115,24 +125,28 @@ namespace FirePDF.Processors
                     break;
                 case "re":
                     {
-                        List<double> operands = operation.getOperationsAsDoubles();
+                        PointF[] points = operation.getOperationsAsPointFs();
 
-                        //we go from [2] and [3] storing the width and height to it storing the upper right point
-                        operands[2] += operands[0];
-                        operands[3] += operands[1];
+                        PointF bottomLeft = points[0];
+                        PointF topRight = points[1];
 
-                        scaleListOfCoordinatesByCTM(operands);
+                        //we go from topRight storing the width and height to it storing the upper right point
+                        topRight.X += bottomLeft.X;
+                        topRight.Y += bottomLeft.Y;
+
+                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
 
                         // to ensure that the path is created in the right direction, we have to create
                         // it by combining single lines instead of creating a simple rectangle
-                        currentPath.moveTo(operands[0], operands[1]);
-                        currentPath.lineTo(operands[2], operands[1]);
-                        currentPath.lineTo(operands[2], operands[3]);
-                        currentPath.lineTo(operands[0], operands[3]);
+                        currentPath.AddLine(bottomLeft, new PointF(topRight.X, bottomLeft.Y));
+                        currentPath.AddLine(new PointF(topRight.X, bottomLeft.Y), topRight);
+                        currentPath.AddLine(topRight, new PointF(bottomLeft.X, topRight.Y));
 
                         // close the subpath instead of adding the last line so that a possible set line
                         // cap style isn't taken into account at the "beginning" of the rectangle
-                        currentPath.closePath();
+                        currentPath.CloseFigure();
+
+                        currentPoint = bottomLeft;
                         break;
                     }
                 case "s":
@@ -145,40 +159,41 @@ namespace FirePDF.Processors
                     break;
                 case "v":
                     {
-                        List<double> operands = operation.getOperationsAsDoubles();
-                        scaleListOfCoordinatesByCTM(operands);
-                        
-                        PointD currentPoint = currentPath.getCurrentPoint();
+                        PointF[] points = operation.getOperationsAsPointFs();
+                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
+
                         if (currentPoint == null)
                         {
-                            logWarning("curveTo (" + operands[2] + "," + operands[3] + ") without initial MoveTo");
-                            currentPath.moveTo(operands[2], operands[3]);
+                            logWarning("curveTo (" + points[1].X + "," + points[1].Y + ") without initial MoveTo");
+                            currentPoint = points[1];
                         }
                         else
                         {
-                            currentPath.cubicCurveTo(currentPoint.x, currentPoint.y, operands[0], operands[1], operands[2], operands[3]);
+                            currentPath.AddCurve(new PointF[] { currentPoint.Value, currentPoint.Value, points[0], points[1] });
+                            currentPoint = points[1];
                         }
                         break;
                     }
                 case "W":
-                    shouldClipPath = WindingRule.NON_ZERO;
+                    shouldClipPath = FillMode.Winding;
                     break;
                 case "W*":
-                    shouldClipPath = WindingRule.EVEN_ODD;
+                    shouldClipPath = FillMode.Alternate;
                     break;
                 case "y":
                     {
-                        List<double> operands = operation.getOperationsAsDoubles();
-                        scaleListOfCoordinatesByCTM(operands);
+                        PointF[] points = operation.getOperationsAsPointFs();
+                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
 
-                        if (currentPath.getCurrentPoint() == null)
+                        if (currentPoint == null)
                         {
-                            logWarning("curveTo (" + operands[2] + "," + operands[3] + ") without initial MoveTo");
-                            currentPath.moveTo(operands[2], operands[3]);
+                            logWarning("curveTo (" + points[1].X + "," + points[1].Y + ") without initial MoveTo");
+                            currentPoint = points[1];
                         }
                         else
                         {
-                            currentPath.cubicCurveTo(operands[0], operands[1], operands[2], operands[3], operands[2], operands[3]);
+                            currentPath.AddCurve(new PointF[] { currentPoint.Value, points[0], points[1], points[1] });
+                            currentPoint = points[1];
                         }
                         break;
                     }
@@ -189,17 +204,17 @@ namespace FirePDF.Processors
         {
             if (shouldClipPath != null)
             {
-                currentPath.windingRule = shouldClipPath.Value;
+                currentPath.FillMode = shouldClipPath.Value;
                 getGraphicsState().intersectClippingPath(currentPath);
                 shouldClipPath = null;
             }
 
-            currentPath.reset();
+            currentPath.Reset();
         }
 
         private void logWarning(string warning)
         {
-
+            Debug.WriteLine(warning);
         }
 
         /// <summary>
@@ -218,6 +233,34 @@ namespace FirePDF.Processors
                 double y = enumerator.Current;
 
                 yield return new PointF((float)x, (float)y);
+            }
+        }
+
+        private IEnumerable<PointF> convertFloatsToCoordinates(IEnumerable<float> coordinates)
+        {
+            IEnumerator<float> enumerator = coordinates.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                float x = enumerator.Current;
+                enumerator.MoveNext();
+
+                float y = enumerator.Current;
+
+                yield return new PointF(x, y);
+            }
+        }
+
+        private void scaleListOfCoordinatesByCTM(List<float> coordinates)
+        {
+            PointF[] points = convertFloatsToCoordinates(coordinates).ToArray();
+            getGraphicsState().currentTransformationMatrix.TransformPoints(points);
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                int j = i * 2;
+                coordinates[j] = points[i].X;
+                coordinates[j + 1] = points[i].Y;
             }
         }
 

@@ -28,5 +28,8 @@ namespace FirePDF.Model
             right = (float)Convert.ToDouble(array[2]);
             top = (float)Convert.ToDouble(array[3]);
         }
+
+        public float width => right - left;
+        public float height => top - bottom;
     }
 }

@@ -24,7 +24,7 @@ namespace FirePDF.Model
             };
         }
 
-        public void intersectClippingPath(Path currentPath)
+        public void intersectClippingPath(GraphicsPath currentPath)
         {
             
         }

@@ -58,6 +58,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ContentStreamReaderTests.cs" />
+    <Compile Include="GraphicsPathTests.cs" />
     <Compile Include="ProcessingTests.cs" />
     <Compile Include="MiscTests.cs" />
     <Compile Include="Model\RectangleTests.cs" />

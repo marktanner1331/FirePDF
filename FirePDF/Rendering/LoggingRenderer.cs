@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace FirePDF.Rendering
     {
         private Action<string> logger;
 
-        public LoggingRenderer(Func<GraphicsState> getGraphicsState, IStreamOwner streamOwner, Action<string> logger) : base(getGraphicsState, streamOwner)
+        public LoggingRenderer(Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner, Action<string> logger) : base(getGraphicsState, streamOwner)
         {
             this.logger = logger;
         }
@@ -25,17 +26,17 @@ namespace FirePDF.Rendering
             logger.Invoke("drawImage()");
         }
 
-        public override void fillAndStrokePath(Path path, WindingRule windingRule)
+        public override void fillAndStrokePath(GraphicsPath path)
         {
-            logger.Invoke($"fillAndStrokePath(path, {windingRule})");
+            logger.Invoke("fillAndStrokePath(path)");
         }
 
-        public override void fillPath(Path path, WindingRule windingRule)
+        public override void fillPath(GraphicsPath path)
         {
-            logger.Invoke($"fillPath(path, {windingRule})");
+            logger.Invoke("fillPath(path)");
         }
 
-        public override void strokePath(Path path)
+        public override void strokePath(GraphicsPath path)
         {
             logger.Invoke("strokePath(path)");
         }
