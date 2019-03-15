@@ -17,7 +17,7 @@ namespace FirePDF.Tests
     {
         private string getPDFFolder()
         {
-            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
+            return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
         }
 
         [TestMethod()]

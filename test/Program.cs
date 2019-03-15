@@ -30,6 +30,9 @@ namespace test
             {
                 gsp.processOperation(operation);
             }
+
+            FirePDF.Model.Path path = new FirePDF.Model.Path();
+            
         }
     }
 }

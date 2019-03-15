@@ -15,5 +15,16 @@ namespace FirePDF.Model
         {
             operands = new List<object>();
         }
+
+        public Operation(string operatorName, List<object> operands)
+        {
+            this.operatorName = operatorName;
+            this.operands = operands;
+        }
+
+        internal List<double> getOperationsAsDoubles()
+        {
+            return operands.Select(x => Convert.ToDouble(x)).ToList();
+        }
     }
 }

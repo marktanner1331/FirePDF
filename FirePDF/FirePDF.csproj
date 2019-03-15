@@ -43,8 +43,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\Catalog.cs" />
+    <Compile Include="Model\Path.cs" />
+    <Compile Include="Model\PointD.cs" />
     <Compile Include="Model\Rectangle.cs" />
+    <Compile Include="Processors\LineProcessor.cs" />
     <Compile Include="Reading\ASCIIReader.cs" />
+    <Compile Include="Rendering\IRenderer.cs" />
+    <Compile Include="Rendering\LoggingRenderer.cs" />
+    <Compile Include="Rendering\WindingRule.cs" />
     <Compile Include="StreamHelpers\FlateContentStream.cs" />
     <Compile Include="Model\GraphicsState.cs" />
     <Compile Include="Processors\GraphicsStateProcessor.cs" />

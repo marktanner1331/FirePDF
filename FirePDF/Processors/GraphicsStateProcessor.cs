@@ -24,6 +24,11 @@ namespace FirePDF.Processors
             this.graphicsStack.Push(new GraphicsState());
         }
 
+        public GraphicsState getCurrentState()
+        {
+            return graphicsStack.Peek();
+        }
+
         public void processOperation(Operation operation)
         {
             switch(operation.operatorName)
