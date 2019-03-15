@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirePDFTests", "FirePDFTests\FirePDFTests.csproj", "{E12A3A33-DF48-4795-A7B0-2E840A0BFCC1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graphical Debugger", "Graphical Debugger\Graphical Debugger.csproj", "{357F1C6A-A8F6-4209-92E2-2DCB6CAEF2ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{E12A3A33-DF48-4795-A7B0-2E840A0BFCC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E12A3A33-DF48-4795-A7B0-2E840A0BFCC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E12A3A33-DF48-4795-A7B0-2E840A0BFCC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{357F1C6A-A8F6-4209-92E2-2DCB6CAEF2ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{357F1C6A-A8F6-4209-92E2-2DCB6CAEF2ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{357F1C6A-A8F6-4209-92E2-2DCB6CAEF2ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{357F1C6A-A8F6-4209-92E2-2DCB6CAEF2ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
