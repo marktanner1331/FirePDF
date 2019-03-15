@@ -6,6 +6,7 @@ using FirePDF.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,8 +31,19 @@ namespace test
 
             GraphicsStateProcessor gsp = new GraphicsStateProcessor(form, form.getBoundingBox());
 
-            StringBuilder sb = new StringBuilder();
-            Renderer renderer = new Renderer(gsp.getCurrentState, form);
+            FirePDF.Model.Rectangle bounds = form.getBoundingBox();
+            Bitmap image = new Bitmap((int)bounds.width, (int)bounds.height);
+            Graphics g = Graphics.FromImage(image);
+
+            RectangleF rect = new RectangleF
+            {
+                X = bounds.left,
+                Y = bounds.bottom,
+                Width = bounds.width,
+                Height = bounds.height
+            };
+
+            Renderer renderer = new Renderer(g, rect, gsp.getCurrentState, form);
 
             LineProcessor lp = new LineProcessor(gsp.getCurrentState, renderer);
 
@@ -40,8 +52,8 @@ namespace test
                 gsp.processOperation(operation);
                 lp.processOperation(operation);
             }
-
-            renderer.image.Save(@"C:\Users\Mark Tanner\scratch\page 24 fixed.jpg");
+            
+            image.Save(@"C:\Users\Mark Tanner\scratch\page 24 fixed.jpg");
         }
     }
 }

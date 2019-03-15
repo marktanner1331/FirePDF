@@ -11,15 +11,26 @@ namespace FirePDF.Rendering
 {
     public class Renderer : IRenderer
     {
-        public readonly Bitmap image;
         private Graphics graphics;
+
+        public Renderer(Graphics graphicsContext, RectangleF bounds, Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner) : base(getGraphicsState, streamOwner)
+        {
+            graphics = graphicsContext;
+
+            Model.Rectangle streamBounds = streamOwner.getBoundingBox();
+
+            Model.GraphicsState graphicsState = getGraphicsState();
+            graphicsState.currentTransformationMatrix.Translate(0, streamBounds.height);
+            graphicsState.currentTransformationMatrix.Scale(1, -1);
+        }
 
         public Renderer(Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner) : base(getGraphicsState, streamOwner)
         {
-            Model.Rectangle streamSize = streamOwner.getBoundingBox();
-
-            image = new Bitmap((int)Math.Ceiling(streamSize.width), (int)Math.Ceiling(streamSize.height));
-            graphics = Graphics.FromImage(image);
+            Model.Rectangle streamBounds = streamOwner.getBoundingBox();
+            
+            Model.GraphicsState graphicsState = getGraphicsState();
+            graphicsState.currentTransformationMatrix.Translate(0, streamBounds.height);
+            graphicsState.currentTransformationMatrix.Scale(1, -1);
         }
 
         public override void drawImage(Image image)
