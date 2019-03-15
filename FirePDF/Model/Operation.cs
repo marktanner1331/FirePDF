@@ -23,6 +23,17 @@ namespace FirePDF.Model
             this.operands = operands;
         }
 
+        public override string ToString()
+        {
+            if(operands.Count > 0)
+            {
+                return string.Join(" ", operands) + " " + operatorName;
+            }
+            else
+            {
+                return operatorName;
+            }
+        }
 
         public PointF[] getOperationsAsPointFs()
         {

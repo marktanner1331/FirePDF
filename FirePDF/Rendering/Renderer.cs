@@ -24,15 +24,6 @@ namespace FirePDF.Rendering
             graphicsState.currentTransformationMatrix.Scale(1, -1);
         }
 
-        public Renderer(Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner) : base(getGraphicsState, streamOwner)
-        {
-            Model.Rectangle streamBounds = streamOwner.getBoundingBox();
-            
-            Model.GraphicsState graphicsState = getGraphicsState();
-            graphicsState.currentTransformationMatrix.Translate(0, streamBounds.height);
-            graphicsState.currentTransformationMatrix.Scale(1, -1);
-        }
-
         public override void drawImage(Image image)
         {
             throw new NotImplementedException();
