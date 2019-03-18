@@ -3,6 +3,7 @@ using FirePDF.Reading;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,6 +38,11 @@ namespace FirePDF.Model
 
             this.resources = new PDFResources(pdf, (Dictionary<string, object>)underlyingDict["Resources"]);
             this.boundingBox = PDFReaderLayer1.readRectangleFromArray((List<object>)underlyingDict["BBox"]);
+        }
+
+        public Stream readContentStream()
+        {
+            return PDFReaderLayer1.readContentStream(pdf, underlyingDict, startOfStream);
         }
     }
 }

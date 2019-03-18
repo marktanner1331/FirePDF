@@ -31,6 +31,28 @@ namespace FirePDF
             this.resources = new PDFResources(pdf, (Dictionary<string, object>)underlyingDict["Resources"]);
         }
 
+        public Stream readContentStream()
+        {
+            MemoryStream compositeStream = new MemoryStream();
+
+            List<object> contents = (List<object>)underlyingDict["Contents"];
+            if (contents == null)
+            {
+                throw new Exception();
+            }
+
+            foreach (ObjectReference objectReference in contents)
+            {
+                using (Stream stream = PDFReaderLayer1.readContentStream(pdf, objectReference))
+                {
+                    stream.CopyTo(compositeStream);
+                }
+            }
+
+            compositeStream.Position = 0;
+            return compositeStream;
+        }
+
         private Dictionary<string, object> getEmptyUnderlyingDict()
         {
             //TODO finish getEmptyUnderlyingDict()

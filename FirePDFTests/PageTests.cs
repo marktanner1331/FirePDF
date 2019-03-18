@@ -42,8 +42,8 @@ namespace FirePDF.Tests
             List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
             XObjectForm form = forms.First();
 
-            Stream s = PDFReaderLayer2.readContentStream(form);
-            List<Operation> operations = ContentStreamReader.readContentStream(s);
+            Stream s = form.readContentStream();
+            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
             Assert.AreEqual(600, operations.Count);
         }
@@ -55,7 +55,7 @@ namespace FirePDF.Tests
             PDF pdf = new PDF(file);
 
             Page page = pdf.getPage(1);
-            Stream s = PDFReaderLayer2.readContentStream(page);
+            Stream s = page.readContentStream();
 
             using (System.IO.StreamReader streamReader = new System.IO.StreamReader(s))
             {

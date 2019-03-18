@@ -10,8 +10,9 @@ namespace FirePDF.Reading
 {
     public static class ContentStreamReader
     {
-        public static List<Operation> readContentStream(Stream decompressedStream)
+        public static List<Operation> readOperationsFromStream(Stream decompressedStream)
         {
+            //TODO rename this
             List<Operation> operations = new List<Operation>();
             Operation currentOperation = new Operation();
 

@@ -46,8 +46,8 @@ namespace Graphical_Debugger
             XObjectForm form = forms.First();
             owner = form;
 
-            Stream s = PDFReaderLayer2.readContentStream(form);
-            operations = ContentStreamReader.readContentStream(s);
+            Stream s = form.readContentStream();
+            operations = ContentStreamReader.readOperationsFromStream(s);
 
             pdfRenderer = new PDFRenderer();
             pdfRenderer.render(form, operations.Take(0));

@@ -34,8 +34,8 @@ namespace FirePDF.Tests
             List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
             XObjectForm form = forms.First();
 
-            Stream s = PDFReaderLayer2.readContentStream(form);
-            List<Operation> operations = ContentStreamReader.readContentStream(s);
+            Stream s = form.readContentStream();
+            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
             GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
             foreach(Operation operation in operations)
@@ -55,8 +55,8 @@ namespace FirePDF.Tests
             List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
             XObjectForm form = forms.First();
 
-            Stream s = PDFReaderLayer2.readContentStream(form);
-            List<Operation> operations = ContentStreamReader.readContentStream(s);
+            Stream s = form.readContentStream();
+            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
             GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
 
@@ -83,8 +83,8 @@ namespace FirePDF.Tests
             List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
             XObjectForm form = forms.First();
 
-            Stream s = PDFReaderLayer2.readContentStream(form);
-            List<Operation> operations = ContentStreamReader.readContentStream(s);
+            Stream s = form.readContentStream();
+            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
             GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
 
@@ -113,8 +113,8 @@ namespace FirePDF.Tests
             List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
             XObjectForm form = forms.First();
 
-            Stream s = PDFReaderLayer2.readContentStream(form);
-            List<Operation> operations = ContentStreamReader.readContentStream(s);
+            Stream s = form.readContentStream();
+            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
             GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
 
