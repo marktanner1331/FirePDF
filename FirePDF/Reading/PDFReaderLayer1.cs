@@ -239,7 +239,7 @@ namespace FirePDF.Reading
                     return readHexString(stream);
                 }
             }
-            else if (current >= '0' && current <= '9')
+            else if (current >= '0' && current <= '9' || ".-".Contains((char)current))
             {
                 long currentOffset = stream.Position;
                 try
