@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
+    /// <summary>
+    /// a class that wraps a content stream object, i.e. page stream or xobject stream and provides methods for reading it
+    /// </summary>
     public abstract class PDFContentStreamObject
     {
         protected readonly PDF pdf;

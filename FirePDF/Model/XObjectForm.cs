@@ -14,6 +14,7 @@ namespace FirePDF.Model
         public PDF pdf { get; private set; }
         public Dictionary<string, object> underlyingDict;
         public long startOfStream;
+
         public PDFResources resources { get; private set; }
         public RectangleF boundingBox { get; private set; }
 
