@@ -33,7 +33,7 @@ namespace FirePDF.Rendering
             Model.GraphicsState gs = getGraphicsState();
 
             graphics.Transform = new Matrix();
-            graphics.SetClip(gs.clippingPath);
+            graphics.SetClip(gs.clippingPath, CombineMode.Replace);
 
             graphics.Transform = gs.currentTransformationMatrix;
         }

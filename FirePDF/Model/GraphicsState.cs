@@ -16,7 +16,7 @@ namespace FirePDF.Model
         public Color nonStrokingColor;
         public Color strokingColor;
 
-        public GraphicsPath clippingPath;
+        public Region clippingPath;
 
         /// <summary>
         /// used internally for cloning
@@ -25,7 +25,7 @@ namespace FirePDF.Model
 
         public GraphicsState(GraphicsPath initialClippingPath)
         {
-            this.clippingPath = initialClippingPath;
+            this.clippingPath = new Region(initialClippingPath);
 
             currentTransformationMatrix = new Matrix();
             flatnessTolerance = 0;
@@ -41,14 +41,14 @@ namespace FirePDF.Model
                 flatnessTolerance = flatnessTolerance,
                 nonStrokingColor = nonStrokingColor,
                 strokingColor = strokingColor,
-                clippingPath = (GraphicsPath)clippingPath.Clone()
+                clippingPath = clippingPath.Clone()
             };
         }
 
         public void intersectClippingPath(GraphicsPath currentPath)
         {
-            //currentPath.Transform(currentTransformationMatrix);
-            //clippingPath.AddPath(currentPath, false);
+            currentPath.Transform(currentTransformationMatrix);
+            clippingPath.Intersect(currentPath);
         }
     }
 }
