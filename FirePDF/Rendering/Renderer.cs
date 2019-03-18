@@ -12,13 +12,11 @@ namespace FirePDF.Rendering
     public class Renderer : IRenderer
     {
         private Graphics graphics;
-        private Func<Model.GraphicsState> getGraphicsState;
         private Model.Rectangle streamBounds;
 
         public Renderer(Graphics graphicsContext, RectangleF bounds, Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner) : base(getGraphicsState, streamOwner)
         {
             graphics = graphicsContext;
-            this.getGraphicsState = getGraphicsState;
 
             streamBounds = streamOwner.getBoundingBox();
 
@@ -47,12 +45,14 @@ namespace FirePDF.Rendering
 
         public override void fillPath(GraphicsPath path)
         {
+            graphics.Transform = getGraphicsState().currentTransformationMatrix;
             Brush b = new SolidBrush(getGraphicsState().nonStrokingColor);
             graphics.FillPath(b, path);
         }
 
         public override void strokePath(GraphicsPath path)
         {
+            graphics.Transform = getGraphicsState().currentTransformationMatrix;
             Pen p = new Pen(getGraphicsState().strokingColor);
             graphics.DrawPath(p, path);
         }

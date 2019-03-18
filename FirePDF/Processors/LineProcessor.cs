@@ -13,7 +13,6 @@ namespace FirePDF.Processors
 {
     /// <summary>
     /// processes drawing commands to do with lines and curves
-    /// all coordinates are transformed to device space before the renderer is called
     /// </summary>
     public class LineProcessor
     {
@@ -61,7 +60,6 @@ namespace FirePDF.Processors
                 case "c":
                     {
                         PointF[] points = operation.getOperationsAsPointFs();
-                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
                         
                         if (currentPoint == null)
                         {
@@ -98,8 +96,7 @@ namespace FirePDF.Processors
                 case "l":
                     {
                         PointF[] points = operation.getOperationsAsPointFs();
-                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
-
+                        
                         if (currentPoint == null)
                         {
                             logWarning("lineTo (" + points[0].X + "," + points[0].Y + ") without initial MoveTo");
@@ -115,8 +112,6 @@ namespace FirePDF.Processors
                 case "m":
                     {
                         PointF[] points = operation.getOperationsAsPointFs();
-                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
-
                         currentPoint = points[0];
                     }
                     break;
@@ -133,9 +128,7 @@ namespace FirePDF.Processors
                         //we go from topRight storing the width and height to it storing the upper right point
                         topRight.X += bottomLeft.X;
                         topRight.Y += bottomLeft.Y;
-
-                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
-
+                        
                         // to ensure that the path is created in the right direction, we have to create
                         // it by combining single lines instead of creating a simple rectangle
                         currentPath.AddLine(bottomLeft, new PointF(topRight.X, bottomLeft.Y));
@@ -160,8 +153,7 @@ namespace FirePDF.Processors
                 case "v":
                     {
                         PointF[] points = operation.getOperationsAsPointFs();
-                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
-
+                        
                         if (currentPoint == null)
                         {
                             logWarning("curveTo (" + points[1].X + "," + points[1].Y + ") without initial MoveTo");
@@ -183,8 +175,7 @@ namespace FirePDF.Processors
                 case "y":
                     {
                         PointF[] points = operation.getOperationsAsPointFs();
-                        getGraphicsState().currentTransformationMatrix.TransformPoints(points);
-
+                        
                         if (currentPoint == null)
                         {
                             logWarning("curveTo (" + points[1].X + "," + points[1].Y + ") without initial MoveTo");
