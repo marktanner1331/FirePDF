@@ -37,15 +37,7 @@ namespace FirePDF.Model
         {
             MemoryStream temp = new MemoryStream();
             pdf.stream.Position = startOfStream;
-
-            string chunk = ASCIIReader.readASCIIString(pdf.stream, 6);
-            if (chunk != "stream")
-            {
-                throw new Exception();
-            }
-
-            PDFReader.skipOverWhiteSpace(pdf.stream);
-
+            
             long length = (int)underlyingDict["Length"];
 
             byte[] buffer = new byte[4096];

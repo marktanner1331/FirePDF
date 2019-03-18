@@ -43,7 +43,7 @@ namespace FirePDF
 
             foreach (ObjectReference objectReference in contents)
             {
-                using (Stream stream = PDFReaderLayer1.readContentStream(pdf, objectReference))
+                using (Stream stream = PDFReader.readContentStream(pdf, objectReference))
                 {
                     stream.CopyTo(compositeStream);
                 }

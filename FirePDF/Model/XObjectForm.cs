@@ -37,12 +37,13 @@ namespace FirePDF.Model
             this.startOfStream = startOfStream;
 
             this.resources = new PDFResources(pdf, (Dictionary<string, object>)underlyingDict["Resources"]);
-            this.boundingBox = PDFReaderLayer1.readRectangleFromArray((List<object>)underlyingDict["BBox"]);
+            this.boundingBox = PDFReader.readRectangleFromArray((List<object>)underlyingDict["BBox"]);
         }
 
         public Stream readContentStream()
         {
-            return PDFReaderLayer1.readContentStream(pdf, underlyingDict, startOfStream);
+            pdf.stream.Position = startOfStream;
+            return PDFReader.readContentStream(pdf, underlyingDict);
         }
     }
 }

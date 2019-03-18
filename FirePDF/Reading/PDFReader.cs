@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Reading
 {
-    public static class PDFReaderLayer1
+    public static class PDFReader
     {
         public static RectangleF readRectangleFromArray(List<object> array)
         {
@@ -32,41 +32,38 @@ namespace FirePDF.Reading
         public static Stream readContentStream(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
             Dictionary<string, object> dict = readIndirectDictionary(pdf, xrefRecord);
-            skipOverWhiteSpace(pdf.stream);
-            long startOfStream = pdf.stream.Position;
+            skipOverStreamHeader(pdf.stream);
 
-            return readContentStream(pdf, dict, startOfStream);
+            return readContentStream(pdf, dict);
         }
 
         public static Stream readContentStream(PDF pdf, ObjectReference objectReference)
         {
             Dictionary<string, object> dict = readIndirectDictionary(pdf, objectReference);
-            skipOverWhiteSpace(pdf.stream);
-            long startOfStream = pdf.stream.Position;
+            skipOverStreamHeader(pdf.stream);
 
-            return readContentStream(pdf, dict, startOfStream);
+            return readContentStream(pdf, dict);
         }
 
         public static Stream readContentStream(PDF pdf, int objectNumber, int generation)
         {
             Dictionary<string, object> dict = readIndirectDictionary(pdf, objectNumber, generation);
-            skipOverWhiteSpace(pdf.stream);
-            long startOfStream = pdf.stream.Position;
+            skipOverStreamHeader(pdf.stream);
 
-            return readContentStream(pdf, dict, startOfStream);
+            return readContentStream(pdf, dict);
         }
 
-        public static Stream readContentStream(PDF pdf, Dictionary<string, object> streamDictionary, long startOfStream)
+        public static Stream readContentStream(PDF pdf, Dictionary<string, object> streamDictionary)
         {
             switch ((string)streamDictionary["Filter"])
             {
                 case "FlateDecode":
-                    return new FlateContentStream(pdf, streamDictionary, startOfStream).readStream();
+                    return FlateContentStream.decompressStream(pdf.stream, streamDictionary);
                 default:
                     throw new NotImplementedException();
             }
         }
-        
+
         public static long readLastStartXREF(string chunk)
         {
             int offset = chunk.LastIndexOf("startxref");
@@ -157,36 +154,51 @@ namespace FirePDF.Reading
             }
 
             Dictionary<string, object> dict = (Dictionary<string, object>)obj;
-            
-            if (dict.ContainsKey("Type") && (string)dict["Type"] == "ObjStm")
-            {
-                skipOverWhiteSpace(pdf.stream);
-                long startOfStream = pdf.stream.Position;
 
-                return new PDFObjectStream(pdf, dict, startOfStream);
-            }
-            else if (dict.ContainsKey("Subtype"))
-            {
-                skipOverWhiteSpace(pdf.stream);
-                long startOfStream = pdf.stream.Position;
+            bool isObjectStream = dict.ContainsKey("Type") && (string)dict["Type"] == "ObjStm";
+            bool isFormXObject = isObjectStream == false && dict.ContainsKey("Subtype");
 
-                if ((string)dict["Subtype"] == "Form")
-                {
-                    return new XObjectForm(pdf, dict, startOfStream);
-                }
-                else if ((string)dict["Subtype"] == "Image")
-                {
-                    return new XObjectImage(pdf, dict, startOfStream);
-                }
-                else
-                {
-                    throw new Exception($"unknown Subtype: " + dict["Subtype"]);
-                }
-            }
-            else
+            if (isObjectStream == false && isFormXObject == false)
             {
                 return dict;
             }
+
+            skipOverStreamHeader(pdf.stream);
+
+            long startOfStream = pdf.stream.Position;
+
+            if (isObjectStream)
+            {
+                return new PDFObjectStream(pdf, dict, startOfStream);
+            }
+            else if ((string)dict["Subtype"] == "Form")
+            {
+                return new XObjectForm(pdf, dict, startOfStream);
+            }
+            else if ((string)dict["Subtype"] == "Image")
+            {
+                return new XObjectImage(pdf, dict, startOfStream);
+            }
+            else
+            {
+                throw new Exception($"unknown Subtype: " + dict["Subtype"]);
+            }
+        }
+
+        /// <summary>
+        /// skips over the 'stream keyword and any whitespace surrounding it
+        /// </summary>
+        public static void skipOverStreamHeader(Stream stream)
+        {
+            skipOverWhiteSpace(stream);
+
+            string chunk = ASCIIReader.readASCIIString(stream, 6);
+            if (chunk != "stream")
+            {
+                throw new Exception("not at start of stream");
+            }
+
+            skipOverWhiteSpace(stream);
         }
 
         private static object readCompressedObject(PDF pdf, XREFTable.XREFRecord xrefRecord)

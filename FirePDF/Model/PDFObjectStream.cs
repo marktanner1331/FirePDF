@@ -66,7 +66,8 @@ namespace FirePDF.Model
 
         public object readObject(int objectNumber)
         {
-            using (Stream stream = PDFReaderLayer1.readContentStream(pdf, streamDict, startOfStream))
+            pdf.stream.Position = startOfStream;
+            using (Stream stream = PDFReader.readContentStream(pdf, streamDict))
             {
                 BinaryReader reader = new BinaryReader(stream);
                 
@@ -78,7 +79,7 @@ namespace FirePDF.Model
 
                 stream.Position = offset;
 
-                return PDFReaderLayer1.readObject(stream);
+                return PDFReader.readObject(stream);
             }
         }
     }

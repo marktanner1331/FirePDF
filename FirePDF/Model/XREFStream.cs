@@ -17,16 +17,15 @@ namespace FirePDF.Model
         /// </summary>
         public void fromStream(PDF pdf)
         {
-            PDFReaderLayer1.skipOverObjectHeader(pdf.stream);
-            Dictionary<string, object> dict = PDFReaderLayer1.readDictionary(pdf.stream);
+            PDFReader.skipOverObjectHeader(pdf.stream);
+            Dictionary<string, object> dict = PDFReader.readDictionary(pdf.stream);
 
             trailer = new Trailer();
             trailer.fromDictionary(dict);
 
-            PDFReaderLayer1.skipOverWhiteSpace(pdf.stream);
-            long startOfStream = pdf.stream.Position;
-
-            using (Stream inner = PDFReaderLayer1.readContentStream(pdf, dict, startOfStream))
+            PDFReader.skipOverStreamHeader(pdf.stream);
+            
+            using (Stream inner = PDFReader.readContentStream(pdf, dict))
             {
                 int size = (int)dict["Size"];
 

@@ -12,47 +12,21 @@ namespace FirePDF.StreamHelpers
 {
     class FlateContentStream
     {
-        private long startOfStream;
-        private PDF pdf;
-        private Dictionary<string, object> streamDictionary;
-
         /// <summary>
-        /// represents a flate stream, providing methods for decoding
+        /// decompresses a stream from the pdf stream at the current position and returns it
         /// </summary>
-        /// <param name="pdf"></param>
-        /// <param name="dict">the stream dictionary</param>
-        /// <param name="startOfStream">the offset of the 'stream' keywords</param>
-        public FlateContentStream(PDF pdf, Dictionary<string, object> dict, long startOfStream)
+        public static Stream decompressStream(Stream pdfStream, Dictionary<string, object> streamDictionary)
         {
-            this.pdf = pdf;
-            this.streamDictionary = dict;
-            this.startOfStream = startOfStream;
-        }
-
-        /// <summary>
-        /// returns a seekable stream
-        /// </summary>
-        public Stream readStream()
-        {
-            pdf.stream.Position = startOfStream;
-            string chunk = ASCIIReader.readASCIIString(pdf.stream, 6);
-            if (chunk != "stream")
-            {
-                throw new Exception();
-            }
-
-            PDFReader.skipOverWhiteSpace(pdf.stream);
-
             //http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
-            pdf.stream.Position += 2;
+            pdfStream.Position += 2;
 
             int length = (int)streamDictionary["Length"] - 2;
 
             byte[] buffer = new byte[length];
-            pdf.stream.Read(buffer, 0, length);
+            pdfStream.Read(buffer, 0, length);
 
-            PDFReader.skipOverWhiteSpace(pdf.stream);
-            chunk = ASCIIReader.readASCIIString(pdf.stream, 9);
+            PDFReader.skipOverWhiteSpace(pdfStream);
+            string chunk = ASCIIReader.readASCIIString(pdfStream, 9);
             if (chunk != "endstream")
             {
                 throw new Exception();
