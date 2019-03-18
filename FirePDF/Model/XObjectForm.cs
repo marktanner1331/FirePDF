@@ -2,6 +2,7 @@
 using FirePDF.Reading;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace FirePDF.Model
         public Dictionary<string, object> underlyingDict;
         public long startOfStream;
         public PDFResources resources { get; private set; }
-        public Model.Rectangle boundingBox { get; private set; }
+        public RectangleF boundingBox { get; private set; }
 
         public XObjectForm(PDF pdf)
         {
@@ -34,7 +35,7 @@ namespace FirePDF.Model
             this.startOfStream = startOfStream;
 
             this.resources = new PDFResources(pdf, (Dictionary<string, object>)underlyingDict["Resources"]);
-            this.boundingBox = new Rectangle((List<object>)underlyingDict["BBox"]);
+            this.boundingBox = PDFReaderLayer1.readRectangleFromArray((List<object>)underlyingDict["BBox"]);
         }
     }
 }

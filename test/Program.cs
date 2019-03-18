@@ -31,19 +31,11 @@ namespace test
 
             GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
 
-            FirePDF.Model.Rectangle bounds = form.boundingBox;
-            Bitmap image = new Bitmap((int)bounds.width, (int)bounds.height);
+            RectangleF bounds = form.boundingBox;
+            Bitmap image = new Bitmap((int)bounds.Width, (int)bounds.Height);
             Graphics g = Graphics.FromImage(image);
-
-            RectangleF rect = new RectangleF
-            {
-                X = bounds.left,
-                Y = bounds.bottom,
-                Width = bounds.width,
-                Height = bounds.height
-            };
-
-            Renderer renderer = new Renderer(g, rect, gsp.getCurrentState, form);
+            
+            Renderer renderer = new Renderer(g, gsp.getCurrentState, form);
 
             LineProcessor lp = new LineProcessor(gsp.getCurrentState, renderer);
 

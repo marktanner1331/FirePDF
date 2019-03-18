@@ -12,16 +12,16 @@ namespace FirePDF.Rendering
     public class Renderer : IRenderer
     {
         private Graphics graphics;
-        private Model.Rectangle streamBounds;
+        private RectangleF streamBounds;
 
-        public Renderer(Graphics graphicsContext, RectangleF bounds, Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner) : base(getGraphicsState, streamOwner)
+        public Renderer(Graphics graphicsContext, Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner) : base(getGraphicsState, streamOwner)
         {
             graphics = graphicsContext;
 
             streamBounds = streamOwner.boundingBox;
 
             Model.GraphicsState graphicsState = getGraphicsState();
-            graphicsState.currentTransformationMatrix.Translate(0, streamBounds.height);
+            graphicsState.currentTransformationMatrix.Translate(0, streamBounds.Height);
             graphicsState.currentTransformationMatrix.Scale(1, -1);
         }
 

@@ -26,7 +26,7 @@ namespace FirePDF.Processors
             this.graphicsStack = new Stack<GraphicsState>();
 
             GraphicsPath clippingPath = new GraphicsPath();
-            clippingPath.AddRectangle(streamOwner.boundingBox.toRectangleF());
+            clippingPath.AddRectangle(streamOwner.boundingBox);
             this.graphicsStack.Push(new GraphicsState(clippingPath));
         }
 

@@ -62,7 +62,6 @@
     <Compile Include="Model\XObjectImageTests.cs" />
     <Compile Include="ProcessingTests.cs" />
     <Compile Include="MiscTests.cs" />
-    <Compile Include="Model\RectangleTests.cs" />
     <Compile Include="PageTests.cs" />
     <Compile Include="PDFObjectReaderTests.cs" />
     <Compile Include="PDFTests.cs" />

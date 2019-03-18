@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class Rectangle
+    public class RectangleOld
     {
         public readonly float left = 0;
         public readonly float bottom = 0;
         public readonly float right = 0;
         public readonly float top = 0;
 
-        public Rectangle(float left, float bottom, float right, float top)
+        public RectangleOld(float left, float bottom, float right, float top)
         {
             this.left = left;
             this.bottom = bottom;
@@ -21,7 +21,7 @@ namespace FirePDF.Model
             this.top = top;
         }
 
-        public Rectangle(List<object> array)
+        public RectangleOld(List<object> array)
         {
             left = (float)Convert.ToDouble(array[0]);
             bottom = (float)Convert.ToDouble(array[1]);

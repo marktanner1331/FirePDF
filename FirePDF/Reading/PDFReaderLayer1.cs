@@ -13,6 +13,22 @@ namespace FirePDF.Reading
 {
     public static class PDFReaderLayer1
     {
+        public static RectangleF readRectangleFromArray(List<object> array)
+        {
+            float left = (float)Convert.ToDouble(array[0]);
+            float bottom = (float)Convert.ToDouble(array[1]);
+            float right = (float)Convert.ToDouble(array[2]);
+            float top = (float)Convert.ToDouble(array[3]);
+
+            return new RectangleF
+            {
+                X = left,
+                Y = bottom,
+                Width = right - left,
+                Height = top - bottom
+            };
+        }
+
         public static PDFContentStream readContentStream(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
             Dictionary<string, object> dict = readIndirectDictionary(pdf, xrefRecord);
