@@ -61,7 +61,7 @@
     <Compile Include="Page.cs" />
     <Compile Include="Model\PageTreeNode.cs" />
     <Compile Include="PDF.cs" />
-    <Compile Include="Model\PDFContentStream.cs" />
+    <Compile Include="Model\PDFContentStreamObject.cs" />
     <Compile Include="Reading\PDFReaderLayer1.cs" />
     <Compile Include="Model\PDFObjectStream.cs" />
     <Compile Include="Reading\PDFReaderLayer2.cs" />

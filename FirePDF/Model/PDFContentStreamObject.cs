@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public abstract class PDFContentStream
+    public abstract class PDFContentStreamObject
     {
         protected readonly PDF pdf;
         public readonly Dictionary<string, object> streamDictionary;
 
         public abstract Stream readStream();
 
-        public PDFContentStream(PDF pdf, Dictionary<string, object> streamDictionary)
+        public PDFContentStreamObject(PDF pdf, Dictionary<string, object> streamDictionary)
         {
             this.pdf = pdf;
             this.streamDictionary = streamDictionary;

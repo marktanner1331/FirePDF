@@ -14,7 +14,7 @@ namespace FirePDF.Model
     /// </summary>
     public class PDFObjectStream
     {
-        private PDFContentStream contentStream;
+        private PDFContentStreamObject contentStream;
         private int n;
         private int first;
 

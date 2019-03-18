@@ -29,7 +29,7 @@ namespace FirePDF.Reading
             };
         }
 
-        public static PDFContentStream readContentStream(PDF pdf, XREFTable.XREFRecord xrefRecord)
+        public static PDFContentStreamObject readContentStream(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
             Dictionary<string, object> dict = readIndirectDictionary(pdf, xrefRecord);
             skipOverWhiteSpace(pdf.stream);
@@ -38,7 +38,7 @@ namespace FirePDF.Reading
             return readContentStream(pdf, dict, startOfStream);
         }
 
-        public static PDFContentStream readContentStream(PDF pdf, ObjectReference objectReference)
+        public static PDFContentStreamObject readContentStream(PDF pdf, ObjectReference objectReference)
         {
             Dictionary<string, object> dict = readIndirectDictionary(pdf, objectReference);
             skipOverWhiteSpace(pdf.stream);
@@ -47,7 +47,7 @@ namespace FirePDF.Reading
             return readContentStream(pdf, dict, startOfStream);
         }
 
-        public static PDFContentStream readContentStream(PDF pdf, int objectNumber, int generation)
+        public static PDFContentStreamObject readContentStream(PDF pdf, int objectNumber, int generation)
         {
             Dictionary<string, object> dict = readIndirectDictionary(pdf, objectNumber, generation);
             skipOverWhiteSpace(pdf.stream);
@@ -56,7 +56,7 @@ namespace FirePDF.Reading
             return readContentStream(pdf, dict, startOfStream);
         }
 
-        public static PDFContentStream readContentStream(PDF pdf, Dictionary<string, object> streamDictionary, long startOfStream)
+        public static PDFContentStreamObject readContentStream(PDF pdf, Dictionary<string, object> streamDictionary, long startOfStream)
         {
             switch ((string)streamDictionary["Filter"])
             {

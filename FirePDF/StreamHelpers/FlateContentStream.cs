@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace FirePDF.StreamHelpers
 {
-    class FlateContentStream : PDFContentStream
+    class FlateContentStream : PDFContentStreamObject
     {
         private long startOfStream;
 

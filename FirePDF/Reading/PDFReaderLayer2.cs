@@ -22,7 +22,7 @@ namespace FirePDF.Reading
             
             foreach (ObjectReference objectReference in contents)
             {
-                PDFContentStream contentStream = PDFReaderLayer1.readContentStream(page.pdf, objectReference);
+                PDFContentStreamObject contentStream = PDFReaderLayer1.readContentStream(page.pdf, objectReference);
                 using (Stream stream = contentStream.readStream())
                 {
                     stream.CopyTo(compositeStream);
@@ -35,7 +35,7 @@ namespace FirePDF.Reading
 
         public static Stream readContentStream(XObjectForm xObject)
         {
-            PDFContentStream contentStream = PDFReaderLayer1.readContentStream(xObject.pdf, xObject.underlyingDict, xObject.startOfStream);
+            PDFContentStreamObject contentStream = PDFReaderLayer1.readContentStream(xObject.pdf, xObject.underlyingDict, xObject.startOfStream);
             return contentStream.readStream();
         }
     }

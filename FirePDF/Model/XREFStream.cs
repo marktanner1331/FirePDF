@@ -26,7 +26,7 @@ namespace FirePDF.Model
             PDFReaderLayer1.skipOverWhiteSpace(pdf.stream);
             long startOfStream = pdf.stream.Position;
 
-            PDFContentStream contentStream = PDFReaderLayer1.readContentStream(pdf, dict, startOfStream);
+            PDFContentStreamObject contentStream = PDFReaderLayer1.readContentStream(pdf, dict, startOfStream);
 
             using (Stream inner = contentStream.readStream())
             {
