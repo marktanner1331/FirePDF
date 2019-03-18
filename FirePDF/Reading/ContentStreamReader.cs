@@ -12,7 +12,6 @@ namespace FirePDF.Reading
     {
         public static List<Operation> readOperationsFromStream(Stream decompressedStream)
         {
-            //TODO rename this
             List<Operation> operations = new List<Operation>();
             Operation currentOperation = new Operation();
 
@@ -41,7 +40,7 @@ namespace FirePDF.Reading
                 {
                     case '<': //either start of dict or hex string
                         {
-                            object obj = PDFReaderLayer1.readObject(stream);
+                            object obj = PDFReader.readObject(stream);
                             foundOperand(obj);
                         }
                         break;
@@ -50,19 +49,19 @@ namespace FirePDF.Reading
                             string s = ASCIIReader.readASCIIString(stream, 50);
                             stream.Position -= 50;
 
-                            object obj = PDFReaderLayer1.readArray(stream);
+                            object obj = PDFReader.readArray(stream);
                             foundOperand(obj);
                         }
                         break;
                     case '(':
                         {
-                            object obj = PDFReaderLayer1.readString(stream);
+                            object obj = PDFReader.readString(stream);
                             foundOperand(obj);
                         }
                         break;
                     case '/':
                         {
-                            object obj = PDFReaderLayer1.readName(stream);
+                            object obj = PDFReader.readName(stream);
                             foundOperand(obj);
                         }
                         break;
@@ -132,7 +131,7 @@ namespace FirePDF.Reading
                     case '+':
                     case '.':
                         {
-                            object obj = PDFReaderLayer1.readNumber(stream);
+                            object obj = PDFReader.readNumber(stream);
                             foundOperand(obj);
                         }
                         break;

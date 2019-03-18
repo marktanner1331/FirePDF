@@ -47,7 +47,7 @@ namespace FirePDF
 
             stream.Position = Math.Max(0, stream.Length - 1024);
             string chunk = ASCIIReader.readASCIIString(stream, 1024);
-            long lastOffset = PDFReaderLayer1.readLastStartXREF(chunk);
+            long lastOffset = PDFReader.readLastStartXREF(chunk);
             xrefOffsets.Enqueue(lastOffset);
 
             Queue<long> xrefStreams = new Queue<long>();
@@ -58,7 +58,7 @@ namespace FirePDF
                 stream.Position = xrefOffsets.Dequeue();
 
                 Trailer trailer;
-                if (PDFReaderLayer1.isObjectHeader(stream))
+                if (PDFReader.isObjectHeader(stream))
                 {
                     XREFStream xrefStream = new XREFStream();
                     xrefStream.fromStream(this);
@@ -89,7 +89,7 @@ namespace FirePDF
                 }
             }
 
-            Dictionary<string, object> rootDict = PDFReaderLayer1.readIndirectDictionary(this, root);
+            Dictionary<string, object> rootDict = PDFReader.readIndirectDictionary(this, root);
             catalog = new Catalog(this, rootDict);
         }
     }

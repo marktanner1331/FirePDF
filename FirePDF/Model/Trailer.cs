@@ -27,8 +27,8 @@ namespace FirePDF.Model
                 throw new Exception("trailer not found at current position");
             }
 
-            PDFReaderLayer1.skipOverWhiteSpace(stream);
-            Dictionary<string, object> dict = PDFReaderLayer1.readDictionary(stream);
+            PDFReader.skipOverWhiteSpace(stream);
+            Dictionary<string, object> dict = PDFReader.readDictionary(stream);
 
             fromDictionary(dict);
         }

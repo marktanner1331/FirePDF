@@ -33,7 +33,7 @@ namespace FirePDF.Model
 
             foreach (ObjectReference objectReference in xObjects.Values)
             {
-                object xObject = PDFReaderLayer1.readIndirectObject(pdf, objectReference);
+                object xObject = PDFReader.readIndirectObject(pdf, objectReference);
                 if (xObject is XObjectForm)
                 {
                     yield return (XObjectForm)xObject;
@@ -81,7 +81,7 @@ namespace FirePDF.Model
 
                 if (root is ObjectReference)
                 {
-                    root = PDFReaderLayer1.readIndirectObject(pdf, (ObjectReference)root);
+                    root = PDFReader.readIndirectObject(pdf, (ObjectReference)root);
                 }
             }
 
@@ -102,7 +102,7 @@ namespace FirePDF.Model
 
             foreach (ObjectReference objectReference in xObjects.Values)
             {
-                object xObject = PDFReaderLayer1.readIndirectObject(pdf, objectReference);
+                object xObject = PDFReader.readIndirectObject(pdf, objectReference);
                 if (xObject is XObjectImage)
                 {
                     yield return (XObjectImage)xObject;

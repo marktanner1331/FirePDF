@@ -41,7 +41,7 @@ namespace FirePDF.StreamHelpers
                 throw new Exception();
             }
 
-            PDFReaderLayer1.skipOverWhiteSpace(pdf.stream);
+            PDFReader.skipOverWhiteSpace(pdf.stream);
 
             //http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
             pdf.stream.Position += 2;
@@ -51,7 +51,7 @@ namespace FirePDF.StreamHelpers
             byte[] buffer = new byte[length];
             pdf.stream.Read(buffer, 0, length);
 
-            PDFReaderLayer1.skipOverWhiteSpace(pdf.stream);
+            PDFReader.skipOverWhiteSpace(pdf.stream);
             chunk = ASCIIReader.readASCIIString(pdf.stream, 9);
             if (chunk != "endstream")
             {

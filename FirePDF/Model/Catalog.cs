@@ -17,7 +17,7 @@ namespace FirePDF.Model
         {
             this.pdf = pdf;
 
-            Dictionary<string, object> pagesDict = PDFReaderLayer1.readIndirectDictionary(pdf, (ObjectReference)underlyingDict["Pages"]);
+            Dictionary<string, object> pagesDict = PDFReader.readIndirectDictionary(pdf, (ObjectReference)underlyingDict["Pages"]);
             pagesRoot = new PageTreeNode(pdf, pagesDict);
         }
 

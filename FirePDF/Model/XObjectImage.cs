@@ -44,7 +44,7 @@ namespace FirePDF.Model
                 throw new Exception();
             }
 
-            PDFReaderLayer1.skipOverWhiteSpace(pdf.stream);
+            PDFReader.skipOverWhiteSpace(pdf.stream);
 
             long length = (int)underlyingDict["Length"];
 

@@ -18,7 +18,7 @@ namespace FirePDF.Tests
         {
             string test = "(hello world)";
             string expected = "hello world";
-            string actual = PDFReaderLayer1.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
 
             Assert.AreEqual(expected, actual);
         }
@@ -28,7 +28,7 @@ namespace FirePDF.Tests
         {
             string test = "(hello (world))";
             string expected = "hello (world)";
-            string actual = PDFReaderLayer1.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
 
             Assert.AreEqual(expected, actual);
         }
@@ -38,7 +38,7 @@ namespace FirePDF.Tests
         {
             string test = @"(hello world\r)";
             string expected = "hello world\r";
-            string actual = PDFReaderLayer1.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
 
             Assert.AreEqual(expected, actual);
         }
@@ -48,7 +48,7 @@ namespace FirePDF.Tests
         {
             string test = "(hello world\r)";
             string expected = "hello world\n";
-            string actual = PDFReaderLayer1.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
 
             Assert.AreEqual(expected, actual);
         }
@@ -58,7 +58,7 @@ namespace FirePDF.Tests
         {
             string test = "(hello world\n)";
             string expected = "hello world\n";
-            string actual = PDFReaderLayer1.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
 
             Assert.AreEqual(expected, actual);
         }
@@ -68,7 +68,7 @@ namespace FirePDF.Tests
         {
             string test = "(hello world\r\n)";
             string expected = "hello world\n";
-            string actual = PDFReaderLayer1.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
 
             Assert.AreEqual(expected, actual);
         }
@@ -78,7 +78,7 @@ namespace FirePDF.Tests
         {
             string test = @"(hello world\()";
             string expected = "hello world(";
-            string actual = PDFReaderLayer1.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
 
             Assert.AreEqual(expected, actual);
         }
@@ -88,7 +88,7 @@ namespace FirePDF.Tests
         {
             string test = @"(hello world\012)";
             string expected = "hello world\n";
-            string actual = PDFReaderLayer1.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
 
             Assert.AreEqual(expected, actual);
         }
@@ -99,7 +99,7 @@ namespace FirePDF.Tests
         {
             string test = @"(hello world\12)";
             string expected = "hello world\n";
-            string actual = PDFReaderLayer1.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
 
             Assert.AreEqual(expected, actual);
         }
@@ -109,7 +109,7 @@ namespace FirePDF.Tests
         {
             string test = @"(hello world\0123)";
             string expected = "hello world\n3";
-            string actual = PDFReaderLayer1.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
 
             Assert.AreEqual(expected, actual);
         }

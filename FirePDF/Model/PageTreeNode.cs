@@ -20,7 +20,7 @@ namespace FirePDF.Model
 
             foreach(ObjectReference objectReference in (List<object>)underlyingDict["Kids"])
             {
-                Dictionary<string, object> kidsDict = PDFReaderLayer1.readIndirectDictionary(pdf, objectReference);
+                Dictionary<string, object> kidsDict = PDFReader.readIndirectDictionary(pdf, objectReference);
                 switch(kidsDict["Type"])
                 {
                     case "Page":
