@@ -29,6 +29,7 @@ namespace Graphical_Debugger
         public MainWindow()
         {
             InitializeComponent();
+            Text = "FirePDF Graphical Debugger";
 
             splitter = new SplitContainer();
             splitter.Size = ClientSize;

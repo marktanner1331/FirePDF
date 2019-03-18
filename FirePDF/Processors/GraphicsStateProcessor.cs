@@ -1,6 +1,7 @@
 ﻿using FirePDF.Model;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace FirePDF.Processors
         /// initializes a new graphics state processor
         /// </summary>
         /// <param name="streamOwner">the graphics state processor will need access to the resources, i.e. for fonts, color spaces etc</param>
-        public GraphicsStateProcessor(IStreamOwner streamOwner, Rectangle initialClippingPath)
+        public GraphicsStateProcessor(IStreamOwner streamOwner, Model.Rectangle initialClippingPath)
         {
             this.streamOwner = streamOwner;
 
@@ -82,20 +83,12 @@ namespace FirePDF.Processors
                 //                case "gs":
                 //                    setGraphicsStateParameters(operator, operands);
                 //                    break;
-                //                case "i":
-                //                    if (operands.size() < 1)
-                //                    {
-                //                        throw new MissingOperandException(operator, operands);
-                //                    }
-
-                //                    if (!checkArrayTypesClass(operands, COSNumber.class))
-                //                {
-                //                    return;
-                //                }
-
-                //                COSNumber value = (COSNumber)operands.get(0);
-                //        getGraphicsState().setFlatness(value.floatValue());
-                //                break;
+                case "i":
+                    {
+                        float flatness = (float)operation.operands[0];
+                        getCurrentState().flatnessTolerance = flatness;
+                    }
+                    break;
                 //            case "j":
                 //                if (operands.size() < 1)
                 //                {
@@ -152,22 +145,28 @@ namespace FirePDF.Processors
                         throw new Exception("graphics stack is empty, cannot pop");
                     }
                     break;
-                    //            case "RG":
-                    //            {
-                    //                PDColorSpace cs = renderer.getResources().getColorSpace(COSName.DEVICERGB);
-                    //getGraphicsState().setStrokingColorSpace(cs);
+                case "rg":
+                    {
+                        List<float> floats = operation.getOperationsAsFloats();
+                        Color color = Color.FromArgb(
+                            (int)(255 * floats[0]),
+                            (int)(255 * floats[1]),
+                            (int)(255 * floats[2]));
 
-                    //setStrokingColor(operator, operands);
-                    //                break;
-                    //            }
-                    //            case "rg":
-                    //            {
-                    //                PDColorSpace cs = renderer.getResources().getColorSpace(COSName.DEVICERGB);
-                    //getGraphicsState().setNonStrokingColorSpace(cs);
+                        getCurrentState().nonStrokingColor = color;
+                    }
+                    break;
+                case "RG":
+                    {
+                        List<float> floats = operation.getOperationsAsFloats();
+                        Color color = Color.FromArgb(
+                            (int)(255 * floats[0]), 
+                            (int)(255 * floats[1]), 
+                            (int)(255 * floats[2]));
 
-                    //setNonStrokingColor(operator, operands);
-                    //                break;
-                    //            }
+                        getCurrentState().strokingColor = color;
+                    }
+                    break;
                     //            case "ri":
                     //            {
                     //                if (operands.size() < 1)

@@ -110,10 +110,7 @@ namespace FirePDF.Reading
             }
             else if((string)dict["Subtype"] == "Image")
             {
-                XObjectImage image = new XObjectImage(pdf);
-                image.fromDictionary(dict);
-
-                return image;
+                return new XObjectImage(pdf, dict, startOfStream);
             }
 
             throw new Exception($"XObject not found at {objectReference.ToString()}");

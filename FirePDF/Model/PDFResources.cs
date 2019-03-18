@@ -21,13 +21,18 @@ namespace FirePDF.Model
 
         /// <summary>
         /// returns the object at the given path, or null if it cannot be found
-        /// automatically resolves any indirect references before returning them
+        /// automatically resolves any indirect references
         /// </summary>
         public object getObjectAtPath(params string[] path)
         {
             object root = underlyingDict;
             foreach (string part in path)
             {
+                if (root is ObjectReference)
+                {
+                    root = PDFReaderLayer1.readIndirectObject(pdf, (ObjectReference)root);
+                }
+
                 if (root is Dictionary<string, object>)
                 {
                     Dictionary<string, object> temp = (Dictionary<string, object>)root;
@@ -56,14 +61,27 @@ namespace FirePDF.Model
 
                     root = temp[index];
                 }
-
-                if (root is ObjectReference)
-                {
-                    root = PDFReaderLayer1.readIndirectObject(pdf, (ObjectReference)root);
-                }
             }
 
             return root;
+        }
+
+        /// <summary>
+        /// returns the xObject image with the given name, or null if it cannot be found or is not an image
+        /// </summary>
+        public XObjectImage getXObjectImage(string xObjectName)
+        {
+            ObjectReference objectReference = (ObjectReference)getObjectAtPath("XObject", xObjectName);
+            
+            object xObject = PDFReaderLayer1.readXObject(pdf, objectReference);
+            if (xObject is XObjectImage)
+            {
+                return (XObjectImage)xObject;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

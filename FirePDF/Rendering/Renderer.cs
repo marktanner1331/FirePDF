@@ -12,12 +12,15 @@ namespace FirePDF.Rendering
     public class Renderer : IRenderer
     {
         private Graphics graphics;
+        private Func<Model.GraphicsState> getGraphicsState;
+        private Model.Rectangle streamBounds;
 
         public Renderer(Graphics graphicsContext, RectangleF bounds, Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner) : base(getGraphicsState, streamOwner)
         {
             graphics = graphicsContext;
+            this.getGraphicsState = getGraphicsState;
 
-            Model.Rectangle streamBounds = streamOwner.getBoundingBox();
+            streamBounds = streamOwner.getBoundingBox();
 
             Model.GraphicsState graphicsState = getGraphicsState();
             graphicsState.currentTransformationMatrix.Translate(0, streamBounds.height);
@@ -26,7 +29,15 @@ namespace FirePDF.Rendering
 
         public override void drawImage(Image image)
         {
-            throw new NotImplementedException();
+            graphics.Transform = getGraphicsState().currentTransformationMatrix;
+            Matrix temp = graphics.Transform.Clone();
+
+            temp.Scale(1, -1);
+            temp.Translate(0, -1);
+            
+            graphics.Transform = temp;
+            graphics.DrawImage(image, 0, 0, 1, 1);
+            graphics.Transform = getGraphicsState().currentTransformationMatrix;
         }
 
         public override void fillAndStrokePath(GraphicsPath path)
@@ -36,13 +47,13 @@ namespace FirePDF.Rendering
 
         public override void fillPath(GraphicsPath path)
         {
-            Brush b = new SolidBrush(Color.Red);
+            Brush b = new SolidBrush(getGraphicsState().nonStrokingColor);
             graphics.FillPath(b, path);
         }
 
         public override void strokePath(GraphicsPath path)
         {
-            Pen p = new Pen(Color.Blue);
+            Pen p = new Pen(getGraphicsState().strokingColor);
             graphics.DrawPath(p, path);
         }
     }

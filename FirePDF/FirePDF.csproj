@@ -45,6 +45,7 @@
     <Compile Include="Model\Catalog.cs" />
     <Compile Include="Model\PointD.cs" />
     <Compile Include="Model\Rectangle.cs" />
+    <Compile Include="Processors\ImageProcessor.cs" />
     <Compile Include="Processors\LineProcessor.cs" />
     <Compile Include="Reading\ASCIIReader.cs" />
     <Compile Include="Rendering\IRenderer.cs" />

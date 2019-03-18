@@ -11,8 +11,8 @@ namespace FirePDF.Model
     public class XObjectForm : IStreamOwner
     {
         public PDF pdf { get; private set; }
-        internal Dictionary<string, object> underlyingDict;
-        internal long startOfStream;
+        public Dictionary<string, object> underlyingDict;
+        public long startOfStream;
 
         public XObjectForm(PDF pdf)
         {

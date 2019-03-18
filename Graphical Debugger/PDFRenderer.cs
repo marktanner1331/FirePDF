@@ -37,11 +37,13 @@ namespace Graphical_Debugger
             Renderer renderer = new Renderer(graphics, bounds, gsp.getCurrentState, streamOwner);
 
             LineProcessor lp = new LineProcessor(gsp.getCurrentState, renderer);
+            ImageProcessor ip = new ImageProcessor(streamOwner, renderer);
 
             foreach (Operation operation in operations)
             {
                 gsp.processOperation(operation);
                 lp.processOperation(operation);
+                ip.processOperation(operation);
             }
         }
 

@@ -27,11 +27,27 @@ namespace FirePDF.Model
         {
             if(operands.Count > 0)
             {
-                return string.Join(" ", operands) + " " + operatorName;
+                return string.Join(" ", operands.Select(x => operandToString(x))) + " " + operatorName;
             }
             else
             {
                 return operatorName;
+            }
+        }
+
+        private string operandToString(object operand)
+        {
+            if(operand is byte[])
+            {
+                return BitConverter.ToString((byte[])operand).Replace("-", "");
+            }
+            else if(operand is IEnumerable<object>)
+            {
+                return "[" + string.Join(" ", (IEnumerable<object>)operand) + "]";
+            }
+            else
+            {
+                return Convert.ToString(operand);
             }
         }
 
@@ -46,6 +62,11 @@ namespace FirePDF.Model
             }
 
             return points;
+        }
+
+        public List<int> getOperationsAsInts()
+        {
+            return operands.Select(x => Convert.ToInt32(x)).ToList();
         }
 
         public List<float> getOperationsAsFloats()
