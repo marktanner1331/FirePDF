@@ -43,7 +43,7 @@ namespace FirePDF.Model
         public Stream readContentStream()
         {
             pdf.stream.Position = startOfStream;
-            return PDFReader.readContentStream(pdf, underlyingDict);
+            return PDFReader.decompressStream(pdf.stream, underlyingDict);
         }
     }
 }

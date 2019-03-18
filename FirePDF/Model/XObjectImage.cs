@@ -35,25 +35,10 @@ namespace FirePDF.Model
 
         public Image getImage()
         {
-            MemoryStream temp = new MemoryStream();
             pdf.stream.Position = startOfStream;
-            
-            long length = (int)underlyingDict["Length"];
+            Stream s = PDFReader.decompressStream(pdf.stream, underlyingDict);
 
-            byte[] buffer = new byte[4096];
-            while(length > 0)
-            {
-                int bytesToRead = (int)Math.Min(buffer.Length, length);
-                int bytesRead = pdf.stream.Read(buffer, 0, bytesToRead);
-
-                temp.Write(buffer, 0, bytesRead);
-
-                length -= bytesRead;
-            }
-
-            temp.Seek(0, SeekOrigin.Begin);
-
-            return Image.FromStream(temp, true, true);
+            return Image.FromStream(s, true, true);
         }
     }
 }

@@ -29,36 +29,41 @@ namespace FirePDF.Reading
             };
         }
 
-        public static Stream readContentStream(PDF pdf, XREFTable.XREFRecord xrefRecord)
+        public static Stream decompressStream(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
             Dictionary<string, object> dict = readIndirectDictionary(pdf, xrefRecord);
             skipOverStreamHeader(pdf.stream);
 
-            return readContentStream(pdf, dict);
+            return decompressStream(pdf.stream, dict);
         }
 
-        public static Stream readContentStream(PDF pdf, ObjectReference objectReference)
+        public static Stream decompressStream(PDF pdf, ObjectReference objectReference)
         {
             Dictionary<string, object> dict = readIndirectDictionary(pdf, objectReference);
             skipOverStreamHeader(pdf.stream);
 
-            return readContentStream(pdf, dict);
+            return decompressStream(pdf.stream, dict);
         }
 
-        public static Stream readContentStream(PDF pdf, int objectNumber, int generation)
+        public static Stream decompressStream(PDF pdf, int objectNumber, int generation)
         {
             Dictionary<string, object> dict = readIndirectDictionary(pdf, objectNumber, generation);
             skipOverStreamHeader(pdf.stream);
 
-            return readContentStream(pdf, dict);
+            return decompressStream(pdf.stream, dict);
         }
 
-        public static Stream readContentStream(PDF pdf, Dictionary<string, object> streamDictionary)
+        /// <summary>
+        /// decompresses and returns a content stream at the current position
+        /// </summary>
+        public static Stream decompressStream(Stream stream, Dictionary<string, object> streamDictionary)
         {
             switch ((string)streamDictionary["Filter"])
             {
                 case "FlateDecode":
-                    return FlateContentStream.decompressStream(pdf.stream, streamDictionary);
+                    return FlateContentStream.decompressStream(stream, streamDictionary);
+                case "DCTDecode":
+                    return RawContentStream.decompressStream(stream, streamDictionary);
                 default:
                     throw new NotImplementedException();
             }

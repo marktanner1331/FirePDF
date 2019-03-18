@@ -32,8 +32,10 @@ namespace FirePDF.Rendering
         {
             Model.GraphicsState gs = getGraphicsState();
 
-            graphics.Transform = gs.currentTransformationMatrix;
+            graphics.Transform = new Matrix();
             graphics.SetClip(gs.clippingPath);
+
+            graphics.Transform = gs.currentTransformationMatrix;
         }
 
         public override void drawImage(Image image)
