@@ -19,14 +19,14 @@ namespace FirePDF.Processors
         /// initializes a new graphics state processor
         /// </summary>
         /// <param name="streamOwner">the graphics state processor will need access to the resources, i.e. for fonts, color spaces etc</param>
-        public GraphicsStateProcessor(IStreamOwner streamOwner, Model.Rectangle initialClippingPath)
+        public GraphicsStateProcessor(IStreamOwner streamOwner)
         {
             this.streamOwner = streamOwner;
 
             this.graphicsStack = new Stack<GraphicsState>();
 
             GraphicsPath clippingPath = new GraphicsPath();
-            clippingPath.AddRectangle(initialClippingPath.toRectangleF());
+            clippingPath.AddRectangle(streamOwner.boundingBox.toRectangleF());
             this.graphicsStack.Push(new GraphicsState(clippingPath));
         }
 

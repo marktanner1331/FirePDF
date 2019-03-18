@@ -9,6 +9,6 @@ namespace FirePDF.Model
     public interface IStreamOwner
     {
         PDFResources resources { get; }
-        Rectangle getBoundingBox();
+        Rectangle boundingBox { get; }
     }
 }

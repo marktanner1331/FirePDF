@@ -47,7 +47,7 @@ namespace FirePDF.Model
 
         public void intersectClippingPath(GraphicsPath currentPath)
         {
-            
+            //TODO
         }
     }
 }

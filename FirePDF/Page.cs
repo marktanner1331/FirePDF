@@ -15,6 +15,7 @@ namespace FirePDF
         public PDF pdf { get; private set; }
         public Dictionary<string, object> underlyingDict;
         public PDFResources resources { get; private set; }
+        public Model.Rectangle boundingBox { get; private set; }
 
         public Page(PDF pdf)
         {
@@ -38,11 +39,6 @@ namespace FirePDF
             {
                 { "Contents", new List<ObjectReference>() }
             };
-        }
-
-        public Model.Rectangle getBoundingBox()
-        {
-            throw new NotImplementedException();
         }
     }
 }

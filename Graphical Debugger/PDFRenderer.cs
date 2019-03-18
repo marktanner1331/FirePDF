@@ -31,7 +31,7 @@ namespace Graphical_Debugger
 
         private void renderGraphics(Graphics graphics)
         {
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(streamOwner, streamOwner.getBoundingBox());
+            GraphicsStateProcessor gsp = new GraphicsStateProcessor(streamOwner);
 
             RectangleF bounds = new RectangleF(0, 0, Width, Height);
             Renderer renderer = new Renderer(graphics, bounds, gsp.getCurrentState, streamOwner);

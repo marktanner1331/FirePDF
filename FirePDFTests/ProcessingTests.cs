@@ -37,7 +37,7 @@ namespace FirePDF.Tests
             Stream s = PDFReaderLayer2.readContentStream(form);
             List<Operation> operations = ContentStreamReader.readContentStream(s);
 
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form, form.getBoundingBox());
+            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
             foreach(Operation operation in operations)
             {
                 gsp.processOperation(operation);
@@ -58,7 +58,7 @@ namespace FirePDF.Tests
             Stream s = PDFReaderLayer2.readContentStream(form);
             List<Operation> operations = ContentStreamReader.readContentStream(s);
 
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form, form.getBoundingBox());
+            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
 
             StringBuilder sb = new StringBuilder();
             LoggingRenderer renderer = new LoggingRenderer(gsp.getCurrentState, form, x => sb.AppendLine(x));
@@ -86,7 +86,7 @@ namespace FirePDF.Tests
             Stream s = PDFReaderLayer2.readContentStream(form);
             List<Operation> operations = ContentStreamReader.readContentStream(s);
 
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form, form.getBoundingBox());
+            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
 
             StringBuilder sb = new StringBuilder();
             LoggingRenderer renderer = new LoggingRenderer(gsp.getCurrentState, form, x => sb.AppendLine(x));
@@ -116,9 +116,9 @@ namespace FirePDF.Tests
             Stream s = PDFReaderLayer2.readContentStream(form);
             List<Operation> operations = ContentStreamReader.readContentStream(s);
 
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form, form.getBoundingBox());
+            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
 
-            FirePDF.Model.Rectangle bounds = form.getBoundingBox();
+            FirePDF.Model.Rectangle bounds = form.boundingBox;
             Bitmap image = new Bitmap((int)bounds.width, (int)bounds.height);
             Graphics g = Graphics.FromImage(image);
 

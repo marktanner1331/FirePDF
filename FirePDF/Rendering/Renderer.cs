@@ -18,7 +18,7 @@ namespace FirePDF.Rendering
         {
             graphics = graphicsContext;
 
-            streamBounds = streamOwner.getBoundingBox();
+            streamBounds = streamOwner.boundingBox;
 
             Model.GraphicsState graphicsState = getGraphicsState();
             graphicsState.currentTransformationMatrix.Translate(0, streamBounds.height);

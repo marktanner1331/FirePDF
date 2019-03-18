@@ -14,6 +14,7 @@ namespace FirePDF.Model
         public Dictionary<string, object> underlyingDict;
         public long startOfStream;
         public PDFResources resources { get; private set; }
+        public Model.Rectangle boundingBox { get; private set; }
 
         public XObjectForm(PDF pdf)
         {
@@ -33,11 +34,7 @@ namespace FirePDF.Model
             this.startOfStream = startOfStream;
 
             this.resources = new PDFResources(pdf, (Dictionary<string, object>)underlyingDict["Resources"]);
-        }
-
-        public Rectangle getBoundingBox()
-        {
-            return new Rectangle((List<object>)underlyingDict["BBox"]);
+            this.boundingBox = new Rectangle((List<object>)underlyingDict["BBox"]);
         }
     }
 }
