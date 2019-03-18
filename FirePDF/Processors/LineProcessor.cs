@@ -68,7 +68,7 @@ namespace FirePDF.Processors
                         }
                         else
                         {
-                            currentPath.AddCurve(new PointF[] { currentPoint.Value, points[0], points[1], points[2] });
+                            currentPath.AddBezier(currentPoint.Value, points[0], points[1], points[2]);
                             currentPoint = points[2];
                         }
                     }
@@ -161,7 +161,7 @@ namespace FirePDF.Processors
                         }
                         else
                         {
-                            currentPath.AddCurve(new PointF[] { currentPoint.Value, currentPoint.Value, points[0], points[1] });
+                            currentPath.AddBezier(currentPoint.Value, currentPoint.Value, points[0], points[1]);
                             currentPoint = points[1];
                         }
                         break;
@@ -183,7 +183,7 @@ namespace FirePDF.Processors
                         }
                         else
                         {
-                            currentPath.AddCurve(new PointF[] { currentPoint.Value, points[0], points[1], points[1] });
+                            currentPath.AddBezier(currentPoint.Value, points[0], points[1], points[1]);
                             currentPoint = points[1];
                         }
                         break;
