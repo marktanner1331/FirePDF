@@ -31,6 +31,15 @@ namespace FirePDF.Reading
             return readContentStream(pdf, dict, startOfStream);
         }
 
+        public static PDFContentStream readContentStream(PDF pdf, int objectNumber, int generation)
+        {
+            Dictionary<string, object> dict = readIndirectDictionary(pdf, objectNumber, generation);
+            skipOverWhiteSpace(pdf.stream);
+            long startOfStream = pdf.stream.Position;
+
+            return readContentStream(pdf, dict, startOfStream);
+        }
+
         public static PDFContentStream readContentStream(PDF pdf, Dictionary<string, object> streamDictionary, long startOfStream)
         {
             switch ((string)streamDictionary["Filter"])
@@ -40,15 +49,6 @@ namespace FirePDF.Reading
                 default:
                     throw new NotImplementedException();
             }
-        }
-
-        public static PDFContentStream readContentStream(PDF pdf, int objectNumber, int generation)
-        {
-            Dictionary<string, object> dict = readIndirectDictionary(pdf, objectNumber, generation);
-            skipOverWhiteSpace(pdf.stream);
-            long startOfStream = pdf.stream.Position;
-
-            return readContentStream(pdf, dict, startOfStream);
         }
         
         public static long readLastStartXREF(string chunk)
@@ -141,9 +141,7 @@ namespace FirePDF.Reading
             }
 
             Dictionary<string, object> dict = (Dictionary<string, object>)obj;
-
-            //TODO maybe parse pages here?
-
+            
             if(dict.ContainsKey("Subtype") == false)
             {
                 return dict;

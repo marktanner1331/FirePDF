@@ -15,22 +15,19 @@ namespace FirePDF
         public XREFTable readableTable;
         private Catalog catalog;
 
-        public PDF(string fullFilePath) : this(File.OpenRead(fullFilePath))
-        {
+        public PDF(string fullFilePath) : this(File.OpenRead(fullFilePath)) { }
 
-        }
-
-        public PDF(Stream stream) : this()
+        public PDF(Stream stream)
         {
+            this.readableTable = new XREFTable();
             this.stream = stream;
-
             parse();
         }
 
         public PDF()
         {
             readableTable = new XREFTable();
-            catalog = new Catalog(this);
+            throw new NotImplementedException();
         }
 
         public Page getPage(int oneBasedPageNumber)
@@ -92,7 +89,8 @@ namespace FirePDF
                 }
             }
 
-            catalog.fromStream(root);
+            Dictionary<string, object> rootDict = PDFReaderLayer1.readIndirectDictionary(this, root);
+            catalog = new Catalog(this, rootDict);
         }
     }
 }

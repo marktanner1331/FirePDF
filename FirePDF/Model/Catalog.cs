@@ -13,17 +13,12 @@ namespace FirePDF.Model
         private PDF pdf;
         private PageTreeNode pagesRoot;
 
-        public Catalog(PDF pdf)
+        public Catalog(PDF pdf, Dictionary<string, object> underlyingDict)
         {
             this.pdf = pdf;
-            pagesRoot = new PageTreeNode(pdf);
-        }
 
-        public void fromStream(ObjectReference objectReference)
-        {
-            Dictionary<string, object> dict = (Dictionary<string, object>)PDFReaderLayer1.readIndirectObject(pdf, objectReference);
-            
-            pagesRoot.fromStream((ObjectReference)dict["Pages"]);
+            Dictionary<string, object> pagesDict = PDFReaderLayer1.readIndirectDictionary(pdf, (ObjectReference)underlyingDict["Pages"]);
+            pagesRoot = new PageTreeNode(pdf, pagesDict);
         }
 
         public int getNumPages()

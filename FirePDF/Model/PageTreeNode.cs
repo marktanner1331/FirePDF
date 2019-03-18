@@ -13,21 +13,12 @@ namespace FirePDF.Model
         private PDF pdf;
         private List<object> pages;
 
-        public PageTreeNode(PDF pdf)
+        public PageTreeNode(PDF pdf, Dictionary<string, object> underlyingDict)
         {
             this.pdf = pdf;
             pages = new List<object>();
-        }
 
-        public void fromStream(ObjectReference objectReference)
-        {
-            Dictionary<string, object> dict = PDFReaderLayer1.readIndirectDictionary(pdf, objectReference);
-            fromDictionary(dict);
-        }
-
-        public void fromDictionary(Dictionary<string, object> dict)
-        {
-            foreach(ObjectReference objectReference in (List<object>)dict["Kids"])
+            foreach(ObjectReference objectReference in (List<object>)underlyingDict["Kids"])
             {
                 Dictionary<string, object> kidsDict = PDFReaderLayer1.readIndirectDictionary(pdf, objectReference);
                 switch(kidsDict["Type"])
@@ -37,8 +28,7 @@ namespace FirePDF.Model
                         pages.Add(page);
                         break;
                     case "Pages":
-                        PageTreeNode node = new PageTreeNode(pdf);
-                        node.fromDictionary(kidsDict);
+                        PageTreeNode node = new PageTreeNode(pdf, kidsDict);
                         pages.Add(node);
                         break;
                     default:
@@ -47,7 +37,7 @@ namespace FirePDF.Model
             }
         }
 
-        internal Page getPage(int oneBasedPageNumber)
+        public Page getPage(int oneBasedPageNumber)
         {
             int pageCounter = 1;
             foreach (object node in pages)
@@ -80,7 +70,7 @@ namespace FirePDF.Model
             throw new Exception("Page not found in catalog");
         }
 
-        internal int getNumPages()
+        public int getNumPages()
         {
             int numPages = 0;
             foreach(object node in pages)
