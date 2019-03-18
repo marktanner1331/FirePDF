@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Matrix = System.Drawing.Drawing2D.Matrix;
+using GraphicsPath = System.Drawing.Drawing2D.GraphicsPath;
 
 namespace FirePDF.Processors
 {
@@ -23,7 +24,22 @@ namespace FirePDF.Processors
             this.streamOwner = streamOwner;
 
             this.graphicsStack = new Stack<GraphicsState>();
-            this.graphicsStack.Push(new GraphicsState());
+
+            GraphicsPath clippingPath = new GraphicsPath();
+            clippingPath.AddRectangle(initialClippingPath.toRectangleF());
+            this.graphicsStack.Push(new GraphicsState(clippingPath));
+        }
+
+        /// <summary>
+        /// initializes a new graphics state processor
+        /// </summary>
+        /// <param name="streamOwner">the graphics state processor will need access to the resources, i.e. for fonts, color spaces etc</param>
+        public GraphicsStateProcessor(IStreamOwner streamOwner, GraphicsPath initialClippingPath)
+        {
+            this.streamOwner = streamOwner;
+
+            this.graphicsStack = new Stack<GraphicsState>();
+            this.graphicsStack.Push(new GraphicsState(initialClippingPath));
         }
 
         public GraphicsState getCurrentState()

@@ -36,8 +36,8 @@ namespace Graphical_Debugger
             splitter.SplitterDistance = 200;
             Controls.Add(splitter);
 
-            //string file = @"C:\Users\Mark Tanner\scratch\page 24 fixed.pdf";
-            string file = @"C:\Users\Mark Tanner\scratch\page 2.pdf";
+            string file = @"C:\Users\Mark Tanner\scratch\page 24 fixed.pdf";
+            //string file = @"C:\Users\Mark Tanner\scratch\page 2.pdf";
             PDF pdf = new PDF(file);
 
             Page page = pdf.getPage(1);

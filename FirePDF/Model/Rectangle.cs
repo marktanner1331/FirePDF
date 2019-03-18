@@ -31,5 +31,16 @@ namespace FirePDF.Model
 
         public float width => right - left;
         public float height => top - bottom;
+
+        public System.Drawing.RectangleF toRectangleF()
+        {
+            return new System.Drawing.RectangleF
+            {
+                X = left,
+                Y = bottom,
+                Width = right - left,
+                Height = top - bottom
+            };
+        }
     }
 }

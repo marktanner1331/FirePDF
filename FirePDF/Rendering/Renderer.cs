@@ -25,14 +25,26 @@ namespace FirePDF.Rendering
             graphicsState.currentTransformationMatrix.Scale(1, -1);
         }
 
+        /// <summary>
+        /// refreshes the state of the graphicsContext from the graphics state returned by getGraphicsState
+        /// </summary>
+        private void refreshGraphicsState()
+        {
+            Model.GraphicsState gs = getGraphicsState();
+
+            graphics.Transform = gs.currentTransformationMatrix;
+            graphics.SetClip(gs.clippingPath);
+        }
+
         public override void drawImage(Image image)
         {
-            graphics.Transform = getGraphicsState().currentTransformationMatrix;
+            refreshGraphicsState();
+
             Matrix temp = graphics.Transform.Clone();
 
             temp.Scale(1, -1);
             temp.Translate(0, -1);
-            
+
             graphics.Transform = temp;
             graphics.DrawImage(image, 0, 0, 1, 1);
             graphics.Transform = getGraphicsState().currentTransformationMatrix;
@@ -45,14 +57,16 @@ namespace FirePDF.Rendering
 
         public override void fillPath(GraphicsPath path)
         {
-            graphics.Transform = getGraphicsState().currentTransformationMatrix;
+            refreshGraphicsState();
+
             Brush b = new SolidBrush(getGraphicsState().nonStrokingColor);
             graphics.FillPath(b, path);
         }
 
         public override void strokePath(GraphicsPath path)
         {
-            graphics.Transform = getGraphicsState().currentTransformationMatrix;
+            refreshGraphicsState();
+
             Pen p = new Pen(getGraphicsState().strokingColor);
             graphics.DrawPath(p, path);
         }
