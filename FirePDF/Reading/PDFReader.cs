@@ -61,9 +61,31 @@ namespace FirePDF.Reading
             switch ((string)streamDictionary["Filter"])
             {
                 case "FlateDecode":
-                    return FlateContentStream.decompressStream(stream, streamDictionary);
+                    return FlateStreamReader.decompressStream(stream, streamDictionary);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public static Image decompressImageStream(Stream stream, Dictionary<string, object> streamDictionary)
+        {
+            switch ((string)streamDictionary["Filter"])
+            {
+                case "FlateDecode":
+                    {
+                        MemoryStream decompressed = FlateStreamReader.decompressStream(stream, streamDictionary);
+                        byte[] buffer = decompressed.ToArray();
+
+                        int width = (int)streamDictionary["Width"];
+                        int height = (int)streamDictionary["Height"];
+
+                        return RawStreamReader.convertRGBArrayToImage(buffer, width, height);
+                    }
                 case "DCTDecode":
-                    return RawContentStream.decompressStream(stream, streamDictionary);
+                    {
+                        Stream decompressed = RawStreamReader.decompressStream(stream, streamDictionary);
+                        return Image.FromStream(decompressed);
+                    }
                 default:
                     throw new NotImplementedException();
             }

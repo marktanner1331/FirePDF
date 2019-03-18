@@ -50,7 +50,7 @@
     <Compile Include="Rendering\LoggingRenderer.cs" />
     <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="Rendering\WindingRule.cs" />
-    <Compile Include="StreamHelpers\FlateContentStream.cs" />
+    <Compile Include="StreamHelpers\FlateStreamReader.cs" />
     <Compile Include="Model\GraphicsState.cs" />
     <Compile Include="Processors\GraphicsStateProcessor.cs" />
     <Compile Include="Model\IStreamOwner.cs" />
@@ -70,7 +70,7 @@
     <Compile Include="Model\XObjectImage.cs" />
     <Compile Include="Model\XREFStream.cs" />
     <Compile Include="Model\XREFTable.cs" />
-    <Compile Include="StreamHelpers\RawContentStream.cs" />
+    <Compile Include="StreamHelpers\RawStreamReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Writing\" />

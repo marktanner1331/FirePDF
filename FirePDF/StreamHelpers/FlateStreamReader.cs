@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace FirePDF.StreamHelpers
 {
-    class FlateContentStream
+    class FlateStreamReader
     {
         /// <summary>
         /// decompresses a stream from the pdf stream at the current position and returns it
         /// </summary>
-        public static Stream decompressStream(Stream pdfStream, Dictionary<string, object> streamDictionary)
+        public static MemoryStream decompressStream(Stream pdfStream, Dictionary<string, object> streamDictionary)
         {
             //http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
             pdfStream.Position += 2;
@@ -44,10 +44,25 @@ namespace FirePDF.StreamHelpers
                 }
                 else
                 {
-                    int columns = (int)((Dictionary<string, object>)streamDictionary["DecodeParms"])["Columns"];
+                    Dictionary<string, object> decodeParms = (Dictionary<string, object>)streamDictionary["DecodeParms"];
+                    int columns = (int)decodeParms["Columns"];
+
+                    int colors = 1;
+                    if(decodeParms.ContainsKey("Colors") )
+                    {
+                        colors = (int)decodeParms["Colors"];
+                    }
+
+                    int bitsPerComponent = 8;
+                    if (streamDictionary.ContainsKey("BitsPerComponent"))
+                    {
+                        bitsPerComponent = (int)streamDictionary["BitsPerComponent"];
+                    }
+
+                    int bytesPerPixel = colors * bitsPerComponent / 8;
 
                     byte[] predictedBytes = decompressed.ToArray();
-                    byte[] plainBytes = PNGPredictor.decompress(predictedBytes, columns);
+                    byte[] plainBytes = PNGPredictor.decompress(predictedBytes, columns, bytesPerPixel);
 
                     decompressed.Dispose();
                     return new MemoryStream(plainBytes);

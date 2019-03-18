@@ -47,7 +47,8 @@ namespace FirePDF.Model
 
         public void intersectClippingPath(GraphicsPath currentPath)
         {
-            //TODO
+            //currentPath.Transform(currentTransformationMatrix);
+            //clippingPath.AddPath(currentPath, false);
         }
     }
 }

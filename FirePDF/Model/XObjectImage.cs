@@ -36,9 +36,7 @@ namespace FirePDF.Model
         public Image getImage()
         {
             pdf.stream.Position = startOfStream;
-            Stream s = PDFReader.decompressStream(pdf.stream, underlyingDict);
-
-            return Image.FromStream(s, true, true);
+            return PDFReader.decompressImageStream(pdf.stream, underlyingDict);
         }
     }
 }
