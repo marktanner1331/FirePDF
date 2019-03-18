@@ -12,6 +12,8 @@ namespace FirePDF.Reading
     {
         public static Stream readContentStream(Page page)
         {
+            //TODO move this as a method of the xObject
+
             MemoryStream compositeStream = new MemoryStream();
 
             List<object> contents = (List<object>)page.underlyingDict["Contents"];
@@ -22,8 +24,7 @@ namespace FirePDF.Reading
             
             foreach (ObjectReference objectReference in contents)
             {
-                PDFContentStreamObject contentStream = PDFReaderLayer1.readContentStream(page.pdf, objectReference);
-                using (Stream stream = contentStream.readStream())
+                using (Stream stream = PDFReaderLayer1.readContentStream(page.pdf, objectReference))
                 {
                     stream.CopyTo(compositeStream);
                 }
@@ -35,8 +36,8 @@ namespace FirePDF.Reading
 
         public static Stream readContentStream(XObjectForm xObject)
         {
-            PDFContentStreamObject contentStream = PDFReaderLayer1.readContentStream(xObject.pdf, xObject.underlyingDict, xObject.startOfStream);
-            return contentStream.readStream();
+            //TODO move this as a method of the xObject
+            return PDFReaderLayer1.readContentStream(xObject.pdf, xObject.underlyingDict, xObject.startOfStream);
         }
     }
 }

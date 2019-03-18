@@ -14,31 +14,34 @@ namespace FirePDF.Model
     /// </summary>
     public class PDFObjectStream
     {
-        private PDFContentStreamObject contentStream;
+        private long startOfStream;
+        private PDF pdf;
+        private Dictionary<string, object> streamDict;
+
         private int n;
         private int first;
 
         /// <summary>
         /// initializes the PDFObjectStream with a specific pdf object
         /// </summary>
-        /// <param name="pdf">the pdf that contains the object stream</param>
-        /// <param name="objectNumber">the indirect reference to the object</param>
-        public PDFObjectStream(PDF pdf, int objectNumber)
+        public PDFObjectStream(PDF pdf, Dictionary<string, object> streamDict, long startOfStream)
         {
-            contentStream = PDFReaderLayer1.readContentStream(pdf, objectNumber, 0);
-
-            if((string)contentStream.streamDictionary["Type"] != "ObjStm")
+            this.pdf = pdf;
+            this.streamDict = streamDict;
+            this.startOfStream = startOfStream;
+            
+            if((string)streamDict["Type"] != "ObjStm")
             {
                 throw new Exception("Object is not an object stream");
             }
 
-            if(contentStream.streamDictionary.ContainsKey("Extends"))
+            if(streamDict.ContainsKey("Extends"))
             {
                 throw new NotImplementedException();
             }
 
-            n = (int)contentStream.streamDictionary["N"];
-            first = (int)contentStream.streamDictionary["First"];
+            n = (int)streamDict["N"];
+            first = (int)streamDict["First"];
         }
 
         /// <summary>
@@ -63,7 +66,7 @@ namespace FirePDF.Model
 
         public object readObject(int objectNumber)
         {
-            using (Stream stream = contentStream.readStream())
+            using (Stream stream = PDFReaderLayer1.readContentStream(pdf, streamDict, startOfStream))
             {
                 BinaryReader reader = new BinaryReader(stream);
                 

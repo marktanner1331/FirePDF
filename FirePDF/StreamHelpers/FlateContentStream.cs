@@ -10,9 +10,11 @@ using System.Threading.Tasks;
 
 namespace FirePDF.StreamHelpers
 {
-    class FlateContentStream : PDFContentStreamObject
+    class FlateContentStream
     {
         private long startOfStream;
+        private PDF pdf;
+        private Dictionary<string, object> streamDictionary;
 
         /// <summary>
         /// represents a flate stream, providing methods for decoding
@@ -20,15 +22,17 @@ namespace FirePDF.StreamHelpers
         /// <param name="pdf"></param>
         /// <param name="dict">the stream dictionary</param>
         /// <param name="startOfStream">the offset of the 'stream' keywords</param>
-        public FlateContentStream(PDF pdf, Dictionary<string, object> dict, long startOfStream) : base(pdf, dict)
+        public FlateContentStream(PDF pdf, Dictionary<string, object> dict, long startOfStream)
         {
+            this.pdf = pdf;
+            this.streamDictionary = dict;
             this.startOfStream = startOfStream;
         }
 
         /// <summary>
         /// returns a seekable stream
         /// </summary>
-        public override Stream readStream()
+        public Stream readStream()
         {
             pdf.stream.Position = startOfStream;
             string chunk = ASCIIReader.readASCIIString(pdf.stream, 6);

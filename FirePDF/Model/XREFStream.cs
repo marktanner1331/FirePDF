@@ -26,16 +26,14 @@ namespace FirePDF.Model
             PDFReaderLayer1.skipOverWhiteSpace(pdf.stream);
             long startOfStream = pdf.stream.Position;
 
-            PDFContentStreamObject contentStream = PDFReaderLayer1.readContentStream(pdf, dict, startOfStream);
-
-            using (Stream inner = contentStream.readStream())
+            using (Stream inner = PDFReaderLayer1.readContentStream(pdf, dict, startOfStream))
             {
                 int size = (int)dict["Size"];
 
                 //An array containing a pair of integers for each subsection in this section.
                 //Default value: [0 Size].
                 List<int> index;
-                if(dict.ContainsKey("Index"))
+                if (dict.ContainsKey("Index"))
                 {
                     index = ((List<object>)dict["Index"]).Cast<int>().ToList();
                 }
@@ -53,7 +51,7 @@ namespace FirePDF.Model
                 }
 
                 int entryLength = w.Sum();
-                
+
                 table = new XREFTable();
                 foreach (Tuple<int, int> section in sections)
                 {
@@ -82,7 +80,7 @@ namespace FirePDF.Model
                             field3 |= inner.ReadByte();
                         }
 
-                        switch(field1)
+                        switch (field1)
                         {
                             case 0:
                                 table.addFreeRecord(objectNumber, field3);
