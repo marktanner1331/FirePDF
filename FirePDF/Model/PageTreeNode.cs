@@ -29,17 +29,16 @@ namespace FirePDF.Model
         {
             foreach(ObjectReference objectReference in (List<object>)dict["Kids"])
             {
-                Dictionary<string, object> KidsDict = PDFReaderLayer1.readIndirectDictionary(pdf, objectReference);
-                switch(KidsDict["Type"])
+                Dictionary<string, object> kidsDict = PDFReaderLayer1.readIndirectDictionary(pdf, objectReference);
+                switch(kidsDict["Type"])
                 {
                     case "Page":
-                        Page page = new Page(pdf);
-                        page.fromDictionary(KidsDict);
+                        Page page = new Page(pdf, kidsDict);
                         pages.Add(page);
                         break;
                     case "Pages":
                         PageTreeNode node = new PageTreeNode(pdf);
-                        node.fromDictionary(KidsDict);
+                        node.fromDictionary(kidsDict);
                         pages.Add(node);
                         break;
                     default:

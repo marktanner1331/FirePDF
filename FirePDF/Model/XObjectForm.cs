@@ -13,6 +13,7 @@ namespace FirePDF.Model
         public PDF pdf { get; private set; }
         public Dictionary<string, object> underlyingDict;
         public long startOfStream;
+        public PDFResources resources { get; private set; }
 
         public XObjectForm(PDF pdf)
         {
@@ -30,65 +31,13 @@ namespace FirePDF.Model
             this.pdf = pdf;
             this.underlyingDict = dict;
             this.startOfStream = startOfStream;
+
+            this.resources = new PDFResources(pdf, (Dictionary<string, object>)underlyingDict["Resources"]);
         }
 
         public Rectangle getBoundingBox()
         {
             return new Rectangle((List<object>)underlyingDict["BBox"]);
-        }
-
-        /// <summary>
-        /// returns the object at the given path, or null if it cannot be found
-        /// automatically resolves any indirect references before returning them
-        /// </summary>
-        /// TODO deprecate this as we can use PDFResources instead for most things
-        public object getObjectAtPath(params string[] path)
-        {
-            object root = underlyingDict;
-            foreach (string part in path)
-            {
-                if (root is Dictionary<string, object>)
-                {
-                    Dictionary<string, object> temp = (Dictionary<string, object>)root;
-                    if (temp.ContainsKey(part))
-                    {
-                        root = temp[part];
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-                else if (root is List<object>)
-                {
-                    int index;
-                    if (int.TryParse(part, out index) == false)
-                    {
-                        return null;
-                    }
-
-                    List<object> temp = (List<object>)root;
-                    if (temp.Count <= index)
-                    {
-                        return null;
-                    }
-
-                    root = temp[index];
-                }
-
-                if (root is ObjectReference)
-                {
-                    root = PDFReaderLayer1.readIndirectObject(pdf, (ObjectReference)root);
-                }
-            }
-
-            return root;
-        }
-
-        public PDFResources getResources()
-        {
-            Dictionary<string, object> resources = (Dictionary<string, object>)underlyingDict["Resources"];
-            return new PDFResources(pdf, resources);
         }
     }
 }

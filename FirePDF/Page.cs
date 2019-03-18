@@ -10,21 +10,29 @@ using System.Threading.Tasks;
 
 namespace FirePDF
 {
-    public class Page
+    public class Page : IStreamOwner
     {
         public PDF pdf { get; private set; }
-        private Dictionary<string, object> underlyingDict;
+        public Dictionary<string, object> underlyingDict;
+        public PDFResources resources { get; private set; }
 
         public Page(PDF pdf)
         {
             this.pdf = pdf;
-
             underlyingDict = getEmptyUnderlyingDict();
+            throw new NotImplementedException();
+        }
+        
+        public Page(PDF pdf, Dictionary<string, object> pageDictionary)
+        {
+            this.pdf = pdf;
+            this.underlyingDict = pageDictionary;
+            this.resources = new PDFResources(pdf, (Dictionary<string, object>)underlyingDict["Resources"]);
         }
 
         private Dictionary<string, object> getEmptyUnderlyingDict()
         {
-            //TODO finish this
+            //TODO finish getEmptyUnderlyingDict()
             //and do the same with other underlying dicts?
             return new Dictionary<string, object>
             {
@@ -32,102 +40,9 @@ namespace FirePDF
             };
         }
 
-        public void fromDictionary(Dictionary<string, object> dict)
+        public Model.Rectangle getBoundingBox()
         {
-            this.underlyingDict = dict;
-        }
-
-        //TODO move to PDFResources
-        public IEnumerable<XObjectForm> getXObjectForms()
-        {
-            Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("Resources", "XObject");
-            if (xObjects == null)
-            {
-                yield break;
-            }
-
-            foreach (ObjectReference objectReference in xObjects.Values)
-            {
-                object xObject = PDFReaderLayer1.readXObject(pdf, objectReference);
-                if (xObject is XObjectForm)
-                {
-                    yield return (XObjectForm)xObject;
-                }
-            }
-        }
-
-        /// <summary>
-        /// returns the object at the given path, or null if it cannot be found
-        /// automatically resolves any indirect references before returning them
-        /// </summary>
-        /// TODO deprecate this as we can use PDFResources instead for most things
-        public object getObjectAtPath(params string[] path)
-        {
-            if (path[0] == "Resources" && underlyingDict.ContainsKey("Resources") == false)
-            {
-                //resources are inherited from tree
-                throw new NotImplementedException();
-            }
-
-            object root = underlyingDict;
-            foreach (string part in path)
-            {
-                if (root is Dictionary<string, object>)
-                {
-                    Dictionary<string, object> temp = (Dictionary<string, object>)root;
-                    if (temp.ContainsKey(part))
-                    {
-                        root = temp[part];
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-                else if (root is List<object>)
-                {
-                    int index;
-                    if (int.TryParse(part, out index) == false)
-                    {
-                        return null;
-                    }
-
-                    List<object> temp = (List<object>)root;
-                    if (temp.Count <= index)
-                    {
-                        return null;
-                    }
-
-                    root = temp[index];
-                }
-
-                if (root is ObjectReference)
-                {
-                    root = PDFReaderLayer1.readIndirectObject(pdf, (ObjectReference)root);
-                }
-            }
-
-            return root;
-        }
-
-        //TODO move to PDFResources
-        public IEnumerable<Image> getImages()
-        {
-            Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("Resources", "XObject");
-            if (xObjects == null)
-            {
-                yield break;
-            }
-
-            foreach (ObjectReference objectReference in xObjects.Values)
-            {
-                object xObject = PDFReaderLayer1.readXObject(pdf, objectReference);
-                if (xObject is XObjectImage)
-                {
-                    XObjectImage image = (XObjectImage)xObject;
-                    yield return image.getImage();
-                }
-            }
+            throw new NotImplementedException();
         }
     }
 }

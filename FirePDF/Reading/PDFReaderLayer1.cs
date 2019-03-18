@@ -94,28 +94,6 @@ namespace FirePDF.Reading
             skipOverWhiteSpace(stream);
         }
 
-        /// <summary>
-        /// reads an xObject at the given objectReference
-        /// </summary>
-        /// <returns>either an XObjectImage, XObjectForm</returns>
-        public static object readXObject(PDF pdf, ObjectReference objectReference)
-        {
-            Dictionary<string, object> dict = readIndirectDictionary(pdf, objectReference);
-            skipOverWhiteSpace(pdf.stream);
-            long startOfStream = pdf.stream.Position;
-
-            if ((string)dict["Subtype"] == "Form")
-            {
-                return new XObjectForm(pdf, dict, startOfStream);
-            }
-            else if((string)dict["Subtype"] == "Image")
-            {
-                return new XObjectImage(pdf, dict, startOfStream);
-            }
-
-            throw new Exception($"XObject not found at {objectReference.ToString()}");
-        }
-
         public static Dictionary<string, object> readIndirectDictionary(PDF pdf, ObjectReference objectReference)
         {
             return (Dictionary<string, object>)readIndirectObject(pdf, objectReference);
@@ -156,7 +134,36 @@ namespace FirePDF.Reading
             pdf.stream.Position = xrefRecord.offset;
             skipOverObjectHeader(pdf.stream);
 
-            return readObject(pdf.stream);
+            object obj = readObject(pdf.stream);
+            if(obj is Dictionary<string, object> == false)
+            {
+                return obj;
+            }
+
+            Dictionary<string, object> dict = (Dictionary<string, object>)obj;
+
+            //TODO maybe parse pages here?
+
+            if(dict.ContainsKey("Subtype") == false)
+            {
+                return dict;
+            }
+
+            skipOverWhiteSpace(pdf.stream);
+            long startOfStream = pdf.stream.Position;
+
+            if ((string)dict["Subtype"] == "Form")
+            {
+                return new XObjectForm(pdf, dict, startOfStream);
+            }
+            else if ((string)dict["Subtype"] == "Image")
+            {
+                return new XObjectImage(pdf, dict, startOfStream);
+            }
+            else
+            {
+                throw new Exception($"unknown Subtype: " + dict["Subtype"]);
+            }
         }
 
         private static object readCompressedObject(PDF pdf, XREFTable.XREFRecord xrefRecord)

@@ -26,10 +26,10 @@ namespace FirePDF.Model.Tests
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.getXObjectForms().ToList();
+            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
             XObjectForm form = forms.First();
 
-            XObjectImage xObjectImage = form.getResources().getXObjectImage("img0");
+            XObjectImage xObjectImage = form.resources.getXObjectImage("img0");
             Image image = xObjectImage.getImage();
         }
     }

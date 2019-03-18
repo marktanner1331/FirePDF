@@ -31,7 +31,7 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.getXObjectForms().ToList();
+            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
             XObjectForm form = forms.First();
 
             Stream s = PDFReaderLayer2.readContentStream(form);
@@ -52,7 +52,7 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.getXObjectForms().ToList();
+            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
             XObjectForm form = forms.First();
 
             Stream s = PDFReaderLayer2.readContentStream(form);
@@ -80,7 +80,7 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.getXObjectForms().ToList();
+            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
             XObjectForm form = forms.First();
 
             Stream s = PDFReaderLayer2.readContentStream(form);
@@ -110,7 +110,7 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.getXObjectForms().ToList();
+            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
             XObjectForm form = forms.First();
 
             Stream s = PDFReaderLayer2.readContentStream(form);

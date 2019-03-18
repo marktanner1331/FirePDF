@@ -14,7 +14,7 @@ namespace FirePDF.Reading
         {
             MemoryStream compositeStream = new MemoryStream();
 
-            List<object> contents = (List<object>)page.getObjectAtPath("Contents");
+            List<object> contents = (List<object>)page.underlyingDict["Contents"];
             if (contents == null)
             {
                 throw new Exception();

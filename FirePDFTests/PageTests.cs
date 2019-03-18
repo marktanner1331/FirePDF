@@ -28,7 +28,7 @@ namespace FirePDF.Tests
             PDF pdf = new PDF(file);
 
             Page page = pdf.getPage(1);
-            Assert.AreEqual(1, page.getImages().Count());
+            Assert.AreEqual(1, page.resources.getXObjectImages().Count());
         }
 
         [TestMethod()]
@@ -39,7 +39,7 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.getXObjectForms().ToList();
+            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
             XObjectForm form = forms.First();
 
             Stream s = PDFReaderLayer2.readContentStream(form);

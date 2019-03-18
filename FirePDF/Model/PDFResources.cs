@@ -18,6 +18,28 @@ namespace FirePDF.Model
             this.pdf = pdf;
             this.underlyingDict = underlyingDict;
         }
+        
+        /// <summary>
+        /// returns all form xobjects found in the XObject dictionary
+        /// does not return image xObjects
+        /// </summary>
+        public IEnumerable<XObjectForm> getXObjectForms()
+        {
+            Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("XObject");
+            if (xObjects == null)
+            {
+                yield break;
+            }
+
+            foreach (ObjectReference objectReference in xObjects.Values)
+            {
+                object xObject = PDFReaderLayer1.readIndirectObject(pdf, objectReference);
+                if (xObject is XObjectForm)
+                {
+                    yield return (XObjectForm)xObject;
+                }
+            }
+        }
 
         /// <summary>
         /// returns the object at the given path, or null if it cannot be found
@@ -28,11 +50,6 @@ namespace FirePDF.Model
             object root = underlyingDict;
             foreach (string part in path)
             {
-                if (root is ObjectReference)
-                {
-                    root = PDFReaderLayer1.readIndirectObject(pdf, (ObjectReference)root);
-                }
-
                 if (root is Dictionary<string, object>)
                 {
                     Dictionary<string, object> temp = (Dictionary<string, object>)root;
@@ -61,9 +78,36 @@ namespace FirePDF.Model
 
                     root = temp[index];
                 }
+
+                if (root is ObjectReference)
+                {
+                    root = PDFReaderLayer1.readIndirectObject(pdf, (ObjectReference)root);
+                }
             }
 
             return root;
+        }
+
+        /// <summary>
+        /// returns all form xobjects found in the XObject dictionary
+        /// does not return form xObjects
+        /// </summary>
+        public IEnumerable<XObjectImage> getXObjectImages()
+        {
+            Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("XObject");
+            if (xObjects == null)
+            {
+                yield break;
+            }
+
+            foreach (ObjectReference objectReference in xObjects.Values)
+            {
+                object xObject = PDFReaderLayer1.readIndirectObject(pdf, objectReference);
+                if (xObject is XObjectImage)
+                {
+                    yield return (XObjectImage)xObject;
+                }
+            }
         }
 
         /// <summary>
@@ -71,9 +115,7 @@ namespace FirePDF.Model
         /// </summary>
         public XObjectImage getXObjectImage(string xObjectName)
         {
-            ObjectReference objectReference = (ObjectReference)getObjectAtPath("XObject", xObjectName);
-            
-            object xObject = PDFReaderLayer1.readXObject(pdf, objectReference);
+            object xObject = getObjectAtPath("XObject", xObjectName);
             if (xObject is XObjectImage)
             {
                 return (XObjectImage)xObject;

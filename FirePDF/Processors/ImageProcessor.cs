@@ -29,9 +29,9 @@ namespace FirePDF.Processors
             {
                 case "Do":
                     string xObjectName = (string)operation.operands[0];
-                    object xObject = streamOwner.getResources().getObjectAtPath("XObject", xObjectName);
+                    object xObject = streamOwner.resources.getObjectAtPath("XObject", xObjectName);
 
-                    XObjectImage xObjectImage = streamOwner.getResources().getXObjectImage(xObjectName);
+                    XObjectImage xObjectImage = streamOwner.resources.getXObjectImage(xObjectName);
                     Image image = xObjectImage.getImage();
                     renderer.drawImage(image);
 
