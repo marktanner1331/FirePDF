@@ -24,6 +24,8 @@ namespace FirePDF.Processors
             this.getGraphicsState = getGraphicsState;
             this.lineProcessor = lineProcessor;
         }
+
+        public bool shouldClipCurrentPath => shouldClipPath != null;
         
         public bool processOperation(Operation operation)
         {

@@ -19,12 +19,12 @@ namespace FirePDF.Processors
         private PointF? currentPoint;
         public GraphicsPath currentPath { get; private set; }
         
-        public LineProcessor(IRenderer renderer)
+        public LineProcessor()
         {
             this.currentPath = new GraphicsPath();
         }
 
-        public void processOperation(Operation operation)
+        public bool processOperation(Operation operation)
         {
             switch (operation.operatorName)
             {
@@ -48,10 +48,11 @@ namespace FirePDF.Processors
                     if (currentPoint == null)
                     {
                         logWarning("ClosePath without initial MoveTo");
-                        return;
                     }
-
-                    currentPath.CloseFigure();
+                    else
+                    {
+                        currentPath.CloseFigure();
+                    }
                     break;
                 case "n":
                     currentPath.Reset();
@@ -112,7 +113,11 @@ namespace FirePDF.Processors
                         }
                         break;
                     }
+                default:
+                    return false;
             }
+
+            return true;
         }
 
         private void logWarning(string warning)

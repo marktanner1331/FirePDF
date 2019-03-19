@@ -23,7 +23,7 @@ namespace FirePDF.Processors
             this.renderer = renderer;
         }
 
-        public void processOperation(Operation operation)
+        public bool processOperation(Operation operation)
         {
             switch (operation.operatorName)
             {
@@ -31,11 +31,14 @@ namespace FirePDF.Processors
                     string xObjectName = (string)operation.operands[0];
                     object xObject = streamOwner.resources.getObjectAtPath("XObject", xObjectName);
 
+                    //TODO check if its really an image
                     XObjectImage xObjectImage = streamOwner.resources.getXObjectImage(xObjectName);
                     Image image = xObjectImage.getImage();
-                    renderer.drawImage(image);
+                    renderer?.drawImage(image);
 
-                    break;
+                    return true;
+                default:
+                    return false;
             }
         }
     }

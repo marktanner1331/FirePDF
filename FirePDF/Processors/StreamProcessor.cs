@@ -22,7 +22,7 @@ namespace FirePDF.Processors
             //hint: when doing recursive streams, make StreamProcessor a IStreamOwner and initialize the gsp with 'this' in the constructor of StreamProcessor
 
             GraphicsStateProcessor gsp = new GraphicsStateProcessor(streamOwner);
-            LineProcessor lp = new LineProcessor(renderer);
+            LineProcessor lp = new LineProcessor();
             PaintingProcessor pp = new PaintingProcessor(renderer, lp);
             ClippingProcessor cp = new ClippingProcessor(gsp.getCurrentState, lp);
             ImageProcessor ip = new ImageProcessor(streamOwner, renderer);

@@ -34,27 +34,27 @@ namespace FirePDF.Processors
                     break;
                 case "B":
                     lineProcessor.currentPath.FillMode = FillMode.Winding;
-                    renderer.fillAndStrokePath(lineProcessor.currentPath);
+                    renderer?.fillAndStrokePath(lineProcessor.currentPath);
                     break;
                 case "B*":
                     lineProcessor.currentPath.FillMode = FillMode.Alternate;
-                    renderer.fillAndStrokePath(lineProcessor.currentPath);
+                    renderer?.fillAndStrokePath(lineProcessor.currentPath);
                     break;
                 case "f":
                 case "F":
                     lineProcessor.currentPath.FillMode = FillMode.Winding;
-                    renderer.fillPath(lineProcessor.currentPath);
+                    renderer?.fillPath(lineProcessor.currentPath);
                     break;
                 case "f*":
                     lineProcessor.currentPath.FillMode = FillMode.Alternate;
-                    renderer.fillPath(lineProcessor.currentPath);
+                    renderer?.fillPath(lineProcessor.currentPath);
                     break;
                 case "s":
                     lineProcessor.processOperation(new Operation("h", null));
                     processOperation(new Operation("S", operation.operands));
                     break;
                 case "S":
-                    renderer.strokePath(lineProcessor.currentPath);
+                    renderer?.strokePath(lineProcessor.currentPath);
                     break;
                 default:
                     return false;
