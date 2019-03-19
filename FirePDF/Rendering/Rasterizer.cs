@@ -9,12 +9,12 @@ using FirePDF.Model;
 
 namespace FirePDF.Rendering
 {
-    public class Renderer : IRenderer
+    public class Rasterizer : IRenderer
     {
         private Graphics graphics;
         private RectangleF streamBounds;
 
-        public Renderer(Graphics graphicsContext, Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner) : base(getGraphicsState, streamOwner)
+        public Rasterizer(Graphics graphicsContext, Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner) : base(getGraphicsState, streamOwner)
         {
             graphics = graphicsContext;
 

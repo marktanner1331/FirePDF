@@ -34,7 +34,7 @@ namespace Graphical_Debugger
             GraphicsStateProcessor gsp = new GraphicsStateProcessor(streamOwner);
 
             RectangleF bounds = new RectangleF(0, 0, Width, Height);
-            Renderer renderer = new Renderer(graphics, gsp.getCurrentState, streamOwner);
+            Rasterizer renderer = new Rasterizer(graphics, gsp.getCurrentState, streamOwner);
 
             LineProcessor lp = new LineProcessor(gsp.getCurrentState, renderer);
             ImageProcessor ip = new ImageProcessor(streamOwner, renderer);

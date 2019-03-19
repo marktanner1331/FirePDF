@@ -35,7 +35,7 @@ namespace test
             Bitmap image = new Bitmap((int)bounds.Width, (int)bounds.Height);
             Graphics g = Graphics.FromImage(image);
             
-            Renderer renderer = new Renderer(g, gsp.getCurrentState, form);
+            Rasterizer renderer = new Rasterizer(g, gsp.getCurrentState, form);
 
             LineProcessor lp = new LineProcessor(gsp.getCurrentState, renderer);
 
