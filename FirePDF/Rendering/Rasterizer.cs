@@ -14,12 +14,16 @@ namespace FirePDF.Rendering
         private Graphics graphics;
         private RectangleF streamBounds;
 
-        public Rasterizer(Graphics graphicsContext, Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner) : base(getGraphicsState, streamOwner)
+        public Rasterizer(Graphics graphicsContext)
         {
             graphics = graphicsContext;
+        }
+
+        public override void willStartRenderingStream(IStreamOwner streamOwner)
+        {
+            base.willStartRenderingStream(streamOwner);
 
             streamBounds = streamOwner.boundingBox;
-
             Model.GraphicsState graphicsState = getGraphicsState();
             graphicsState.currentTransformationMatrix.Translate(0, streamBounds.Height);
             graphicsState.currentTransformationMatrix.Scale(1, -1);

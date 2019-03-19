@@ -57,19 +57,12 @@ namespace FirePDF.Tests
 
             Stream s = form.readContentStream();
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
-
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
-
+            
             StringBuilder sb = new StringBuilder();
-            LoggingRenderer renderer = new LoggingRenderer(gsp.getCurrentState, form, x => sb.AppendLine(x));
+            LoggingRenderer renderer = new LoggingRenderer(x => sb.AppendLine(x));
 
-            LineProcessor lp = new LineProcessor(gsp.getCurrentState, renderer);
-
-            foreach (Operation operation in operations)
-            {
-                gsp.processOperation(operation);
-                lp.processOperation(operation);
-            }
+            StreamProcessor sp = new StreamProcessor(renderer);
+            sp.render(form, operations);
         }
 
         [TestMethod()]
@@ -85,21 +78,11 @@ namespace FirePDF.Tests
 
             Stream s = form.readContentStream();
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
-
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
-
+            
             StringBuilder sb = new StringBuilder();
-            LoggingRenderer renderer = new LoggingRenderer(gsp.getCurrentState, form, x => sb.AppendLine(x));
-
-            LineProcessor lp = new LineProcessor(gsp.getCurrentState, renderer);
-            ImageProcessor ip = new ImageProcessor(form, renderer);
-
-            foreach (Operation operation in operations)
-            {
-                gsp.processOperation(operation);
-                lp.processOperation(operation);
-                ip.processOperation(operation);
-            }
+            LoggingRenderer renderer = new LoggingRenderer(x => sb.AppendLine(x));
+            StreamProcessor sp = new StreamProcessor(renderer);
+            sp.render(form, operations);
         }
 
         [TestMethod()]
@@ -122,16 +105,9 @@ namespace FirePDF.Tests
             Bitmap image = new Bitmap((int)bounds.Width, (int)bounds.Height);
             Graphics g = Graphics.FromImage(image);
             
-            Rasterizer renderer = new Rasterizer(g, gsp.getCurrentState, form);
-            LineProcessor lp = new LineProcessor(gsp.getCurrentState, renderer);
-            ImageProcessor ip = new ImageProcessor(form, renderer);
-
-            foreach (Operation operation in operations)
-            {
-                gsp.processOperation(operation);
-                lp.processOperation(operation);
-                ip.processOperation(operation);
-            }
+            Rasterizer renderer = new Rasterizer(g);
+            StreamProcessor sp = new StreamProcessor(renderer);
+            sp.render(form, operations);
         }
     }
 }

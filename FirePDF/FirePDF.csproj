@@ -43,7 +43,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\Catalog.cs" />
+    <Compile Include="Processors\ClippingProcessor.cs" />
+    <Compile Include="Processors\PaintingProcessor.cs" />
+    <Compile Include="Processors\StreamProcessor.cs" />
     <Compile Include="StreamTreeFunctions\Node.cs" />
+    <Compile Include="StreamTreeFunctions\StreamGrouper.cs" />
     <Compile Include="StreamTreeFunctions\StreamPart.cs" />
     <Compile Include="Processors\ImageProcessor.cs" />
     <Compile Include="Processors\LineProcessor.cs" />

@@ -31,20 +31,9 @@ namespace Graphical_Debugger
 
         private void renderGraphics(Graphics graphics)
         {
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(streamOwner);
-
-            RectangleF bounds = new RectangleF(0, 0, Width, Height);
-            Rasterizer renderer = new Rasterizer(graphics, gsp.getCurrentState, streamOwner);
-
-            LineProcessor lp = new LineProcessor(gsp.getCurrentState, renderer);
-            ImageProcessor ip = new ImageProcessor(streamOwner, renderer);
-
-            foreach (Operation operation in operations)
-            {
-                gsp.processOperation(operation);
-                lp.processOperation(operation);
-                ip.processOperation(operation);
-            }
+            Rasterizer renderer = new Rasterizer(graphics);
+            StreamProcessor sp = new StreamProcessor(renderer);
+            sp.render(streamOwner, operations);
         }
 
         protected override void OnPaint(PaintEventArgs e)

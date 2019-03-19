@@ -16,22 +16,11 @@ namespace FirePDF.Processors
     /// </summary>
     public class LineProcessor
     {
-        private Func<Model.GraphicsState> getGraphicsState;
-        private IRenderer renderer;
-
         private PointF? currentPoint;
-        private GraphicsPath currentPath;
-
-        //if this is not null then the current path should be used as a clipping path upon the next painting operation
-        //see PDF 8.5.4 for mor details
-        //we can't simply store this in currentPath.windingRule as this could be used for real painting with a different winding rule
-        //i.e. the operations could go W F*
-        FillMode? shouldClipPath = null;
-
-        public LineProcessor(Func<Model.GraphicsState> getGraphicsState, IRenderer renderer)
+        public GraphicsPath currentPath { get; private set; }
+        
+        public LineProcessor(IRenderer renderer)
         {
-            this.getGraphicsState = getGraphicsState;
-            this.renderer = renderer;
             this.currentPath = new GraphicsPath();
         }
 
@@ -39,24 +28,6 @@ namespace FirePDF.Processors
         {
             switch (operation.operatorName)
             {
-                case "b":
-                    processOperation(new Operation("h", null));
-                    processOperation(new Operation("B", null));
-                    break;
-                case "b*":
-                    processOperation(new Operation("h", null));
-                    processOperation(new Operation("B*", null));
-                    break;
-                case "B":
-                    currentPath.FillMode = FillMode.Winding;
-                    renderer.fillAndStrokePath(currentPath);
-                    endPath();
-                    break;
-                case "B*":
-                    currentPath.FillMode = FillMode.Alternate;
-                    renderer.fillAndStrokePath(currentPath);
-                    endPath();
-                    break;
                 case "c":
                     {
                         PointF[] points = operation.getOperationsAsPointFs();
@@ -73,17 +44,6 @@ namespace FirePDF.Processors
                         }
                     }
                     break;
-                case "f":
-                case "F":
-                    currentPath.FillMode = FillMode.Winding;
-                    renderer.fillPath(currentPath);
-                    endPath();
-                    break;
-                case "f*":
-                    currentPath.FillMode = FillMode.Alternate;
-                    renderer.fillPath(currentPath);
-                    endPath();
-                    break;
                 case "h":
                     if (currentPoint == null)
                     {
@@ -93,32 +53,8 @@ namespace FirePDF.Processors
 
                     currentPath.CloseFigure();
                     break;
-                case "l":
-                    {
-                        PointF[] points = operation.getOperationsAsPointFs();
-                        
-                        if (currentPoint == null)
-                        {
-                            logWarning("lineTo (" + points[0].X + "," + points[0].Y + ") without initial MoveTo");
-                            currentPoint = points[0];
-                        }
-                        else
-                        {
-                            currentPath.AddLine(currentPoint.Value, points[0]);
-                            currentPoint = points[0];
-                        }
-                    }
-                    break;
-                case "m":
-                    {
-                        PointF[] points = operation.getOperationsAsPointFs();
-                        currentPoint = points[0];
-
-                        currentPath.CloseFigure();
-                    }
-                    break;
                 case "n":
-                    endPath();
+                    currentPath.Reset();
                     break;
                 case "re":
                     {
@@ -144,14 +80,6 @@ namespace FirePDF.Processors
                         currentPoint = bottomLeft;
                         break;
                     }
-                case "s":
-                    processOperation(new Operation("h", operation.operands));
-                    processOperation(new Operation("S", operation.operands));
-                    break;
-                case "S":
-                    renderer.strokePath(currentPath);
-                    endPath();
-                    break;
                 case "v":
                     {
                         PointF[] points = operation.getOperationsAsPointFs();
@@ -168,12 +96,6 @@ namespace FirePDF.Processors
                         }
                         break;
                     }
-                case "W":
-                    shouldClipPath = FillMode.Winding;
-                    break;
-                case "W*":
-                    shouldClipPath = FillMode.Alternate;
-                    break;
                 case "y":
                     {
                         PointF[] points = operation.getOperationsAsPointFs();
@@ -191,18 +113,6 @@ namespace FirePDF.Processors
                         break;
                     }
             }
-        }
-
-        private void endPath()
-        {
-            if (shouldClipPath != null)
-            {
-                currentPath.FillMode = shouldClipPath.Value;
-                getGraphicsState().intersectClippingPath(currentPath);
-                shouldClipPath = null;
-            }
-
-            currentPath.Reset();
         }
 
         private void logWarning(string warning)

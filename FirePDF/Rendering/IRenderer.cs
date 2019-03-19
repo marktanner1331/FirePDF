@@ -11,12 +11,17 @@ namespace FirePDF.Rendering
 {
     public abstract class IRenderer
     {
-        public readonly Func<Model.GraphicsState> getGraphicsState;
-        public readonly IStreamOwner streamOwner;
+        public Func<Model.GraphicsState> getGraphicsState;
+        public IStreamOwner streamOwner;
 
-        public IRenderer(Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner)
+        
+        public virtual void willStartRenderingPage(Func<Model.GraphicsState> getGraphicsState)
         {
             this.getGraphicsState = getGraphicsState;
+        }
+
+        public virtual void willStartRenderingStream(IStreamOwner streamOwner)
+        {
             this.streamOwner = streamOwner;
         }
 

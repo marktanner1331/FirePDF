@@ -16,7 +16,7 @@ namespace FirePDF.Rendering
     {
         private Action<string> logger;
 
-        public LoggingRenderer(Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner, Action<string> logger) : base(getGraphicsState, streamOwner)
+        public LoggingRenderer(Action<string> logger)
         {
             this.logger = logger;
         }
