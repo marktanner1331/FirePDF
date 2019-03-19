@@ -4,7 +4,7 @@ using FirePDF.Model;
 using FirePDF.Processors;
 using FirePDF.Reading;
 using FirePDF.Rendering;
-using FirePDF.StreamTreeFunctions;
+using FirePDF.StreamPartFunctions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

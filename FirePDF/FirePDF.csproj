@@ -46,9 +46,9 @@
     <Compile Include="Processors\ClippingProcessor.cs" />
     <Compile Include="Processors\PaintingProcessor.cs" />
     <Compile Include="Processors\StreamProcessor.cs" />
-    <Compile Include="StreamTreeFunctions\Node.cs" />
-    <Compile Include="StreamTreeFunctions\StreamGrouper.cs" />
-    <Compile Include="StreamTreeFunctions\StreamPart.cs" />
+    <Compile Include="StreamPartFunctions\Node.cs" />
+    <Compile Include="StreamPartFunctions\StreamGrouper.cs" />
+    <Compile Include="StreamPartFunctions\StreamPart.cs" />
     <Compile Include="Processors\ImageProcessor.cs" />
     <Compile Include="Processors\LineProcessor.cs" />
     <Compile Include="Reading\ASCIIReader.cs" />
@@ -77,7 +77,7 @@
     <Compile Include="Model\XREFTable.cs" />
     <Compile Include="StreamHelpers\RawStreamReader.cs" />
     <Compile Include="Distilling\StreamTreeClassifier.cs" />
-    <Compile Include="StreamTreeFunctions\StreamTree.cs" />
+    <Compile Include="StreamPartFunctions\StreamTree.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Writing\" />

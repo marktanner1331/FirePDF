@@ -1,5 +1,5 @@
 ﻿using FirePDF.Model;
-using FirePDF.StreamTreeFunctions;
+using FirePDF.StreamPartFunctions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

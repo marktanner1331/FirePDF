@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FirePDF.StreamTreeFunctions
+namespace FirePDF.StreamPartFunctions
 {
     public class StreamTree
     {
