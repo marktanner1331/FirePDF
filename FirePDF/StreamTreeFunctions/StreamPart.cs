@@ -10,12 +10,15 @@ namespace FirePDF.StreamTreeFunctions
     public class StreamPart
     {
         public List<Operation> operations;
-        private HashSet<string> tags;
+
+        public readonly HashSet<string> tags;
+        public readonly Dictionary<string, string> variables;
 
         public StreamPart()
         {
             operations = new List<Operation>();
             tags = new HashSet<string>();
+            variables = new Dictionary<string, string>();
         }
 
         public StreamPart(List<Operation> operations)

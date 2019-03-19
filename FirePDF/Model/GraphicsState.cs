@@ -26,7 +26,7 @@ namespace FirePDF.Model
         public GraphicsState(GraphicsPath initialClippingPath)
         {
             this.clippingPath = new Region(initialClippingPath);
-
+            
             currentTransformationMatrix = new Matrix();
             flatnessTolerance = 0;
             nonStrokingColor = Color.Black;
