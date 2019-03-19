@@ -113,6 +113,8 @@ namespace FirePDF.Processors
                     {
                         PointF[] points = operation.getOperationsAsPointFs();
                         currentPoint = points[0];
+
+                        currentPath.CloseFigure();
                     }
                     break;
                 case "n":
