@@ -41,6 +41,12 @@ namespace FirePDF.Model
             }
         }
 
+        public bool isXObjectImage(string xObjectName)
+        {
+            object xObject = getObjectAtPath("XObject", xObjectName);
+            return xObject is XObjectImage;
+        }
+
         /// <summary>
         /// returns the object at the given path, or null if it cannot be found
         /// automatically resolves any indirect references

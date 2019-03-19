@@ -1,8 +1,10 @@
 ﻿using FirePDF;
+using FirePDF.Distilling;
 using FirePDF.Model;
 using FirePDF.Processors;
 using FirePDF.Reading;
 using FirePDF.Rendering;
+using FirePDF.StreamTreeFunctions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,23 +31,8 @@ namespace test
             Stream s = form.readContentStream();
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
-
-            RectangleF bounds = form.boundingBox;
-            Bitmap image = new Bitmap((int)bounds.Width, (int)bounds.Height);
-            Graphics g = Graphics.FromImage(image);
-            
-            Rasterizer renderer = new Rasterizer(g, gsp.getCurrentState, form);
-
-            LineProcessor lp = new LineProcessor(gsp.getCurrentState, renderer);
-
-            foreach (Operation operation in operations)
-            {
-                gsp.processOperation(operation);
-                lp.processOperation(operation);
-            }
-            
-            image.Save(@"C:\Users\Mark Tanner\scratch\page 24 fixed.jpg");
+            StreamTree tree = new StreamTree(operations);
+            Debug.WriteLine(tree.toVerboseString());
         }
     }
 }

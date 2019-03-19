@@ -43,6 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\Catalog.cs" />
+    <Compile Include="StreamTreeFunctions\Node.cs" />
+    <Compile Include="StreamTreeFunctions\StreamPart.cs" />
     <Compile Include="Processors\ImageProcessor.cs" />
     <Compile Include="Processors\LineProcessor.cs" />
     <Compile Include="Reading\ASCIIReader.cs" />
@@ -70,6 +72,8 @@
     <Compile Include="Model\XREFStream.cs" />
     <Compile Include="Model\XREFTable.cs" />
     <Compile Include="StreamHelpers\RawStreamReader.cs" />
+    <Compile Include="Distilling\StreamTreeClassifier.cs" />
+    <Compile Include="StreamTreeFunctions\StreamTree.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Writing\" />
