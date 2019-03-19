@@ -48,8 +48,7 @@
     <Compile Include="Reading\ASCIIReader.cs" />
     <Compile Include="Rendering\IRenderer.cs" />
     <Compile Include="Rendering\LoggingRenderer.cs" />
-    <Compile Include="Rendering\Renderer.cs" />
-    <Compile Include="Rendering\WindingRule.cs" />
+    <Compile Include="Rendering\Rasterizer.cs" />
     <Compile Include="StreamHelpers\FlateStreamReader.cs" />
     <Compile Include="Model\GraphicsState.cs" />
     <Compile Include="Processors\GraphicsStateProcessor.cs" />
