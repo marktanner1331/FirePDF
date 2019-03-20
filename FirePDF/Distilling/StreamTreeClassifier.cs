@@ -12,19 +12,33 @@ namespace FirePDF.Distilling
     {
         public static void classifyStreamTree(IStreamOwner streamOwner, StreamTree streamTree)
         {
-            foreach(StreamPart part in streamTree.getAllLeafNodes())
+            foreach (StreamPart part in streamTree.getAllLeafNodes())
             {
                 classifyStreamPart(streamOwner, part);
+            }
+        }
+
+        public static void classifyStreamPart(IStreamOwner streamOwner, StreamPart streamPart)
+        {
+            if(Classifier.isClippingPath(streamPart.operations))
+            {
+                streamPart.variables["type"] = "clippingPath";
+            }
+            else
+            {
+                classifyStreamPartAsMixed(streamOwner, streamPart);
             }
         }
 
         /// <summary>
         /// sets the containsText, containsImages, containsGraphics, containsClippingPath, and hasBeenClassified tags for the given streamPart
         /// </summary>
-        public static void classifyStreamPart(IStreamOwner streamOwner, StreamPart streamPart)
+        public static void classifyStreamPartAsMixed(IStreamOwner streamOwner, StreamPart streamPart)
         {
             streamPart.removeTags("containsText", "containsImages", "containsGraphics", "containsClippingPath");
+
             streamPart.addTag("hasBeenClassified");
+            streamPart.variables["type"] = "mixed";
 
             foreach (Operation operation in streamPart.operations)
             {
@@ -64,7 +78,7 @@ namespace FirePDF.Distilling
                         streamPart.addTag("containsClippingPath");
                         break;
                     case "Tr":
-                        if((int)operation.operands[0] > 3)
+                        if ((int)operation.operands[0] > 3)
                         {
                             streamPart.addTag("containsClippingPath");
                         }
@@ -72,5 +86,7 @@ namespace FirePDF.Distilling
                 }
             }
         }
+
+
     }
 }

@@ -5,6 +5,7 @@ using FirePDF.Processors;
 using FirePDF.Reading;
 using FirePDF.Rendering;
 using FirePDF.StreamPartFunctions;
+using FirePDF.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -30,8 +31,10 @@ namespace test
 
             Stream s = form.readContentStream();
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
-
+            
             StreamTree tree = new StreamTree(operations);
+            StreamTreeClassifier.classifyStreamTree(form, tree);
+
             Debug.WriteLine(tree.toVerboseString());
         }
     }

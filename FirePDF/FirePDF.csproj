@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Distilling\Classifier.cs" />
     <Compile Include="Model\Catalog.cs" />
     <Compile Include="Processors\ClippingProcessor.cs" />
     <Compile Include="Processors\PaintingProcessor.cs" />
@@ -81,7 +82,6 @@
     <Compile Include="Util\RectangleFunctions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="NewFolder1\" />
     <Folder Include="Writing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

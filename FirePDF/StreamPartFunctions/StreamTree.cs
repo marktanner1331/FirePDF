@@ -110,9 +110,19 @@ namespace FirePDF.StreamPartFunctions
         private String toVerboseString(Node<StreamPart> root, String indent)
         {
             String s = "";
-
+            
             if (root.value != null)
             {
+                if(root.value.tags.Any())
+                {
+                    s += indent + "//tags: " + string.Join(", ", root.value.tags) + "\n";
+                }
+
+                if(root.value.variables.Any())
+                {
+                    s += indent + "//variables: " + string.Join(", ", root.value.variables.Select(x => x.Key + "=" + x.Value)) + "\n";
+                }
+
                 foreach (Operation operation in root.value.operations)
                 {
                     s += indent + operation.ToString() + "\n";
