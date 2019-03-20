@@ -47,7 +47,6 @@
     <Compile Include="Processors\PaintingProcessor.cs" />
     <Compile Include="Processors\StreamProcessor.cs" />
     <Compile Include="StreamPartFunctions\Node.cs" />
-    <Compile Include="StreamPartFunctions\StreamGrouper.cs" />
     <Compile Include="StreamPartFunctions\StreamPart.cs" />
     <Compile Include="Processors\ImageProcessor.cs" />
     <Compile Include="Processors\LineProcessor.cs" />
