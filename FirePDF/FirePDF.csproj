@@ -47,6 +47,7 @@
     <Compile Include="Processors\ClippingProcessor.cs" />
     <Compile Include="Processors\PaintingProcessor.cs" />
     <Compile Include="Processors\StreamProcessor.cs" />
+    <Compile Include="StreamPartFunctions\ClippingPathStreamPart.cs" />
     <Compile Include="StreamPartFunctions\Node.cs" />
     <Compile Include="StreamPartFunctions\StreamPart.cs" />
     <Compile Include="Processors\ImageProcessor.cs" />

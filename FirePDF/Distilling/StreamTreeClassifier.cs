@@ -12,9 +12,23 @@ namespace FirePDF.Distilling
     {
         public static void classifyStreamTree(IStreamOwner streamOwner, StreamTree streamTree)
         {
-            foreach (StreamPart part in streamTree.getAllLeafNodes())
+            streamTree.swapParts(x => classifyAndSwapStreamPart(streamOwner, x));
+        }
+
+        /// <summary>
+        /// detects the type of stream part passed in and if detection is successful then a new stream part is returned
+        /// which represents the operations better
+        /// </summary>
+        private static StreamPart classifyAndSwapStreamPart(IStreamOwner streamOwner, StreamPart streamPart)
+        {
+            if (Classifier.isClippingPath(streamPart.operations))
             {
-                classifyStreamPart(streamOwner, part);
+                return new ClippingPathStreamPart(streamPart.operations);
+            }
+            else
+            {
+                classifyStreamPartAsMixed(streamOwner, streamPart);
+                return streamPart;
             }
         }
 

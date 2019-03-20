@@ -14,16 +14,16 @@ namespace FirePDF.StreamPartFunctions
         public readonly HashSet<string> tags;
         public readonly Dictionary<string, string> variables;
 
-        public StreamPart()
+        public StreamPart() : this(new List<Operation>())
         {
-            operations = new List<Operation>();
-            tags = new HashSet<string>();
-            variables = new Dictionary<string, string>();
+
         }
 
         public StreamPart(List<Operation> operations)
         {
             this.operations = operations;
+            this.tags = new HashSet<string>();
+            this.variables = new Dictionary<string, string>();
         }
 
         public void addOperation(Operation operation)

@@ -34,7 +34,8 @@ namespace test
             
             StreamTree tree = new StreamTree(operations);
             StreamTreeClassifier.classifyStreamTree(form, tree);
-
+            
+            //tree.removeLeafNodes(x => x.variables["type"] == "clippingPath");
             Debug.WriteLine(tree.toVerboseString());
         }
     }
