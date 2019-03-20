@@ -113,6 +113,29 @@ namespace FirePDF.StreamPartFunctions
             children.Add(child);
         }
 
+        public void removeLeaves(Func<X, bool> test)
+        {
+            if (value != null)
+            {
+                if(test(value))
+                {
+                    parent.children.Remove(this);
+                }
+            }
+            else
+            {
+                foreach (Node<X> node in children.ToList())
+                {
+                    node.removeLeaves(test);
+                }
+
+                if(children.Count == 0 && parent != null)
+                {
+                    parent.children.Remove(this);
+                }
+            }
+        }
+
         public List<Node<X>> getChildren()
         {
             if (children == null)

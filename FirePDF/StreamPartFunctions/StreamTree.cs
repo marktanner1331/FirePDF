@@ -24,11 +24,6 @@ namespace FirePDF.StreamPartFunctions
         
         private static int buildStackTree(List<Operation> operations, Node<StreamPart> root, int i)
         {
-            if (root.uniqueID == 3)
-            {
-
-            }
-
             StreamPart part = new StreamPart();
 
             for (; i < operations.Count; i++)
@@ -68,6 +63,11 @@ namespace FirePDF.StreamPartFunctions
             }
 
             return i;
+        }
+
+        public void removeLeafNodes(Func<StreamPart, bool> test)
+        {
+            root.removeLeaves(test);
         }
 
         public List<Operation> convertToOperations()
