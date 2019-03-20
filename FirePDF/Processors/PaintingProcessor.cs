@@ -20,6 +20,25 @@ namespace FirePDF.Processors
             this.lineProcessor = lineProcessor;
         }
 
+        public static bool isPaintingCommand(string operatorName)
+        {
+            switch (operatorName)
+            {
+                case "b":
+                case "b*":
+                case "B":
+                case "B*":
+                case "f":
+                case "F":
+                case "f*":
+                case "n":
+                case "S":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         public bool processOperation(Operation operation)
         {
             switch (operation.operatorName)

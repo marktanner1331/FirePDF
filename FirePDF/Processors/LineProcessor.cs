@@ -24,6 +24,27 @@ namespace FirePDF.Processors
             this.currentPath = new GraphicsPath();
         }
 
+        /// <summary>
+        /// returns true for all operators that append paths to the current path
+        /// but returns false for painting commands that reset the current path (including 'n')
+        /// </summary>
+        public static bool isPathDrawingCommand(string operatorName)
+        {
+            switch (operatorName)
+            {
+                case "c":
+                case "h":
+                case "l":
+                case "m":
+                case "re":
+                case "v":
+                case "y":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         public bool processOperation(Operation operation)
         {
             switch (operation.operatorName)
@@ -54,8 +75,29 @@ namespace FirePDF.Processors
                         currentPath.CloseFigure();
                     }
                     break;
-                case "n":
-                    currentPath.Reset();
+                case "l":
+                    {
+                        PointF[] points = operation.getOperationsAsPointFs();
+
+                        if (currentPoint == null)
+                        {
+                            logWarning("lineTo (" + points[0].X + "," + points[0].Y + ") without initial MoveTo");
+                            currentPoint = points[0];
+                        }
+                        else
+                        {
+                            currentPath.AddLine(currentPoint.Value, points[0]);
+                            currentPoint = points[0];
+                        }
+                    }
+                    break;
+                case "m":
+                    {
+                        PointF[] points = operation.getOperationsAsPointFs();
+                        currentPoint = points[0];
+
+                        currentPath.CloseFigure();
+                    }
                     break;
                 case "re":
                     {
@@ -113,6 +155,18 @@ namespace FirePDF.Processors
                         }
                         break;
                     }
+                case "b":
+                case "b*":
+                case "B":
+                case "B*":
+                case "f":
+                case "F":
+                case "f*":
+                case "n":
+                case "s":
+                case "S":
+                    currentPath.Reset();
+                    break;
                 default:
                     return false;
             }

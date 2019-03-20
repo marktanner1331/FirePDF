@@ -26,7 +26,19 @@ namespace FirePDF.Processors
         }
 
         public bool shouldClipCurrentPath => shouldClipPath != null;
-        
+
+        public static bool isClippingCommand(string operatorName)
+        {
+            switch (operatorName)
+            {
+                case "W":
+                case "W*":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         public bool processOperation(Operation operation)
         {
             switch (operation.operatorName)
