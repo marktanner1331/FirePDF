@@ -51,10 +51,10 @@ namespace Graphical_Debugger
             Stream s = form.readContentStream();
             operations = ContentStreamReader.readOperationsFromStream(s);
 
-            StreamTree tree = new StreamTree(operations);
-            StreamTreeClassifier.classifyStreamTree(form, tree);
-            //tree.removeLeafNodes(x => x.variables["type"] == "clippingPath");
-            operations = tree.convertToOperations();
+            ModificationEngine me = new ModificationEngine();
+            me.increaseImageDimensionsByOnePixel = true;
+            me.removeClippingPaths = true;
+            operations = me.run(form, operations);
 
             pdfRenderer = new PDFRenderer();
             pdfRenderer.render(form, operations.Take(0));

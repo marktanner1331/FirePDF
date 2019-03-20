@@ -35,6 +35,11 @@ namespace FirePDF.Model
             }
         }
 
+        public float getOperandAsFloat(int index)
+        {
+            return (float)Convert.ToDouble(operands[index]);
+        }
+
         private string operandToString(object operand)
         {
             if(operand is byte[])
@@ -70,6 +75,7 @@ namespace FirePDF.Model
 
         public List<int> getOperationsAsInts()
         {
+            //TODO rename this to "operand"
             return operands.Select(x => Convert.ToInt32(x)).ToList();
         }
 
