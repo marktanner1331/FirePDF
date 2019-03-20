@@ -31,8 +31,8 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
-            XObjectForm form = forms.First();
+            List<string> forms = page.resources.listXObjectForms().ToList();
+            XObjectForm form = page.resources.getXObjectForm(forms.First());
 
             Stream s = form.readContentStream();
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
@@ -52,8 +52,8 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
-            XObjectForm form = forms.First();
+            List<string> forms = page.resources.listXObjectForms().ToList();
+            XObjectForm form = page.resources.getXObjectForm(forms.First());
 
             Stream s = form.readContentStream();
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
@@ -73,8 +73,8 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
-            XObjectForm form = forms.First();
+            List<string> forms = page.resources.listXObjectForms().ToList();
+            XObjectForm form = page.resources.getXObjectForm(forms.First());
 
             Stream s = form.readContentStream();
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
@@ -93,8 +93,8 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
-            XObjectForm form = forms.First();
+            List<string> forms = page.resources.listXObjectForms().ToList();
+            XObjectForm form = page.resources.getXObjectForm(forms.First());
 
             Stream s = form.readContentStream();
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);

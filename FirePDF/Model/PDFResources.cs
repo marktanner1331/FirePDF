@@ -13,17 +13,30 @@ namespace FirePDF.Model
         private PDF pdf;
         private Dictionary<string, object> underlyingDict;
 
+        private Dictionary<string, object> updates;
+
         public PDFResources(PDF pdf, Dictionary<string, object> underlyingDict)
         {
             this.pdf = pdf;
             this.underlyingDict = underlyingDict;
+            this.updates = new Dictionary<string, object>();
+        }
+
+        public void overwriteXObject(XObjectForm form, string xObjectName)
+        {
+            overwriteObject(form, "XObject", xObjectName);
+        }
+
+        public void overwriteObject(object obj, params string[] path)
+        {
+            updates[string.Join("/", path)] = obj;
         }
         
         /// <summary>
         /// returns all form xobjects found in the XObject dictionary
         /// does not return image xObjects
         /// </summary>
-        public IEnumerable<XObjectForm> getXObjectForms()
+        public IEnumerable<string> listXObjectForms()
         {
             Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("XObject");
             if (xObjects == null)
@@ -31,12 +44,12 @@ namespace FirePDF.Model
                 yield break;
             }
 
-            foreach (ObjectReference objectReference in xObjects.Values)
+            foreach (var pair in xObjects)
             {
-                object xObject = PDFReader.readIndirectObject(pdf, objectReference);
+                object xObject = PDFReader.readIndirectObject(pdf, (ObjectReference)pair.Value);
                 if (xObject is XObjectForm)
                 {
-                    yield return (XObjectForm)xObject;
+                    yield return pair.Key;
                 }
             }
         }
@@ -98,7 +111,7 @@ namespace FirePDF.Model
         /// returns all form xobjects found in the XObject dictionary
         /// does not return form xObjects
         /// </summary>
-        public IEnumerable<XObjectImage> getXObjectImages()
+        public IEnumerable<string> listXObjectImages()
         {
             Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("XObject");
             if (xObjects == null)
@@ -106,12 +119,12 @@ namespace FirePDF.Model
                 yield break;
             }
 
-            foreach (ObjectReference objectReference in xObjects.Values)
+            foreach (var pair in xObjects)
             {
-                object xObject = PDFReader.readIndirectObject(pdf, objectReference);
+                object xObject = PDFReader.readIndirectObject(pdf, (ObjectReference)pair.Value);
                 if (xObject is XObjectImage)
                 {
-                    yield return (XObjectImage)xObject;
+                    yield return pair.Key;
                 }
             }
         }
@@ -125,6 +138,22 @@ namespace FirePDF.Model
             if (xObject is XObjectImage)
             {
                 return (XObjectImage)xObject;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// returns the xObject form with the given name, or null if it cannot be found or is not a form
+        /// </summary>
+        public XObjectForm getXObjectForm(string xObjectName)
+        {
+            object xObject = getObjectAtPath("XObject", xObjectName);
+            if (xObject is XObjectForm)
+            {
+                return (XObjectForm)xObject;
             }
             else
             {

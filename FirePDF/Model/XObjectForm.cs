@@ -40,6 +40,11 @@ namespace FirePDF.Model
             this.boundingBox = PDFReader.readRectangleFromArray((List<object>)underlyingDict["BBox"]);
         }
 
+        public void writeContentStream(Stream s)
+        {
+            
+        }
+
         public Stream readContentStream()
         {
             pdf.stream.Position = startOfStream;

@@ -44,8 +44,8 @@ namespace Graphical_Debugger
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
-            XObjectForm form = forms.First();
+            List<string> forms = page.resources.listXObjectForms().ToList();
+            XObjectForm form = page.resources.getXObjectForm(forms.First());
             owner = form;
 
             Stream s = form.readContentStream();

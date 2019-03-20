@@ -30,6 +30,11 @@ namespace FirePDF
             throw new NotImplementedException();
         }
 
+        public void save(string fullFilePath)
+        {
+
+        }
+
         public Page getPage(int oneBasedPageNumber)
         {
             return catalog.getPage(oneBasedPageNumber);

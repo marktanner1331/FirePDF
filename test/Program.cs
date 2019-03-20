@@ -26,8 +26,8 @@ namespace test
 
             Page page = pdf.getPage(1);
 
-            List<XObjectForm> forms = page.resources.getXObjectForms().ToList();
-            XObjectForm form = forms.First();
+            List<string> forms = page.resources.listXObjectForms().ToList();
+            XObjectForm form = page.resources.getXObjectForm(forms.First());
 
             Stream s = form.readContentStream();
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
@@ -35,7 +35,9 @@ namespace test
             StreamTree tree = new StreamTree(operations);
             var test = tree.convertToOperations();
             StreamTreeClassifier.classifyStreamTree(form, tree);
-            
+
+            form.writeContentStream(s);
+
             //tree.removeLeafNodes(x => x.variables["type"] == "clippingPath");
             Debug.WriteLine(tree.toVerboseString());
         }
