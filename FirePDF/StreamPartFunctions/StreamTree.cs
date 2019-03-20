@@ -65,6 +65,15 @@ namespace FirePDF.StreamPartFunctions
             return i;
         }
 
+        /// <summary>
+        /// the swapper is called for each leaf in the tree
+        /// each leaf is replaced by the returned value
+        /// </summary>
+        public void swapParts(Func<StreamPart, StreamPart> swapper)
+        {
+            root.swapLeaves(swapper);
+        }
+
         public void removeLeafNodes(Func<StreamPart, bool> test)
         {
             root.removeLeaves(test);

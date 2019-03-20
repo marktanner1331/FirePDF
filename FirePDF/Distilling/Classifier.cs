@@ -10,6 +10,27 @@ namespace FirePDF.Distilling
 {
     public static class Classifier
     {
+        public static bool isDrawImage(IEnumerable<Operation> operations)
+        {
+            Operation[] array = operations.ToArray();
+            if(array.Length != 2)
+            {
+                return false;
+            }
+
+            if(array[0].operatorName != "cm")
+            {
+                return false;
+            }
+
+            if (array[1].operatorName != "Do")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// returns true if the given operations contains a clipping path and nothing else
         /// </summary>

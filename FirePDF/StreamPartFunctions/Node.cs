@@ -113,6 +113,21 @@ namespace FirePDF.StreamPartFunctions
             children.Add(child);
         }
 
+        public void swapLeaves(Func<X, X> swapper)
+        {
+            if (value != null)
+            {
+                value = swapper(value);
+            }
+            else
+            {
+                foreach (Node<X> node in children.ToList())
+                {
+                    node.swapLeaves(swapper);
+                }
+            }
+        }
+
         public void removeLeaves(Func<X, bool> test)
         {
             if (value != null)

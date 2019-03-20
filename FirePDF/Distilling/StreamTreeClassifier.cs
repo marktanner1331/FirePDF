@@ -24,6 +24,10 @@ namespace FirePDF.Distilling
             {
                 streamPart.variables["type"] = "clippingPath";
             }
+            else if(Classifier.isDrawImage(streamPart.operations))
+            {
+                streamPart.variables["type"] = "image";
+            }
             else
             {
                 classifyStreamPartAsMixed(streamOwner, streamPart);
