@@ -12,7 +12,7 @@ namespace FirePDF.StreamPartFunctions
         public X value { get; private set; }
 
         private Node<X> parent;
-        private readonly int uniqueID;
+        public readonly int uniqueID;
 
         private static int uniqueIDCounter = 0;
 
@@ -80,6 +80,11 @@ namespace FirePDF.StreamPartFunctions
 
         public void convertNodeFromLeafToBranch()
         {
+            if(value == null)
+            {
+                return;
+            }
+
             Node<X> node = new Node<X>(value);
             node.parent = this;
 

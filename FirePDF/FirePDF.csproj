@@ -77,8 +77,11 @@
     <Compile Include="StreamHelpers\RawStreamReader.cs" />
     <Compile Include="Distilling\StreamTreeClassifier.cs" />
     <Compile Include="StreamPartFunctions\StreamTree.cs" />
+    <Compile Include="Util\Logger.cs" />
+    <Compile Include="Util\RectangleFunctions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="NewFolder1\" />
     <Folder Include="Writing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

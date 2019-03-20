@@ -19,5 +19,13 @@ namespace FirePDF.Util
                 i++;
             }
         }
+
+        public static void logOperations(List<Operation> operations)
+        {
+            foreach (Operation operation in operations)
+            {
+                Debug.WriteLine(operation.ToString());
+            }
+        }
     }
 }
