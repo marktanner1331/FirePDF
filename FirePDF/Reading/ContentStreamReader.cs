@@ -21,6 +21,11 @@ namespace FirePDF.Reading
                 {
                     currentOperation.operatorName = operatorName;
                     operations.Add(currentOperation);
+
+                    if (operations.Count == 957)
+                    {
+
+                    }
                     currentOperation = new Operation();
                 },
                 operand => currentOperation.operands.Add(operand));
@@ -132,6 +137,10 @@ namespace FirePDF.Reading
                     case '.':
                         {
                             object obj = PDFReader.readNumber(stream);
+                            if(Convert.ToDouble(obj) == 20.1942)
+                            {
+
+                            }
                             foundOperand(obj);
                         }
                         break;
@@ -195,12 +204,13 @@ namespace FirePDF.Reading
             StringBuilder builder = new StringBuilder(4);
             char previous = (char)0;
 
-            while (true)
+            while (stream.Position != stream.Length)
             {
                 char current = (char)stream.ReadByte();
 
                 if (isWhitespace(current) || "[]<(/".Contains(current))
                 {
+                    stream.Position--;
                     return builder.ToString();
                 }
                 else if (current >= '0' && current <= '9')
@@ -220,6 +230,8 @@ namespace FirePDF.Reading
                 builder.Append(current);
                 previous = current;
             }
+
+            return builder.ToString();
         }
 
         private static bool isWhitespace(char c)
@@ -240,9 +252,10 @@ namespace FirePDF.Reading
 
         private static void skipOverWhiteSpace(Stream stream)
         {
-            while (true)
+            while (stream.Position != stream.Length)
             {
-                switch (stream.ReadByte())
+                char c = (char)stream.ReadByte();
+                switch (c)
                 {
                     case ' ':
                     case '\r':

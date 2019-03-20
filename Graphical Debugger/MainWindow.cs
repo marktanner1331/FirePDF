@@ -53,7 +53,7 @@ namespace Graphical_Debugger
 
             StreamTree tree = new StreamTree(operations);
             StreamTreeClassifier.classifyStreamTree(form, tree);
-            tree.removeLeafNodes(x => x.variables["type"] == "clippingPath");
+            //tree.removeLeafNodes(x => x.variables["type"] == "clippingPath");
             operations = tree.convertToOperations();
 
             pdfRenderer = new PDFRenderer();

@@ -42,24 +42,23 @@ namespace FirePDF.Distilling
                 return false;
             }
 
-            for (int i = 0; i < array.Length - 2; i++)
+            for (int i = 0; i < array.Length; i++)
             {
-                if(LineProcessor.isPathDrawingCommand(array[i].operatorName) == false)
+                if (LineProcessor.isPathDrawingCommand(array[i].operatorName) == false)
                 {
-                    return false;
+                    if (ClippingProcessor.isClippingCommand(array[i].operatorName) == false)
+                    {
+                        return false;
+                    }
+
+                    i = Math.Min(++i, array.Length - 1);
+                    if (array[i].operatorName != "n")
+                    {
+                        return false;
+                    }
                 }
             }
-
-            if(ClippingProcessor.isClippingCommand(array[array.Length - 2].operatorName) == false)
-            {
-                return false;
-            }
-
-            if(array[array.Length - 1].operatorName != "n")
-            {
-                return false;
-            }
-
+            
             return true;
         }
     }

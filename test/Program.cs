@@ -21,7 +21,7 @@ namespace test
     {
         static void Main(string[] args)
         {
-            string file = @"C:\Users\Mark Tanner\scratch\page 24 fixed.pdf";
+            string file = @"C:\Users\Mark Tanner\scratch\kuier 1.pdf";
             PDF pdf = new PDF(file);
 
             Page page = pdf.getPage(1);
@@ -33,6 +33,7 @@ namespace test
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
             
             StreamTree tree = new StreamTree(operations);
+            var test = tree.convertToOperations();
             StreamTreeClassifier.classifyStreamTree(form, tree);
             
             //tree.removeLeafNodes(x => x.variables["type"] == "clippingPath");

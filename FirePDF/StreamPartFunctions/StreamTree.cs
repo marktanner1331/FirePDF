@@ -154,7 +154,10 @@ namespace FirePDF.StreamPartFunctions
                     s += toVerboseString(node, indent);
                 }
             }
+            if (s.Length == 0)
+            {
 
+            }
             return s;
         }
     }
