@@ -53,6 +53,22 @@ namespace FirePDF.Model
             //just in case its marked as free
             freeRecords.Remove(hash);
         }
+        
+        public int getNextFreeRecordNumber()
+        {
+            //TODO should probably do something with the free records here
+
+            //also might not need the select as the keys should still be well-ordered
+            //as the object numbers form the most significant bits
+
+            return usedRecords.Values.Select(x => x.objectNumber).Max() + 1;
+        }
+
+        public void clear()
+        {
+            usedRecords.Clear();
+            freeRecords.Clear();
+        }
 
         /// <summary>
         /// marks an object as free. if it already exists as a used record then it is skipped

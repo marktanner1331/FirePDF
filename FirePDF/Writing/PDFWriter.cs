@@ -15,6 +15,9 @@ namespace FirePDF.Writing
         private int bufferIndex;
         private readonly bool leaveOpen;
 
+        private XREFTable writeTable;
+        private int nextObjectNumber;
+
         public PDFWriter(Stream stream, bool leaveOpen)
         {
             this.stream = stream;
@@ -22,6 +25,8 @@ namespace FirePDF.Writing
 
             this.buffer = new byte[1024];
             this.bufferIndex = 0;
+
+            this.writeTable = new XREFTable();
         }
 
         public void flush()
@@ -49,6 +54,13 @@ namespace FirePDF.Writing
 
         public void updatePDF(PDF pdf)
         {
+            //not modifying the existing readTable here makes more sense to me
+            //this is becuase the existing records have very valid pointers to existing objects
+            //don't want to screw with that unnecessarily
+            writeTable.clear();
+            writeTable.mergeIn(pdf.readableTable);
+
+            writeTable.clear();
             foreach (Page page in pdf.catalog)
             {
                 if (page.isDirty)
@@ -62,20 +74,31 @@ namespace FirePDF.Writing
         {
             if (page.resources.isDirty)
             {
-                writeResources(page.resources);
+                writeDirtyResources(page.resources);
             }
         }
 
-        public void writeResources(PDFResources resources)
+        public void writeDirtyResources(PDFResources resources)
         {
             foreach(string dirtyObjectPath in resources.dirtyObjects)
             {
                 string[] path = dirtyObjectPath.Split('/');
                 object obj = resources.getObjectAtPath(path);
-                writeIndirectObject(0, 0, obj);
+
+                int nextFreeNumber = writeTable.getNextFreeRecordNumber();
+                XREFTable.XREFRecord record = new XREFTable.XREFRecord
+                {
+                    isCompressed = false,
+                    objectNumber = nextFreeNumber,
+                    generation = 0,
+                    offset = stream.Position + bufferIndex
+                };
+                
+                writeIndirectObject(record.objectNumber, record.generation, obj);
+                resources.setObjectAtPath(new ObjectReference(record.objectNumber, record.generation), path);
             }
 
-            writeIndirectObject(0, 0, resources.underlyingDict);
+            resources.dirtyObjects.Clear();
         }
 
         public void writeIndirectObject(int objectNumber, int generation, object obj)
@@ -95,10 +118,28 @@ namespace FirePDF.Writing
             {
                 writeDirectObject(obj as List<object>);
             }
+            else if(obj is Name)
+            {
+                writeDirectObject(obj as Name);
+            }
+            else if(obj is ObjectReference)
+            {
+                writeDirectObject(obj as ObjectReference);
+            }
             else
             {
                 throw new NotImplementedException();
             }
+        }
+
+        public void writeDirectObject(ObjectReference objectReference)
+        {
+            writeASCII(objectReference.objectNumber + " " + objectReference.generation + " R");
+        }
+
+        public void writeDirectObject(Name name)
+        {
+            writeASCII("/" + name);
         }
 
         public void writeDirectObject(List<object> array)

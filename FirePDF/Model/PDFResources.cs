@@ -124,6 +124,11 @@ namespace FirePDF.Model
             return root;
         }
 
+        internal void setObjectAtPath(ObjectReference objectReference, string[] path)
+        {
+            
+        }
+
         /// <summary>
         /// returns all form xobjects found in the XObject dictionary
         /// does not return form xObjects

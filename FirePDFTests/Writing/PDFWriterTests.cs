@@ -47,6 +47,9 @@ namespace FirePDF.Writing.Tests
                 {
                     writer.writeResources(page.resources);
                 }
+                
+                ms.Position = 0;
+                string contents = Encoding.ASCII.GetString(ms.ToArray());
             }
         }
     }

@@ -29,6 +29,10 @@ namespace FirePDF.Model.Tests
             Dictionary<Name, object> myDict2 = new Dictionary<Name, object>();
             myDict2["test"] = "sadf";
             myDict2["test2"] = (Name)"asdf";
+
+            string t = "asdf";
+            object o = t;
+            Assert.IsFalse(o is Name);
         }
     }
 }
