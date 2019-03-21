@@ -31,7 +31,7 @@ namespace FirePDF.Reading
 
         public static Stream decompressStream(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
-            Dictionary<string, object> dict = readIndirectDictionary(pdf, xrefRecord);
+            Dictionary<Name, object> dict = readIndirectDictionary(pdf, xrefRecord);
             skipOverStreamHeader(pdf.stream);
 
             return decompressStream(pdf.stream, dict);
@@ -39,7 +39,7 @@ namespace FirePDF.Reading
 
         public static Stream decompressStream(PDF pdf, ObjectReference objectReference)
         {
-            Dictionary<string, object> dict = readIndirectDictionary(pdf, objectReference);
+            Dictionary<Name, object> dict = readIndirectDictionary(pdf, objectReference);
             skipOverStreamHeader(pdf.stream);
 
             return decompressStream(pdf.stream, dict);
@@ -47,7 +47,7 @@ namespace FirePDF.Reading
 
         public static Stream decompressStream(PDF pdf, int objectNumber, int generation)
         {
-            Dictionary<string, object> dict = readIndirectDictionary(pdf, objectNumber, generation);
+            Dictionary<Name, object> dict = readIndirectDictionary(pdf, objectNumber, generation);
             skipOverStreamHeader(pdf.stream);
 
             return decompressStream(pdf.stream, dict);
@@ -56,9 +56,9 @@ namespace FirePDF.Reading
         /// <summary>
         /// decompresses and returns a content stream at the current position
         /// </summary>
-        public static Stream decompressStream(Stream stream, Dictionary<string, object> streamDictionary)
+        public static Stream decompressStream(Stream stream, Dictionary<Name, object> streamDictionary)
         {
-            switch ((string)streamDictionary["Filter"])
+            switch ((Name)streamDictionary["Filter"])
             {
                 case "FlateDecode":
                     return FlateStreamReader.decompressStream(stream, streamDictionary);
@@ -67,9 +67,9 @@ namespace FirePDF.Reading
             }
         }
 
-        public static Image decompressImageStream(Stream stream, Dictionary<string, object> streamDictionary)
+        public static Image decompressImageStream(Stream stream, Dictionary<Name, object> streamDictionary)
         {
-            switch ((string)streamDictionary["Filter"])
+            switch ((Name)streamDictionary["Filter"])
             {
                 case "FlateDecode":
                     {
@@ -134,19 +134,19 @@ namespace FirePDF.Reading
             skipOverWhiteSpace(stream);
         }
 
-        public static Dictionary<string, object> readIndirectDictionary(PDF pdf, ObjectReference objectReference)
+        public static Dictionary<Name, object> readIndirectDictionary(PDF pdf, ObjectReference objectReference)
         {
-            return (Dictionary<string, object>)readIndirectObject(pdf, objectReference);
+            return (Dictionary<Name, object>)readIndirectObject(pdf, objectReference);
         }
 
-        public static Dictionary<string, object> readIndirectDictionary(PDF pdf, XREFTable.XREFRecord xrefRecord)
+        public static Dictionary<Name, object> readIndirectDictionary(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
-            return (Dictionary<string, object>)readIndirectObject(pdf, xrefRecord);
+            return (Dictionary<Name, object>)readIndirectObject(pdf, xrefRecord);
         }
 
-        public static Dictionary<string, object> readIndirectDictionary(PDF pdf, int objectNumber, int generation)
+        public static Dictionary<Name, object> readIndirectDictionary(PDF pdf, int objectNumber, int generation)
         {
-            return (Dictionary<string, object>)readIndirectObject(pdf, objectNumber, generation);
+            return (Dictionary<Name, object>)readIndirectObject(pdf, objectNumber, generation);
         }
 
         /// <summary>
@@ -175,14 +175,14 @@ namespace FirePDF.Reading
             skipOverObjectHeader(pdf.stream);
 
             object obj = readObject(pdf.stream);
-            if (obj is Dictionary<string, object> == false)
+            if (obj is Dictionary<Name, object> == false)
             {
                 return obj;
             }
 
-            Dictionary<string, object> dict = (Dictionary<string, object>)obj;
+            Dictionary<Name, object> dict = (Dictionary<Name, object>)obj;
 
-            bool isObjectStream = dict.ContainsKey("Type") && (string)dict["Type"] == "ObjStm";
+            bool isObjectStream = dict.ContainsKey("Type") && (Name)dict["Type"] == "ObjStm";
             bool isFormXObject = isObjectStream == false && dict.ContainsKey("Subtype");
 
             if (isObjectStream == false && isFormXObject == false)
@@ -198,11 +198,11 @@ namespace FirePDF.Reading
             {
                 return new PDFObjectStream(pdf, dict, startOfStream);
             }
-            else if ((string)dict["Subtype"] == "Form")
+            else if ((Name)dict["Subtype"] == "Form")
             {
                 return new XObjectForm(pdf, dict, startOfStream);
             }
-            else if ((string)dict["Subtype"] == "Image")
+            else if ((Name)dict["Subtype"] == "Image")
             {
                 return new XObjectImage(pdf, dict, startOfStream);
             }
@@ -237,9 +237,9 @@ namespace FirePDF.Reading
         /// <summary>
         /// reads a dictionary from the stream at the current position
         /// </summary>
-        public static Dictionary<string, object> readDictionary(Stream stream)
+        public static Dictionary<Name, object> readDictionary(Stream stream)
         {
-            Dictionary<string, object> dict = new Dictionary<string, object>();
+            Dictionary<Name, object> dict = new Dictionary<Name, object>();
 
             //skip over the <<
             stream.Position += 2;
@@ -579,7 +579,7 @@ namespace FirePDF.Reading
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        public static string readName(Stream stream)
+        public static Name readName(Stream stream)
         {
             //skip over the /
             stream.Position++;
@@ -608,7 +608,7 @@ namespace FirePDF.Reading
                 else
                 {
                     stream.Position--;
-                    return sb.ToString();
+                    return new Name(sb.ToString());
                 }
             }
         }

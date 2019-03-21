@@ -11,17 +11,24 @@ namespace FirePDF.Model
     public class PDFResources
     {
         private PDF pdf;
-        private Dictionary<string, object> underlyingDict;
+        private IStreamOwner owner;
+        internal readonly Dictionary<Name, object> underlyingDict;
 
-        private Dictionary<string, object> updates;
+        private Dictionary<Name, object> cache;
 
-        public PDFResources(PDF pdf, Dictionary<string, object> underlyingDict)
+        internal HashSet<string> dirtyObjects;
+        internal bool isDirty => dirtyObjects.Count > 0;
+
+        public PDFResources(PDF pdf, IStreamOwner owner, Dictionary<Name, object> underlyingDict)
         {
             this.pdf = pdf;
+            this.owner = owner;
             this.underlyingDict = underlyingDict;
-            this.updates = new Dictionary<string, object>();
-        }
 
+            this.cache = new Dictionary<Name, object>();
+            this.dirtyObjects = new HashSet<string>();
+        }
+        
         public void overwriteXObject(XObjectForm form, string xObjectName)
         {
             overwriteObject(form, "XObject", xObjectName);
@@ -29,7 +36,10 @@ namespace FirePDF.Model
 
         public void overwriteObject(object obj, params string[] path)
         {
-            updates[string.Join("/", path)] = obj;
+            string joinedPath = string.Join("/", path);
+
+            cache[joinedPath] = obj;
+            dirtyObjects.Add(joinedPath);
         }
         
         /// <summary>
@@ -38,7 +48,7 @@ namespace FirePDF.Model
         /// </summary>
         public IEnumerable<string> listXObjectForms()
         {
-            Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("XObject");
+            Dictionary<Name, object> xObjects = (Dictionary<Name, object>)getObjectAtPath("XObject");
             if (xObjects == null)
             {
                 yield break;
@@ -66,12 +76,18 @@ namespace FirePDF.Model
         /// </summary>
         public object getObjectAtPath(params string[] path)
         {
+            string joinedPath = string.Join("/", path);
+            if(cache.ContainsKey(joinedPath))
+            {
+                return cache[joinedPath];
+            }
+
             object root = underlyingDict;
             foreach (string part in path)
             {
-                if (root is Dictionary<string, object>)
+                if (root is Dictionary<Name, object>)
                 {
-                    Dictionary<string, object> temp = (Dictionary<string, object>)root;
+                    Dictionary<Name, object> temp = (Dictionary<Name, object>)root;
                     if (temp.ContainsKey(part))
                     {
                         root = temp[part];
@@ -104,6 +120,7 @@ namespace FirePDF.Model
                 }
             }
 
+            cache[joinedPath] = root;
             return root;
         }
 
@@ -113,7 +130,7 @@ namespace FirePDF.Model
         /// </summary>
         public IEnumerable<string> listXObjectImages()
         {
-            Dictionary<string, object> xObjects = (Dictionary<string, object>)getObjectAtPath("XObject");
+            Dictionary<Name, object> xObjects = (Dictionary<Name, object>)getObjectAtPath("XObject");
             if (xObjects == null)
             {
                 yield break;

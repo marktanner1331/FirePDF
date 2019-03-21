@@ -72,7 +72,7 @@ namespace FirePDF.Distilling
                             continue;
                         }
 
-                        if (streamOwner.resources.isXObjectImage((string)operation.operands[0]))
+                        if (streamOwner.resources.isXObjectImage((Name)operation.operands[0]))
                         {
                             streamPart.addTag("containsImages");
                         }

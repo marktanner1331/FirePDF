@@ -13,9 +13,11 @@ namespace FirePDF
     public class Page : IStreamOwner
     {
         public PDF pdf { get; private set; }
-        public Dictionary<string, object> underlyingDict;
+        public Dictionary<Name, object> underlyingDict;
         public PDFResources resources { get; private set; }
         public RectangleF boundingBox { get; private set; }
+
+        public bool isDirty => resources.isDirty;
 
         public Page(PDF pdf)
         {
@@ -24,11 +26,11 @@ namespace FirePDF
             throw new NotImplementedException();
         }
         
-        public Page(PDF pdf, Dictionary<string, object> pageDictionary)
+        public Page(PDF pdf, Dictionary<Name, object> pageDictionary)
         {
             this.pdf = pdf;
             this.underlyingDict = pageDictionary;
-            this.resources = new PDFResources(pdf, (Dictionary<string, object>)underlyingDict["Resources"]);
+            this.resources = new PDFResources(pdf, this, (Dictionary<Name, object>)underlyingDict["Resources"]);
         }
 
         public Stream readContentStream()
@@ -53,11 +55,11 @@ namespace FirePDF
             return compositeStream;
         }
 
-        private Dictionary<string, object> getEmptyUnderlyingDict()
+        private Dictionary<Name, object> getEmptyUnderlyingDict()
         {
             //TODO finish getEmptyUnderlyingDict()
             //and do the same with other underlying dicts?
-            return new Dictionary<string, object>
+            return new Dictionary<Name, object>
             {
                 { "Contents", new List<ObjectReference>() }
             };

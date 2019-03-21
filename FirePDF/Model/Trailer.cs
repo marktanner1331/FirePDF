@@ -28,12 +28,12 @@ namespace FirePDF.Model
             }
 
             PDFReader.skipOverWhiteSpace(stream);
-            Dictionary<string, object> dict = PDFReader.readDictionary(stream);
+            Dictionary<Name, object> dict = PDFReader.readDictionary(stream);
 
             fromDictionary(dict);
         }
 
-        public void fromDictionary(Dictionary<string, object> dict)
+        public void fromDictionary(Dictionary<Name, object> dict)
         {
             foreach (var pair in dict)
             {

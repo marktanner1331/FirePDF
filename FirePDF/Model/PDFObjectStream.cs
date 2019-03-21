@@ -16,7 +16,7 @@ namespace FirePDF.Model
     {
         private long startOfStream;
         private PDF pdf;
-        private Dictionary<string, object> streamDict;
+        private Dictionary<Name, object> streamDict;
 
         private int n;
         private int first;
@@ -24,13 +24,13 @@ namespace FirePDF.Model
         /// <summary>
         /// initializes the PDFObjectStream with a specific pdf object
         /// </summary>
-        public PDFObjectStream(PDF pdf, Dictionary<string, object> streamDict, long startOfStream)
+        public PDFObjectStream(PDF pdf, Dictionary<Name, object> streamDict, long startOfStream)
         {
             this.pdf = pdf;
             this.streamDict = streamDict;
             this.startOfStream = startOfStream;
             
-            if((string)streamDict["Type"] != "ObjStm")
+            if((Name)streamDict["Type"] != "ObjStm")
             {
                 throw new Exception("Object is not an object stream");
             }

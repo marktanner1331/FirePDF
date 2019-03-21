@@ -13,15 +13,15 @@ namespace FirePDF.Model
         private PDF pdf;
         private List<object> pages;
 
-        public PageTreeNode(PDF pdf, Dictionary<string, object> underlyingDict)
+        public PageTreeNode(PDF pdf, Dictionary<Name, object> underlyingDict)
         {
             this.pdf = pdf;
             pages = new List<object>();
 
             foreach(ObjectReference objectReference in (List<object>)underlyingDict["Kids"])
             {
-                Dictionary<string, object> kidsDict = PDFReader.readIndirectDictionary(pdf, objectReference);
-                switch(kidsDict["Type"])
+                Dictionary<Name, object> kidsDict = PDFReader.readIndirectDictionary(pdf, objectReference);
+                switch((Name)kidsDict["Type"])
                 {
                     case "Page":
                         Page page = new Page(pdf, kidsDict);

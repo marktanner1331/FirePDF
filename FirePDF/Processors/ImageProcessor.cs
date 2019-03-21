@@ -28,7 +28,7 @@ namespace FirePDF.Processors
             switch (operation.operatorName)
             {
                 case "Do":
-                    string xObjectName = (string)operation.operands[0];
+                    string xObjectName = (Name)operation.operands[0];
                     object xObject = streamOwner.resources.getObjectAtPath("XObject", xObjectName);
 
                     //TODO check if its really an image

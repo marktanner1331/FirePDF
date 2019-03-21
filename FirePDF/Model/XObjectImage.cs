@@ -12,7 +12,7 @@ namespace FirePDF.Model
     public class XObjectImage
     {
         private PDF pdf;
-        private Dictionary<string, object> underlyingDict;
+        private Dictionary<Name, object> underlyingDict;
         public long startOfStream;
 
         public XObjectImage(PDF pdf)
@@ -26,7 +26,7 @@ namespace FirePDF.Model
         /// <summary>
         /// initializing an xobject image with the owning pdf, its dictionary, and the offset to the start of the stream relative to the start of the pdf
         /// </summary>
-        public XObjectImage(PDF pdf, Dictionary<string, object> dict, long startOfStream)
+        public XObjectImage(PDF pdf, Dictionary<Name, object> dict, long startOfStream)
         {
             this.pdf = pdf;
             this.underlyingDict = dict;

@@ -45,6 +45,7 @@
     <Compile Include="Distilling\Classifier.cs" />
     <Compile Include="Distilling\ModificationEngine.cs" />
     <Compile Include="Model\Catalog.cs" />
+    <Compile Include="Model\Name.cs" />
     <Compile Include="Processors\ClippingProcessor.cs" />
     <Compile Include="Processors\PaintingProcessor.cs" />
     <Compile Include="Processors\StreamProcessor.cs" />
@@ -83,9 +84,8 @@
     <Compile Include="StreamPartFunctions\StreamTree.cs" />
     <Compile Include="Util\Logger.cs" />
     <Compile Include="Util\RectangleFunctions.cs" />
+    <Compile Include="Writing\PDFWriter.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Writing\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

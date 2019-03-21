@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="ContentStreamReaderTests.cs" />
     <Compile Include="GraphicsPathTests.cs" />
+    <Compile Include="Model\NameTests.cs" />
     <Compile Include="Model\XObjectImageTests.cs" />
     <Compile Include="ProcessingTests.cs" />
     <Compile Include="MiscTests.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="PDFTests.cs" />
     <Compile Include="PNGPredictorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Writing\PDFWriterTests.cs" />
     <Compile Include="XREFStreamTests.cs" />
   </ItemGroup>
   <ItemGroup>

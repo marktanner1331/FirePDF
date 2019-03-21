@@ -50,9 +50,9 @@ namespace FirePDF.Model
             {
                 return "[" + string.Join(" ", (IEnumerable<object>)operand).Select(x => operandToString(x)) + "]";
             }
-            else if(operand is string)
+            else if(operand is Name)
             {
-                return string.Join("", ((string)operand).Select(x => x < 32 || x > 128 ? @"\u" + (int)x : x.ToString()));
+                return string.Join("", ((string)(Name)operand).Select(x => x < 32 || x > 128 ? @"\u" + (int)x : x.ToString()));
             }
             else
             {

@@ -18,7 +18,7 @@ namespace FirePDF.Model
         public void fromStream(PDF pdf)
         {
             PDFReader.skipOverObjectHeader(pdf.stream);
-            Dictionary<string, object> dict = PDFReader.readDictionary(pdf.stream);
+            Dictionary<Name, object> dict = PDFReader.readDictionary(pdf.stream);
 
             trailer = new Trailer();
             trailer.fromDictionary(dict);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirePDF.Model;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -16,7 +17,7 @@ namespace FirePDF.StreamHelpers
         /// decompresses a stream from the pdf stream at the current position and returns it
         /// as the stream isn't compressed, this method has the effect of just copying the bytes to a new stream
         /// </summary>
-        public static Stream decompressStream(Stream pdfStream, Dictionary<string, object> streamDictionary)
+        public static Stream decompressStream(Stream pdfStream, Dictionary<Name, object> streamDictionary)
         {
             MemoryStream temp = new MemoryStream();
 

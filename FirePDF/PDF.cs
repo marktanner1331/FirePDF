@@ -1,10 +1,12 @@
 ﻿using FirePDF.Model;
 using FirePDF.Reading;
+using FirePDF.Writing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FirePDF
@@ -13,7 +15,9 @@ namespace FirePDF
     {
         public Stream stream;
         public XREFTable readableTable;
-        private Catalog catalog;
+        internal Catalog catalog;
+
+        public float version { get; private set; }
 
         public PDF(string fullFilePath) : this(File.OpenRead(fullFilePath)) { }
 
@@ -32,7 +36,7 @@ namespace FirePDF
 
         public void save(string fullFilePath)
         {
-
+           // PDFWriter.write(this, File.Create(fullFilePath));
         }
 
         public Page getPage(int oneBasedPageNumber)
@@ -47,6 +51,13 @@ namespace FirePDF
 
         private void parse()
         {
+            //TODO move to PDFReader?
+
+            stream.Position = 0;
+            string header = ASCIIReader.readASCIIString(stream, 16);
+            string versionString = Regex.Match(header, @"(?<=^%PDF-)\d\.\d").Value;
+            version = float.Parse(versionString);
+
             Queue<long> xrefOffsets = new Queue<long>();
             HashSet<long> readOffsets = new HashSet<long>();
 
@@ -94,7 +105,7 @@ namespace FirePDF
                 }
             }
 
-            Dictionary<string, object> rootDict = PDFReader.readIndirectDictionary(this, root);
+            Dictionary<Name, object> rootDict = PDFReader.readIndirectDictionary(this, root);
             catalog = new Catalog(this, rootDict);
         }
     }

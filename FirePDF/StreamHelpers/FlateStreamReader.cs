@@ -15,7 +15,7 @@ namespace FirePDF.StreamHelpers
         /// <summary>
         /// decompresses a stream from the pdf stream at the current position and returns it
         /// </summary>
-        public static MemoryStream decompressStream(Stream pdfStream, Dictionary<string, object> streamDictionary)
+        public static MemoryStream decompressStream(Stream pdfStream, Dictionary<Name, object> streamDictionary)
         {
             //http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
             pdfStream.Position += 2;
@@ -44,7 +44,7 @@ namespace FirePDF.StreamHelpers
                 }
                 else
                 {
-                    Dictionary<string, object> decodeParms = (Dictionary<string, object>)streamDictionary["DecodeParms"];
+                    Dictionary<Name, object> decodeParms = (Dictionary<Name, object>)streamDictionary["DecodeParms"];
                     int columns = (int)decodeParms["Columns"];
 
                     int colors = 1;
