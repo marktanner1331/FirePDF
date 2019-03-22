@@ -12,11 +12,13 @@ namespace FirePDF.Model
     {
         private PDF pdf;
         private List<object> pages;
+        private Dictionary<Name, object> underlyingDict;
 
         public PageTreeNode(PDF pdf, Dictionary<Name, object> underlyingDict)
         {
             this.pdf = pdf;
-            pages = new List<object>();
+            this.pages = new List<object>();
+            this.underlyingDict = underlyingDict;
 
             foreach(ObjectReference objectReference in (List<object>)underlyingDict["Kids"])
             {
@@ -65,6 +67,42 @@ namespace FirePDF.Model
                         pageCounter++;
                     }
                 }
+            }
+
+            throw new Exception("Page not found in catalog");
+        }
+
+        internal void updatePageReference(int oneBasedPageNumber, ObjectReference objectRef)
+        {
+            int pageCounter = 1;
+            int i = 0;
+            foreach (object node in pages)
+            {
+                if (node is PageTreeNode)
+                {
+                    int numPages = ((PageTreeNode)node).getNumPages();
+                    if (pageCounter + numPages > oneBasedPageNumber)
+                    {
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        pageCounter += numPages;
+                    }
+                }
+                else
+                {
+                    if (pageCounter == oneBasedPageNumber)
+                    {
+                        ((List<object>)underlyingDict["Kids"])[i] = objectRef;
+                    }
+                    else
+                    {
+                        pageCounter++;
+                    }
+                }
+
+                i++;
             }
 
             throw new Exception("Page not found in catalog");

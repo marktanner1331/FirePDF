@@ -44,6 +44,11 @@ namespace FirePDF.Model
             }
         }
 
+        public void updatePageReference(int pageNumber, ObjectReference objectRef)
+        {
+            pagesRoot.updatePageReference(pageNumber, objectRef);
+        }
+
         public IEnumerator<Page> GetEnumerator()
         {
             return new CatalogEnumerator(this);

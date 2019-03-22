@@ -37,9 +37,9 @@ namespace FirePDF.Model
         public void overwriteObject(object obj, params string[] path)
         {
             string joinedPath = string.Join("/", path);
-
             cache[joinedPath] = obj;
-            dirtyObjects.Add(joinedPath);
+
+            setObjectAsDirty(path);
         }
         
         /// <summary>
@@ -124,9 +124,121 @@ namespace FirePDF.Model
             return root;
         }
 
-        internal void setObjectAtPath(ObjectReference objectReference, string[] path)
+        public void setObjectAsDirty(string[] path)
         {
-            
+            string joinedPath = string.Join("/", path);
+            dirtyObjects.Add(joinedPath);
+
+            object root = underlyingDict;
+            for (int i = 0; i < path.Length - 1; i++)
+            {
+                string part = path[i];
+
+                if (root is Dictionary<Name, object>)
+                {
+                    Dictionary<Name, object> temp = (Dictionary<Name, object>)root;
+                    if (temp.ContainsKey(part))
+                    {
+                        root = temp[part];
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+                else if (root is List<object>)
+                {
+                    int index;
+                    if (int.TryParse(part, out index) == false)
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    List<object> temp = (List<object>)root;
+                    if (temp.Count <= index)
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    root = temp[index];
+                }
+
+                if (root is ObjectReference)
+                {
+                    string[] subPath = path.Take(i + 1).ToArray();
+                    root = getObjectAtPath(subPath);
+
+                    string joinedSubPath = string.Join("/", subPath);
+                    dirtyObjects.Add(joinedSubPath);
+                }
+            }
+        }
+
+        public void setObjectAtPath(ObjectReference objectReference, string[] path)
+        {
+            //TODO replace most of this with getObjectAtPAth(path.take(-1))
+            object root = underlyingDict;
+            for (int i = 0; i < path.Length - 1; i++)
+            {
+                string part = path[i];
+
+                if (root is Dictionary<Name, object>)
+                {
+                    Dictionary<Name, object> temp = (Dictionary<Name, object>)root;
+                    if (temp.ContainsKey(part))
+                    {
+                        root = temp[part];
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+                else if (root is List<object>)
+                {
+                    int index;
+                    if (int.TryParse(part, out index) == false)
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    List<object> temp = (List<object>)root;
+                    if (temp.Count <= index)
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    root = temp[index];
+                }
+
+                if (root is ObjectReference)
+                {
+                    string[] subPath = path.Take(i + 1).ToArray();
+                    root = getObjectAtPath(subPath);
+                }
+            }
+
+            if (root is Dictionary<Name, object>)
+            {
+                Dictionary<Name, object> temp = (Dictionary<Name, object>)root;
+                temp[path.Last()] = objectReference;
+            }
+            else if (root is List<object>)
+            {
+                int index;
+                if (int.TryParse(path.Last(), out index) == false)
+                {
+                    throw new NotImplementedException();
+                }
+
+                List<object> temp = (List<object>)root;
+                if (temp.Count <= index)
+                {
+                    throw new NotImplementedException();
+                }
+
+                temp[index] = objectReference;
+            }
         }
 
         /// <summary>

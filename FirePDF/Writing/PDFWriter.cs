@@ -59,23 +59,40 @@ namespace FirePDF.Writing
             //don't want to screw with that unnecessarily
             writeTable.clear();
             writeTable.mergeIn(pdf.readableTable);
-
-            writeTable.clear();
+            
+            int pageNumber = 1;
             foreach (Page page in pdf.catalog)
             {
                 if (page.isDirty)
                 {
-                    writePage(page);
+                    ObjectReference objectRef = writePage(page);
+                    pdf.catalog.updatePageReference(pageNumber, objectRef);
                 }
+                
+                pageNumber++;
             }
         }
 
-        public void writePage(Page page)
+        public ObjectReference writePage(Page page)
         {
             if (page.resources.isDirty)
             {
                 writeDirtyResources(page.resources);
+                page.underlyingDict["Resources"] = page.resources.underlyingDict;
             }
+
+            int nextFreeNumber2 = writeTable.getNextFreeRecordNumber();
+            XREFTable.XREFRecord pageRecord = new XREFTable.XREFRecord
+            {
+                isCompressed = false,
+                objectNumber = nextFreeNumber2,
+                generation = 0,
+                offset = stream.Position + bufferIndex
+            };
+            writeTable.addRecord(pageRecord);
+
+            writeIndirectObject(pageRecord.objectNumber, pageRecord.generation, page.underlyingDict);
+            return new ObjectReference(pageRecord.objectNumber, pageRecord.generation);
         }
 
         public void writeDirtyResources(PDFResources resources)
@@ -93,6 +110,7 @@ namespace FirePDF.Writing
                     generation = 0,
                     offset = stream.Position + bufferIndex
                 };
+                writeTable.addRecord(record);
                 
                 writeIndirectObject(record.objectNumber, record.generation, obj);
                 resources.setObjectAtPath(new ObjectReference(record.objectNumber, record.generation), path);
@@ -104,8 +122,11 @@ namespace FirePDF.Writing
         public void writeIndirectObject(int objectNumber, int generation, object obj)
         {
             writeASCII(objectNumber + " " + generation + " obj");
+            writeNewLine();
             writeDirectObject(obj);
+            writeNewLine();
             writeASCII("endobj");
+            writeNewLine();
         }
 
         public void writeDirectObject(object obj)
@@ -125,6 +146,26 @@ namespace FirePDF.Writing
             else if(obj is ObjectReference)
             {
                 writeDirectObject(obj as ObjectReference);
+            }
+            else if(obj is XObjectForm)
+            {
+                XObjectForm form = (XObjectForm)obj;
+                writeDirectObject(form.underlyingDict);
+                writeNewLine();
+                writeASCII("stream");
+                writeNewLine();
+
+                //TODO write the stream
+
+                writeASCII("endstream");
+            }
+            else if(obj is float)
+            {
+                writeASCII((float)obj);
+            }
+            else if (obj is int)
+            {
+                writeASCII((int)obj);
             }
             else
             {
@@ -188,6 +229,11 @@ namespace FirePDF.Writing
         public void writeASCII(float f)
         {
             writeASCII(f.ToString());
+        }
+
+        public void writeASCII(int i)
+        {
+            writeASCII(i.ToString());
         }
 
         public void writeASCII(string s)

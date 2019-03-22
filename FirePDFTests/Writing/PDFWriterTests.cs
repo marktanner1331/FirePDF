@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Reflection;
+using FirePDF.Model;
 
 namespace FirePDF.Writing.Tests
 {
@@ -45,7 +46,11 @@ namespace FirePDF.Writing.Tests
             {
                 using (PDFWriter writer = new PDFWriter(ms, true))
                 {
-                    writer.writeResources(page.resources);
+                    string formName = page.resources.listXObjectForms().First();
+                    XObjectForm form = page.resources.getXObjectForm(formName);
+
+                    page.resources.overwriteXObject(form, formName);
+                    writer.updatePDF(pdf);
                 }
                 
                 ms.Position = 0;

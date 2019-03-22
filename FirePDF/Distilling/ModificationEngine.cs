@@ -33,6 +33,8 @@ namespace FirePDF.Distilling
 
                         cm.operands[0] = cm.getOperandAsFloat(0) + 1 / gs.currentTransformationMatrix.Elements[0];
                         cm.operands[3] = cm.getOperandAsFloat(3) + 1 / gs.currentTransformationMatrix.Elements[3];
+                        cm.operands[4] = cm.getOperandAsFloat(4) - 1 / gs.currentTransformationMatrix.Elements[0];
+                        cm.operands[5] = cm.getOperandAsFloat(5) - 1 / gs.currentTransformationMatrix.Elements[3];
                     }
 
                     gsp.processOperation(array[i]);

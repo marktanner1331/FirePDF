@@ -47,15 +47,17 @@ namespace FirePDF.Rendering
             refreshGraphicsState();
 
             Matrix temp = graphics.Transform.Clone();
+            
+            //float[] elements = temp.Elements;
+            //elements[0]--;
+            //elements[3]--;
+            //elements[4]++;
+            //elements[5]++;
+            //temp = new Matrix(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
 
             temp.Scale(1, -1);
             temp.Translate(0, -1);
-
-            //float[] elements = temp.Elements;
-            //elements[0]++;
-            //elements[3]++;
-            //temp = new Matrix(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
-
+            
             graphics.Transform = temp;
             graphics.DrawImage(image, 0, 0, 1, 1);
             graphics.Transform = getGraphicsState().currentTransformationMatrix;
