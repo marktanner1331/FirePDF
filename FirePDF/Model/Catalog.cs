@@ -1,4 +1,5 @@
 ﻿using FirePDF.Reading;
+using FirePDF.Writing;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,14 +13,17 @@ namespace FirePDF.Model
     public class Catalog : IEnumerable<Page>
     {
         private PDF pdf;
-        private PageTreeNode pagesRoot;
+        private Dictionary<Name, object> underlyingDict;
+        internal PageTreeNode pagesRoot;
 
         private Dictionary<int, Page> cache;
-        public bool isDirty => cache.Values.Any(x => x.isDirty);
+        public bool hasDirtyPages => cache.Values.Any(x => x.isDirty);
+        public bool isDirty => pagesRoot.isDirty;
 
         public Catalog(PDF pdf, Dictionary<Name, object> underlyingDict)
         {
             this.pdf = pdf;
+            this.underlyingDict = underlyingDict;
             this.cache = new Dictionary<int, Page>();
 
             Dictionary<Name, object> pagesDict = PDFReader.readIndirectDictionary(pdf, (ObjectReference)underlyingDict["Pages"]);
@@ -94,6 +98,12 @@ namespace FirePDF.Model
             {
                 current = 0;
             }
+        }
+
+        internal ObjectReference serialize(PDFWriter pdfWriter)
+        {
+            underlyingDict["Pages"] = pagesRoot.serialize(pdfWriter);
+            return pdfWriter.writeIndirectObjectUsingNextFreeNumber(underlyingDict);
         }
     }
 }

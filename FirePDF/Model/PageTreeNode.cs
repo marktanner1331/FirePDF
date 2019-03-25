@@ -1,4 +1,5 @@
 ﻿using FirePDF.Reading;
+using FirePDF.Writing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +13,8 @@ namespace FirePDF.Model
     {
         private PDF pdf;
         private List<object> pages;
-        private Dictionary<Name, object> underlyingDict;
+        internal Dictionary<Name, object> underlyingDict;
+        internal bool isDirty;
 
         public PageTreeNode(PDF pdf, Dictionary<Name, object> underlyingDict)
         {
@@ -74,6 +76,8 @@ namespace FirePDF.Model
 
         internal void updatePageReference(int oneBasedPageNumber, ObjectReference objectRef)
         {
+            isDirty = true;
+
             int pageCounter = 1;
             int i = 0;
             foreach (object node in pages)
@@ -106,6 +110,25 @@ namespace FirePDF.Model
             }
 
             throw new Exception("Page not found in catalog");
+        }
+
+        internal ObjectReference serialize(PDFWriter pdfWriter)
+        {
+            List<object> kidsArray = (List<object>)underlyingDict["Kids"];
+            for (int i = 0; i < kidsArray.Count; i++)
+            {
+                if(pages[i] is Page)
+                {
+                    //this page won't be dirty anymore, although, should we serialize the page at this point?
+                    //rather than doing it in the PDFWriter?
+                }
+                else //pages[i] is PageTreeRoot
+                {
+                    kidsArray[i] = pdfWriter.writeIndirectObjectUsingNextFreeNumber(pages[i]);
+                }
+            }
+
+            return pdfWriter.writeIndirectObjectUsingNextFreeNumber(underlyingDict);
         }
 
         public int getNumPages()

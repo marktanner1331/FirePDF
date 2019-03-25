@@ -59,7 +59,7 @@ namespace FirePDF.Writing
             //don't want to screw with that unnecessarily
             writeTable.clear();
             writeTable.mergeIn(pdf.readableTable);
-            
+
             int pageNumber = 1;
             foreach (Page page in pdf.catalog)
             {
@@ -68,8 +68,13 @@ namespace FirePDF.Writing
                     ObjectReference objectRef = writePage(page);
                     pdf.catalog.updatePageReference(pageNumber, objectRef);
                 }
-                
+
                 pageNumber++;
+            }
+
+            if (pdf.catalog.isDirty)
+            {
+                pdf.catalog.serialize(this);
             }
         }
 
@@ -81,6 +86,11 @@ namespace FirePDF.Writing
                 page.underlyingDict["Resources"] = page.resources.underlyingDict;
             }
 
+            return writeIndirectObjectUsingNextFreeNumber(page.underlyingDict);
+        }
+
+        public ObjectReference writeIndirectObjectUsingNextFreeNumber(object obj)
+        {
             int nextFreeNumber2 = writeTable.getNextFreeRecordNumber();
             XREFTable.XREFRecord pageRecord = new XREFTable.XREFRecord
             {
@@ -91,13 +101,13 @@ namespace FirePDF.Writing
             };
             writeTable.addRecord(pageRecord);
 
-            writeIndirectObject(pageRecord.objectNumber, pageRecord.generation, page.underlyingDict);
+            writeIndirectObject(pageRecord.objectNumber, pageRecord.generation, obj);
             return new ObjectReference(pageRecord.objectNumber, pageRecord.generation);
         }
 
         public void writeDirtyResources(PDFResources resources)
         {
-            foreach(string dirtyObjectPath in resources.dirtyObjects)
+            foreach (string dirtyObjectPath in resources.dirtyObjects)
             {
                 string[] path = dirtyObjectPath.Split('/');
                 object obj = resources.getObjectAtPath(path);
@@ -111,7 +121,7 @@ namespace FirePDF.Writing
                     offset = stream.Position + bufferIndex
                 };
                 writeTable.addRecord(record);
-                
+
                 writeIndirectObject(record.objectNumber, record.generation, obj);
                 resources.setObjectAtPath(new ObjectReference(record.objectNumber, record.generation), path);
             }
@@ -131,23 +141,23 @@ namespace FirePDF.Writing
 
         public void writeDirectObject(object obj)
         {
-            if(obj is Dictionary<Name, object>)
+            if (obj is Dictionary<Name, object>)
             {
                 writeDirectObject(obj as Dictionary<Name, object>);
             }
-            else if(obj is List<object>)
+            else if (obj is List<object>)
             {
                 writeDirectObject(obj as List<object>);
             }
-            else if(obj is Name)
+            else if (obj is Name)
             {
                 writeDirectObject(obj as Name);
             }
-            else if(obj is ObjectReference)
+            else if (obj is ObjectReference)
             {
                 writeDirectObject(obj as ObjectReference);
             }
-            else if(obj is XObjectForm)
+            else if (obj is XObjectForm)
             {
                 XObjectForm form = (XObjectForm)obj;
                 writeDirectObject(form.underlyingDict);
@@ -159,7 +169,7 @@ namespace FirePDF.Writing
 
                 writeASCII("endstream");
             }
-            else if(obj is float)
+            else if (obj is float)
             {
                 writeASCII((float)obj);
             }
@@ -188,9 +198,9 @@ namespace FirePDF.Writing
             writeASCII("[");
             bool isFirst = true;
 
-            foreach(object element in array)
+            foreach (object element in array)
             {
-                if(isFirst)
+                if (isFirst)
                 {
                     isFirst = false;
                 }
@@ -207,14 +217,14 @@ namespace FirePDF.Writing
         public void writeDirectObject(Dictionary<Name, object> dict)
         {
             writeASCII("<<");
-            foreach(var pair in dict)
+            foreach (var pair in dict)
             {
                 writeASCII("/" + pair.Key + " ");
                 writeDirectObject(pair.Value);
             }
             writeASCII(">>");
         }
-        
+
         public void writeNewLine()
         {
             if (buffer.Length - bufferIndex < 3)
