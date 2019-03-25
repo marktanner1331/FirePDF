@@ -1,4 +1,5 @@
 ﻿using FirePDF.Reading;
+using FirePDF.Writing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -83,6 +84,46 @@ namespace FirePDF.Model
             }
 
             freeRecords.Add(hash);
+        }
+
+        internal void serialize(PDFWriter pdfWriter)
+        {
+            pdfWriter.writeASCII("xref");
+            pdfWriter.writeNewLine();
+
+            if(freeRecords.Any())
+            {
+                throw new NotImplementedException();
+            }
+
+            List<XREFRecord> records = usedRecords.Select(x => x.Value).OrderBy(x => x.objectNumber).ToList();
+
+            List<XREFRecord> subRecords = new List<XREFRecord>();
+            subRecords.Add(records.First());
+
+            foreach(XREFRecord record in records.Skip(1))
+            {
+                if(subRecords.Last().objectNumber + 1 != record.objectNumber)
+                {
+                    serializeSubSection(pdfWriter, subRecords);
+                    subRecords.Clear();
+                }
+
+                subRecords.Add(record);
+            }
+
+            serializeSubSection(pdfWriter, subRecords);
+        }
+
+        private void serializeSubSection(PDFWriter pdfWriter, List<XREFRecord> records)
+        {
+            pdfWriter.writeASCII(records.First().objectNumber + " " + records.Count);
+            pdfWriter.writeNewLine();
+
+            foreach(XREFRecord record in records)
+            {
+                pdfWriter.writeASCII(record.offset.ToString("0000000000") + " " + record.generation.ToString("000000") + " n\r\n");
+            }
         }
 
         private void getRecordFromHash(long hash, out int objectNumber, out int generation)

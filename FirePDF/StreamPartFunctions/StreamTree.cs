@@ -21,7 +21,7 @@ namespace FirePDF.StreamPartFunctions
         {
             return root.getAllLeafNodes();
         }
-        
+
         private static int buildStackTree(List<Operation> operations, Node<StreamPart> root, int i)
         {
             StreamPart part = new StreamPart();
@@ -111,6 +111,46 @@ namespace FirePDF.StreamPartFunctions
             }
         }
 
+        public List<StreamPart> getTreeAsContiguousStreamParts()
+        {
+            List<StreamPart> parts = new List<StreamPart>();
+            getTreeAsContiguousStreamParts(parts, root);
+
+            return parts;
+        }
+
+        private void getTreeAsContiguousStreamParts(List<StreamPart> streamParts, Node<StreamPart> root)
+        {
+            if (root.value != null)
+            {
+                streamParts.Add(root.value);
+            }
+            else
+            {
+                foreach (Node<StreamPart> part in root.getChildren())
+                {
+                    if (part.value == null)
+                    {
+                        streamParts.Add(new StreamPart(new List<Operation>
+                        {
+                            new Operation("q", new List<object>())
+                        }));
+
+                        getTreeAsContiguousStreamParts(streamParts, part);
+
+                        streamParts.Add(new StreamPart(new List<Operation>
+                        {
+                            new Operation("Q", new List<object>())
+                        }));
+                    }
+                    else
+                    {
+                        streamParts.Add(part.value);
+                    }
+                }
+            }
+        }
+
         public String toVerboseString()
         {
             return toVerboseString(root, "");
@@ -119,15 +159,15 @@ namespace FirePDF.StreamPartFunctions
         private String toVerboseString(Node<StreamPart> root, String indent)
         {
             String s = "";
-            
+
             if (root.value != null)
             {
-                if(root.value.tags.Any())
+                if (root.value.tags.Any())
                 {
                     s += indent + "//tags: " + string.Join(", ", root.value.tags) + "\n";
                 }
 
-                if(root.value.variables.Any())
+                if (root.value.variables.Any())
                 {
                     s += indent + "//variables: " + string.Join(", ", root.value.variables.Select(x => x.Key + "=" + x.Value)) + "\n";
                 }
@@ -154,10 +194,7 @@ namespace FirePDF.StreamPartFunctions
                     s += toVerboseString(node, indent);
                 }
             }
-            if (s.Length == 0)
-            {
 
-            }
             return s;
         }
     }

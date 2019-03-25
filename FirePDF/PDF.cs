@@ -17,6 +17,8 @@ namespace FirePDF
         public XREFTable readableTable;
         internal Catalog catalog;
 
+        internal long? offsetOfLastXRefTable;
+
         public float version { get; private set; }
 
         public PDF(string fullFilePath) : this(File.OpenRead(fullFilePath)) { }
@@ -76,6 +78,8 @@ namespace FirePDF
                 Trailer trailer;
                 if (PDFReader.isObjectHeader(stream))
                 {
+                    offsetOfLastXRefTable = stream.Position;
+
                     XREFStream xrefStream = new XREFStream();
                     xrefStream.fromStream(this);
 
@@ -85,13 +89,13 @@ namespace FirePDF
                 }
                 else
                 {
+                    offsetOfLastXRefTable = stream.Position;
                     XREFTable table = new XREFTable();
                     table.fromStream(stream);
 
                     readableTable.mergeIn(table);
-
-                    trailer = new Trailer();
-                    trailer.fromStream(stream);
+                    
+                    trailer = PDFReader.readTrailer(stream);
                 }
                 
                 if (root == null)

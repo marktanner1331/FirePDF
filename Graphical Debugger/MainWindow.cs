@@ -54,6 +54,7 @@ namespace Graphical_Debugger
             ModificationEngine me = new ModificationEngine();
             //me.increaseImageDimensionsByOnePixel = true;
             //me.removeClippingPaths = true;
+            me.increaseClippingPathsByOnePixel = true;
             operations = me.run(form, operations);
 
             pdfRenderer = new PDFRenderer();

@@ -10,6 +10,8 @@ namespace FirePDF.Model
     public class Operation
     {
         public string operatorName;
+
+        //TODO keep this nullable for operators without operands -> improves performance
         public List<object> operands;
 
         public Operation()

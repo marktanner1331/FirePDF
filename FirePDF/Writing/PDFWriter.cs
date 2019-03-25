@@ -15,6 +15,7 @@ namespace FirePDF.Writing
         private int bufferIndex;
         private readonly bool leaveOpen;
 
+        private XREFTable readTable;
         private XREFTable writeTable;
         private int nextObjectNumber;
 
@@ -54,44 +55,76 @@ namespace FirePDF.Writing
 
         public void updatePDF(PDF pdf)
         {
+            this.readTable = pdf.readableTable;
+
             //not modifying the existing readTable here makes more sense to me
             //this is becuase the existing records have very valid pointers to existing objects
             //don't want to screw with that unnecessarily
             writeTable.clear();
-            writeTable.mergeIn(pdf.readableTable);
 
             int pageNumber = 1;
             foreach (Page page in pdf.catalog)
             {
                 if (page.isDirty)
                 {
-                    ObjectReference objectRef = writePage(page);
+                    ObjectReference objectRef = page.serialize(this);
                     pdf.catalog.updatePageReference(pageNumber, objectRef);
                 }
 
                 pageNumber++;
             }
 
+            ObjectReference root;
             if (pdf.catalog.isDirty)
             {
-                pdf.catalog.serialize(this);
+                root = pdf.catalog.serialize(this);
             }
-        }
-
-        public ObjectReference writePage(Page page)
-        {
-            if (page.resources.isDirty)
+            else
             {
-                writeDirtyResources(page.resources);
-                page.underlyingDict["Resources"] = page.resources.underlyingDict;
+                throw new NotImplementedException();
             }
 
-            return writeIndirectObjectUsingNextFreeNumber(page.underlyingDict);
+            long xrefOffset = stream.Position + bufferIndex;
+            writeTable.serialize(this);
+
+            Trailer trailer = new Trailer();
+            trailer.root = root;
+
+            if (pdf.offsetOfLastXRefTable != null)
+            {
+                trailer.prev = (int)pdf.offsetOfLastXRefTable;
+            }
+            trailer.serialize(this);
+
+            writeASCII("startxref");
+            writeNewLine();
+
+            writeASCII(xrefOffset);
+            writeNewLine();
+
+            writeASCII("%%EOF");
         }
+
+        //public ObjectReference writePage(Page page)
+        //{
+        //    if (page.resources.isDirty)
+        //    {
+
+        //        writeDirtyResources(page.resources);
+        //        page.underlyingDict["Resources"] = page.resources.underlyingDict;
+        //    }
+
+        //    return writeIndirectObjectUsingNextFreeNumber(page.underlyingDict);
+        //}
 
         public ObjectReference writeIndirectObjectUsingNextFreeNumber(object obj)
         {
-            int nextFreeNumber2 = writeTable.getNextFreeRecordNumber();
+            if(obj is XObjectForm)
+            {
+                return ((XObjectForm)obj).serialize(this);
+            }
+
+            int nextFreeNumber2 = readTable.getNextFreeRecordNumber();
             XREFTable.XREFRecord pageRecord = new XREFTable.XREFRecord
             {
                 isCompressed = false,
@@ -99,34 +132,72 @@ namespace FirePDF.Writing
                 generation = 0,
                 offset = stream.Position + bufferIndex
             };
+            readTable.addRecord(pageRecord);
             writeTable.addRecord(pageRecord);
 
             writeIndirectObject(pageRecord.objectNumber, pageRecord.generation, obj);
             return new ObjectReference(pageRecord.objectNumber, pageRecord.generation);
         }
 
-        public void writeDirtyResources(PDFResources resources)
+        public ObjectReference writeIndirectObjectUsingNextFreeNumber(Dictionary<Name, object> streamDictionary, Stream stream)
         {
-            foreach (string dirtyObjectPath in resources.dirtyObjects)
+            int nextFreeNumber2 = readTable.getNextFreeRecordNumber();
+            XREFTable.XREFRecord pageRecord = new XREFTable.XREFRecord
             {
-                string[] path = dirtyObjectPath.Split('/');
-                object obj = resources.getObjectAtPath(path);
+                isCompressed = false,
+                objectNumber = nextFreeNumber2,
+                generation = 0,
+                offset = stream.Position + bufferIndex
+            };
+            readTable.addRecord(pageRecord);
+            writeTable.addRecord(pageRecord);
 
-                int nextFreeNumber = writeTable.getNextFreeRecordNumber();
-                XREFTable.XREFRecord record = new XREFTable.XREFRecord
-                {
-                    isCompressed = false,
-                    objectNumber = nextFreeNumber,
-                    generation = 0,
-                    offset = stream.Position + bufferIndex
-                };
-                writeTable.addRecord(record);
+            writeIndirectObject(pageRecord.objectNumber, pageRecord.generation, streamDictionary, stream);
+            return new ObjectReference(pageRecord.objectNumber, pageRecord.generation);
+        }
 
-                writeIndirectObject(record.objectNumber, record.generation, obj);
-                resources.setObjectAtPath(new ObjectReference(record.objectNumber, record.generation), path);
+        //public void writeDirtyResources(PDFResources resources)
+        //{
+        //    foreach (string dirtyObjectPath in resources.dirtyObjects)
+        //    {
+        //        string[] path = dirtyObjectPath.Split('/');
+        //        object obj = resources.getObjectAtPath(path);
+
+        //        ObjectReference objectRef = writeIndirectObjectUsingNextFreeNumber(obj);
+        //        resources.setObjectAtPath(objectRef, path);
+        //    }
+
+        //    resources.dirtyObjects.Clear();
+        //}
+
+        public void writeIndirectObject(int objectNumber, int generation, Dictionary<Name, object> streamDictionary, Stream stream)
+        {
+            writeASCII(objectNumber + " " + generation + " obj");
+            writeNewLine();
+            writeDirectObject(streamDictionary);
+            writeNewLine();
+            writeASCII("stream");
+            writeNewLine();
+
+            flush();
+
+            int length = (int)streamDictionary["Length"];
+            while (length > 0)
+            {
+                byte[] buffer = new byte[1024];
+                int bytesRead = stream.Read(buffer, 0, Math.Min(length, buffer.Length));
+
+                this.stream.Write(buffer, 0, bytesRead);
+                length -= bytesRead;
             }
 
-            resources.dirtyObjects.Clear();
+            writeNewLine();
+
+            writeASCII("endstream");
+            writeNewLine();
+
+            writeASCII("endobj");
+            writeNewLine();
         }
 
         public void writeIndirectObject(int objectNumber, int generation, object obj)
@@ -159,15 +230,7 @@ namespace FirePDF.Writing
             }
             else if (obj is XObjectForm)
             {
-                XObjectForm form = (XObjectForm)obj;
-                writeDirectObject(form.underlyingDict);
-                writeNewLine();
-                writeASCII("stream");
-                writeNewLine();
-
-                //TODO write the stream
-
-                writeASCII("endstream");
+                throw new Exception("should never happen! call XObjectForm.serialize() instead.");
             }
             else if (obj is float)
             {
@@ -177,10 +240,45 @@ namespace FirePDF.Writing
             {
                 writeASCII((int)obj);
             }
+            else if(obj is double)
+            {
+                writeASCII((double)obj);
+            }
+            else if(obj is long)
+            {
+                writeASCII((long)obj);
+            }
+            else if(obj is string)
+            {
+                writeDirectObject(obj as string);
+            }
             else
             {
                 throw new NotImplementedException();
             }
+        }
+
+        public void writeDirectObject(string s)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("(");
+
+            foreach(char c in s)
+            {
+                if(c < 32 ||  c > 127)
+                {
+                    string s2 = Convert.ToString(c, 8);
+                    sb.Append("\\" + Convert.ToString(c, 8).PadLeft(3, '0'));
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+
+            sb.Append(")");
+
+            writeASCII(sb.ToString());
         }
 
         public void writeDirectObject(ObjectReference objectReference)
@@ -239,6 +337,16 @@ namespace FirePDF.Writing
         public void writeASCII(float f)
         {
             writeASCII(f.ToString());
+        }
+
+        public void writeASCII(double d)
+        {
+            writeASCII(d.ToString());
+        }
+
+        public void writeASCII(long l)
+        {
+            writeASCII(l.ToString());
         }
 
         public void writeASCII(int i)

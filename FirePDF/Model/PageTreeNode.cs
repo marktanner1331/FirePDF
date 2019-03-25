@@ -99,6 +99,7 @@ namespace FirePDF.Model
                     if (pageCounter == oneBasedPageNumber)
                     {
                         ((List<object>)underlyingDict["Kids"])[i] = objectRef;
+                        return;
                     }
                     else
                     {

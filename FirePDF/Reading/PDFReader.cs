@@ -91,6 +91,20 @@ namespace FirePDF.Reading
             }
         }
 
+        public static Trailer readTrailer(Stream stream)
+        {
+            string keyword = ASCIIReader.readASCIIString(stream, 7);
+            if (keyword != "trailer")
+            {
+                throw new Exception("trailer not found at current position");
+            }
+
+            skipOverWhiteSpace(stream);
+            Dictionary<Name, object> dict = readDictionary(stream);
+
+            return new Trailer(dict);
+        }
+
         public static long readLastStartXREF(string chunk)
         {
             int offset = chunk.LastIndexOf("startxref");

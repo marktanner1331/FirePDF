@@ -31,6 +31,7 @@ namespace FirePDF.Model
         
         public void overwriteXObject(XObjectForm form, string xObjectName)
         {
+            //TODO get rid of this
             overwriteObject(form, "XObject", xObjectName);
         }
 

@@ -1,4 +1,5 @@
 ﻿using FirePDF.Reading;
+using FirePDF.Writing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,23 +20,44 @@ namespace FirePDF.Model
 
         }
 
-        public void fromStream(Stream stream)
+        public void serialize(PDFWriter writer)
         {
-            string keyword = ASCIIReader.readASCIIString(stream, 7);
-            if (keyword != "trailer")
+            writer.writeASCII("trailer");
+            writer.writeNewLine();
+
+            Dictionary<Name, object> underylingDict = new Dictionary<Name, object>();
+            if(size != null)
             {
-                throw new Exception("trailer not found at current position");
+                underylingDict["Size"] = size.Value;
             }
 
-            PDFReader.skipOverWhiteSpace(stream);
-            Dictionary<Name, object> dict = PDFReader.readDictionary(stream);
+            if(root != null)
+            {
+                underylingDict["Root"] = root;
+            }
 
-            fromDictionary(dict);
+            if(info != null)
+            {
+                underylingDict["Info"] = info;
+            }
+
+            if(id != null)
+            {
+                throw new NotImplementedException();
+            }
+
+            if(prev != null)
+            {
+                underylingDict["Prev"] = prev.Value;
+            }
+
+            writer.writeDirectObject(underylingDict);
+            writer.writeNewLine();
         }
 
-        public void fromDictionary(Dictionary<Name, object> dict)
+        public Trailer(Dictionary<Name, object> underylingDict)
         {
-            foreach (var pair in dict)
+            foreach (var pair in underylingDict)
             {
                 switch (pair.Key)
                 {

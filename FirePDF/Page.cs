@@ -1,5 +1,6 @@
 ﻿using FirePDF.Model;
 using FirePDF.Reading;
+using FirePDF.Writing;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -25,7 +26,7 @@ namespace FirePDF
             underlyingDict = getEmptyUnderlyingDict();
             throw new NotImplementedException();
         }
-        
+
         public Page(PDF pdf, Dictionary<Name, object> pageDictionary)
         {
             this.pdf = pdf;
@@ -33,16 +34,47 @@ namespace FirePDF
             this.resources = new PDFResources(pdf, this, (Dictionary<Name, object>)underlyingDict["Resources"]);
         }
 
+        public ObjectReference serialize(PDFWriter writer)
+        {
+            if (resources.isDirty)
+            {
+                foreach (string dirtyObjectPath in resources.dirtyObjects)
+                {
+                    string[] path = dirtyObjectPath.Split('/');
+                    object obj = resources.getObjectAtPath(path);
+
+                    ObjectReference objectRef = writer.writeIndirectObjectUsingNextFreeNumber(obj);
+                    resources.setObjectAtPath(objectRef, path);
+                }
+
+                resources.dirtyObjects.Clear();
+
+                underlyingDict["Resources"] = resources.underlyingDict;
+            }
+
+            return writer.writeIndirectObjectUsingNextFreeNumber(underlyingDict);
+        }
+
         public Stream readContentStream()
         {
             MemoryStream compositeStream = new MemoryStream();
 
-            List<object> contents = (List<object>)underlyingDict["Contents"];
-            if (contents == null)
+            List<object> contents;
+            
+            if(underlyingDict["Contents"] is List<object>)
             {
-                throw new Exception();
+                contents = (List<object>)underlyingDict["Contents"];
             }
-
+            else if(underlyingDict["Contents"] is ObjectReference)
+            {
+                contents = new List<object>();
+                contents.Add((ObjectReference)underlyingDict["Contents"]);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+            
             foreach (ObjectReference objectReference in contents)
             {
                 using (Stream stream = PDFReader.decompressStream(pdf, objectReference))

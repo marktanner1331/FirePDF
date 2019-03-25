@@ -6,6 +6,7 @@ using FirePDF.Reading;
 using FirePDF.Rendering;
 using FirePDF.StreamPartFunctions;
 using FirePDF.Util;
+using FirePDF.Writing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,23 +24,36 @@ namespace test
         {
             string file = @"C:\Users\Mark Tanner\scratch\kuier 1.pdf";
             PDF pdf = new PDF(file);
-
             Page page = pdf.getPage(1);
 
-            List<string> forms = page.resources.listXObjectForms().ToList();
-            XObjectForm form = page.resources.getXObjectForm(forms.First());
+            File.Delete(@"C:\Users\Mark Tanner\scratch\kuier 1 write test.pdf");
+            using (FileStream fs = new FileStream(@"C:\Users\Mark Tanner\scratch\kuier 1 write test.pdf", FileMode.CreateNew))
+            {
+                pdf.stream.Seek(0, SeekOrigin.Begin);
+                pdf.stream.CopyTo(fs);
 
-            Stream s = form.readContentStream();
-            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
-            
-            StreamTree tree = new StreamTree(operations);
-            var test = tree.convertToOperations();
-            StreamTreeClassifier.classifyStreamTree(form, tree);
+                using (PDFWriter writer = new PDFWriter(fs, true))
+                {
+                    string formName = page.resources.listXObjectForms().First();
+                    XObjectForm form = page.resources.getXObjectForm(formName);
 
-            form.writeContentStream(s);
+                    Stream s = form.readContentStream();
+                    List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
-            //tree.removeLeafNodes(x => x.variables["type"] == "clippingPath");
-            Debug.WriteLine(tree.toVerboseString());
+                    ModificationEngine me = new ModificationEngine();
+                    me.increaseImageDimensionsByOnePixel = true;
+                    me.increaseClippingPathsByOnePixel = true;
+                    //me.removeImageClippingPaths = true;
+                    operations = me.run(form, operations);
+
+                    s = new MemoryStream();
+                    ContentStreamWriter.writeOperationsToStream(s, operations);
+                    form.writeContentStream(s);
+
+                    page.resources.overwriteXObject(form, formName);
+                    writer.updatePDF(pdf);
+                }
+            }
         }
     }
 }

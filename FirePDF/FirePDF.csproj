@@ -84,6 +84,7 @@
     <Compile Include="StreamPartFunctions\StreamTree.cs" />
     <Compile Include="Util\Logger.cs" />
     <Compile Include="Util\RectangleFunctions.cs" />
+    <Compile Include="Writing\ContentStreamWriter.cs" />
     <Compile Include="Writing\PDFWriter.cs" />
   </ItemGroup>
   <ItemGroup />
