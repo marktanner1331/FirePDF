@@ -49,6 +49,7 @@
     <Compile Include="Processors\ClippingProcessor.cs" />
     <Compile Include="Processors\PaintingProcessor.cs" />
     <Compile Include="Processors\StreamProcessor.cs" />
+    <Compile Include="StreamHelpers\ASCIIHexDecodeWriter.cs" />
     <Compile Include="StreamPartFunctions\ClippingPathStreamPart.cs" />
     <Compile Include="StreamPartFunctions\DrawImageStreamPart.cs" />
     <Compile Include="StreamPartFunctions\Node.cs" />

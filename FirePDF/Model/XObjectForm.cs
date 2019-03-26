@@ -1,5 +1,6 @@
 ﻿using FirePDF.Model;
 using FirePDF.Reading;
+using FirePDF.StreamHelpers;
 using FirePDF.Writing;
 using System;
 using System.Collections.Generic;
@@ -75,13 +76,16 @@ namespace FirePDF.Model
 
         public void writeContentStream(Stream s)
         {
-            stream = s;
+            stream = new MemoryStream();
+
+            s.Position = 0;
+            ASCIIHexDecodeWriter.encode(s, stream);
+
             startOfStream = 0;
             
-            underlyingDict.Remove("DecodeParms");
-            underlyingDict.Remove("Filter");
+            underlyingDict["Filter"] = (Name)"ASCIIHexDecode";
 
-            underlyingDict["Length"] = (int)s.Length;
+            underlyingDict["Length"] = (int)stream.Length;
 
             isStreamDirty = true;
         }

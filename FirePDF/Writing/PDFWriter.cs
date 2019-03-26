@@ -147,7 +147,7 @@ namespace FirePDF.Writing
                 isCompressed = false,
                 objectNumber = nextFreeNumber2,
                 generation = 0,
-                offset = stream.Position + bufferIndex
+                offset = this.stream.Position + bufferIndex
             };
             readTable.addRecord(pageRecord);
             writeTable.addRecord(pageRecord);
