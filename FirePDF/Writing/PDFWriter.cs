@@ -62,18 +62,6 @@ namespace FirePDF.Writing
             //don't want to screw with that unnecessarily
             writeTable.clear();
 
-            int pageNumber = 1;
-            foreach (Page page in pdf.catalog)
-            {
-                if (page.isDirty)
-                {
-                    ObjectReference objectRef = page.serialize(this);
-                    pdf.catalog.updatePageReference(pageNumber, objectRef);
-                }
-
-                pageNumber++;
-            }
-
             ObjectReference root;
             if (pdf.catalog.isDirty)
             {
@@ -105,21 +93,9 @@ namespace FirePDF.Writing
             writeASCII("%%EOF");
         }
 
-        //public ObjectReference writePage(Page page)
-        //{
-        //    if (page.resources.isDirty)
-        //    {
-
-        //        writeDirtyResources(page.resources);
-        //        page.underlyingDict["Resources"] = page.resources.underlyingDict;
-        //    }
-
-        //    return writeIndirectObjectUsingNextFreeNumber(page.underlyingDict);
-        //}
-
         public ObjectReference writeIndirectObjectUsingNextFreeNumber(object obj)
         {
-            if(obj is XObjectForm)
+            if (obj is XObjectForm)
             {
                 return ((XObjectForm)obj).serialize(this);
             }
@@ -232,6 +208,10 @@ namespace FirePDF.Writing
             {
                 throw new Exception("should never happen! call XObjectForm.serialize() instead.");
             }
+            else if (obj is byte[])
+            {
+                writeDirectObject(obj as byte[]);
+            }
             else if (obj is float)
             {
                 writeASCII((float)obj);
@@ -240,15 +220,15 @@ namespace FirePDF.Writing
             {
                 writeASCII((int)obj);
             }
-            else if(obj is double)
+            else if (obj is double)
             {
                 writeASCII((double)obj);
             }
-            else if(obj is long)
+            else if (obj is long)
             {
                 writeASCII((long)obj);
             }
-            else if(obj is string)
+            else if (obj is string)
             {
                 writeDirectObject(obj as string);
             }
@@ -258,14 +238,24 @@ namespace FirePDF.Writing
             }
         }
 
+        public void writeDirectObject(byte[] hexString)
+        {
+            StringBuilder hex = new StringBuilder(hexString.Length * 2);
+
+            foreach (byte b in hexString)
+                hex.AppendFormat("{0:x2}", b);
+
+            writeASCII(hex.ToString());
+        }
+
         public void writeDirectObject(string s)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("(");
 
-            foreach(char c in s)
+            foreach (char c in s)
             {
-                if(c < 32 ||  c > 127)
+                if (c < 32 || c > 127)
                 {
                     string s2 = Convert.ToString(c, 8);
                     sb.Append("\\" + Convert.ToString(c, 8).PadLeft(3, '0'));

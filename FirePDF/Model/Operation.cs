@@ -10,8 +10,6 @@ namespace FirePDF.Model
     public class Operation
     {
         public string operatorName;
-
-        //TODO keep this nullable for operators without operands -> improves performance
         public List<object> operands;
 
         public Operation()
@@ -77,7 +75,6 @@ namespace FirePDF.Model
 
         public List<int> getOperandsAsInts()
         {
-            //TODO rename this to "operand"
             return operands.Select(x => Convert.ToInt32(x)).ToList();
         }
 

@@ -24,7 +24,7 @@ namespace FirePDF.Model
             this.pdf = pdf;
             this.owner = owner;
             this.underlyingDict = underlyingDict;
-
+            
             this.cache = new Dictionary<Name, object>();
             this.dirtyObjects = new HashSet<string>();
         }

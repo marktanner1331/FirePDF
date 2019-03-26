@@ -90,6 +90,13 @@ namespace FirePDF.Reading
                     throw new NotImplementedException();
             }
         }
+        
+        public static float readVersion(Stream stream)
+        {
+            string header = ASCIIReader.readASCIIString(stream, 16);
+            string versionString = Regex.Match(header, @"(?<=^%PDF-)\d\.\d").Value;
+            return float.Parse(versionString);
+        }
 
         public static Trailer readTrailer(Stream stream)
         {

@@ -22,10 +22,6 @@ namespace FirePDF.Reading
                     currentOperation.operatorName = operatorName;
                     operations.Add(currentOperation);
 
-                    if (operations.Count == 957)
-                    {
-
-                    }
                     currentOperation = new Operation();
                 },
                 operand => currentOperation.operands.Add(operand));

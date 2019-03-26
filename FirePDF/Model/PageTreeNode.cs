@@ -14,7 +14,7 @@ namespace FirePDF.Model
         private PDF pdf;
         private List<object> pages;
         internal Dictionary<Name, object> underlyingDict;
-        internal bool isDirty;
+        internal bool isDirty => pages.Where(x => x is Page).Any(x => ((Page)x).isDirty);
 
         public PageTreeNode(PDF pdf, Dictionary<Name, object> underlyingDict)
         {
@@ -73,46 +73,7 @@ namespace FirePDF.Model
 
             throw new Exception("Page not found in catalog");
         }
-
-        internal void updatePageReference(int oneBasedPageNumber, ObjectReference objectRef)
-        {
-            isDirty = true;
-
-            int pageCounter = 1;
-            int i = 0;
-            foreach (object node in pages)
-            {
-                if (node is PageTreeNode)
-                {
-                    int numPages = ((PageTreeNode)node).getNumPages();
-                    if (pageCounter + numPages > oneBasedPageNumber)
-                    {
-                        throw new NotImplementedException();
-                    }
-                    else
-                    {
-                        pageCounter += numPages;
-                    }
-                }
-                else
-                {
-                    if (pageCounter == oneBasedPageNumber)
-                    {
-                        ((List<object>)underlyingDict["Kids"])[i] = objectRef;
-                        return;
-                    }
-                    else
-                    {
-                        pageCounter++;
-                    }
-                }
-
-                i++;
-            }
-
-            throw new Exception("Page not found in catalog");
-        }
-
+        
         internal ObjectReference serialize(PDFWriter pdfWriter)
         {
             List<object> kidsArray = (List<object>)underlyingDict["Kids"];
@@ -120,12 +81,19 @@ namespace FirePDF.Model
             {
                 if(pages[i] is Page)
                 {
-                    //this page won't be dirty anymore, although, should we serialize the page at this point?
-                    //rather than doing it in the PDFWriter?
+                    Page page = (Page)pages[i];
+                    if(page.isDirty)
+                    {
+                        kidsArray[i] = page.serialize(pdfWriter);
+                    }
                 }
-                else //pages[i] is PageTreeRoot
+                else
                 {
-                    kidsArray[i] = pdfWriter.writeIndirectObjectUsingNextFreeNumber(pages[i]);
+                    PageTreeNode node = (PageTreeNode)pages[i];
+                    if(node.isDirty)
+                    {
+                        kidsArray[i] = node.serialize(pdfWriter);
+                    }
                 }
             }
 

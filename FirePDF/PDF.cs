@@ -53,12 +53,8 @@ namespace FirePDF
 
         private void parse()
         {
-            //TODO move to PDFReader?
-
             stream.Position = 0;
-            string header = ASCIIReader.readASCIIString(stream, 16);
-            string versionString = Regex.Match(header, @"(?<=^%PDF-)\d\.\d").Value;
-            version = float.Parse(versionString);
+            version = PDFReader.readVersion(stream);
 
             Queue<long> xrefOffsets = new Queue<long>();
             HashSet<long> readOffsets = new HashSet<long>();
