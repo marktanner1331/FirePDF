@@ -53,7 +53,7 @@ namespace FirePDF.Processors
             {
                 case "cm":
                     {
-                        List<float> operands = operation.getOperationsAsFloats();
+                        List<float> operands = operation.getOperandsAsFloats();
 
                         Matrix matrix = new Matrix(operands[0], operands[1], operands[2], operands[3], operands[4], operands[5]);
                         getCurrentState().currentTransformationMatrix.Multiply(matrix);
@@ -163,7 +163,7 @@ namespace FirePDF.Processors
                     break;
                 case "rg":
                     {
-                        List<float> floats = operation.getOperationsAsFloats();
+                        List<float> floats = operation.getOperandsAsFloats();
                         Color color = Color.FromArgb(
                             (int)(255 * floats[0]),
                             (int)(255 * floats[1]),
@@ -174,7 +174,7 @@ namespace FirePDF.Processors
                     break;
                 case "RG":
                     {
-                        List<float> floats = operation.getOperationsAsFloats();
+                        List<float> floats = operation.getOperandsAsFloats();
                         Color color = Color.FromArgb(
                             (int)(255 * floats[0]), 
                             (int)(255 * floats[1]), 

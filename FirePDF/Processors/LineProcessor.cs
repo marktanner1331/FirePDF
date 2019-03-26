@@ -51,7 +51,7 @@ namespace FirePDF.Processors
             {
                 case "c":
                     {
-                        PointF[] points = operation.getOperationsAsPointFs();
+                        PointF[] points = operation.getOperandsAsPointFs();
                         
                         if (currentPoint == null)
                         {
@@ -77,7 +77,7 @@ namespace FirePDF.Processors
                     break;
                 case "l":
                     {
-                        PointF[] points = operation.getOperationsAsPointFs();
+                        PointF[] points = operation.getOperandsAsPointFs();
 
                         if (currentPoint == null)
                         {
@@ -93,7 +93,7 @@ namespace FirePDF.Processors
                     break;
                 case "m":
                     {
-                        PointF[] points = operation.getOperationsAsPointFs();
+                        PointF[] points = operation.getOperandsAsPointFs();
                         currentPoint = points[0];
 
                         currentPath.CloseFigure();
@@ -101,7 +101,7 @@ namespace FirePDF.Processors
                     break;
                 case "re":
                     {
-                        PointF[] points = operation.getOperationsAsPointFs();
+                        PointF[] points = operation.getOperandsAsPointFs();
 
                         PointF bottomLeft = points[0];
                         PointF topRight = points[1];
@@ -125,7 +125,7 @@ namespace FirePDF.Processors
                     }
                 case "v":
                     {
-                        PointF[] points = operation.getOperationsAsPointFs();
+                        PointF[] points = operation.getOperandsAsPointFs();
                         
                         if (currentPoint == null)
                         {
@@ -141,7 +141,7 @@ namespace FirePDF.Processors
                     }
                 case "y":
                     {
-                        PointF[] points = operation.getOperationsAsPointFs();
+                        PointF[] points = operation.getOperandsAsPointFs();
                         
                         if (currentPoint == null)
                         {

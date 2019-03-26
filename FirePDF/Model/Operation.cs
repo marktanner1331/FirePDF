@@ -62,7 +62,7 @@ namespace FirePDF.Model
             }
         }
 
-        public PointF[] getOperationsAsPointFs()
+        public PointF[] getOperandsAsPointFs()
         {
             PointF[] points = new PointF[operands.Count / 2];
 
@@ -75,18 +75,18 @@ namespace FirePDF.Model
             return points;
         }
 
-        public List<int> getOperationsAsInts()
+        public List<int> getOperandsAsInts()
         {
             //TODO rename this to "operand"
             return operands.Select(x => Convert.ToInt32(x)).ToList();
         }
 
-        public List<float> getOperationsAsFloats()
+        public List<float> getOperandsAsFloats()
         {
             return operands.Select(x => (float)Convert.ToDouble(x)).ToList();
         }
 
-        public List<double> getOperationsAsDoubles()
+        public List<double> getOperandsAsDoubles()
         {
             return operands.Select(x => Convert.ToDouble(x)).ToList();
         }
