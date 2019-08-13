@@ -98,6 +98,19 @@ namespace FirePDF.Model
                         return null;
                     }
                 }
+                else if(root is PDFResources)
+                {
+                    root = ((PDFResources)root).underlyingDict[part];
+                }
+                else if(root is IStreamOwner)
+                {
+                    if(part != "Resources")
+                    {
+                        throw new Exception($"Accessing unknown property '{part}' on IStreamOWner");
+                    }
+
+                    root = ((IStreamOwner)root).resources;
+                }
                 else if (root is List<object>)
                 {
                     int index;

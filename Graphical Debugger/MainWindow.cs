@@ -38,14 +38,13 @@ namespace Graphical_Debugger
             splitter.SplitterDistance = 200;
             Controls.Add(splitter);
 
-            string file = @"C:\Users\Mark Tanner\scratch\kuier 1 really fixed.pdf";
+            string file = @"C:\Users\Mark Tanner\scratch\kuier orig 70 fixed.pdf";
             //string file = @"C:\Users\Mark Tanner\scratch\page 2.pdf";
             PDF pdf = new PDF(file);
 
             Page page = pdf.getPage(1);
-
-            List<string> forms = page.resources.listXObjectForms().ToList();
-            XObjectForm form = page.resources.getXObjectForm(forms.First());
+            
+            XObjectForm form = (XObjectForm)page.resources.getObjectAtPath("XObject", "Fm0", "Resources", "XObject", "Fm0");
             owner = form;
 
             Stream s = form.readContentStream();

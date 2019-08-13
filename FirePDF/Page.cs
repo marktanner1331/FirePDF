@@ -31,7 +31,16 @@ namespace FirePDF
         {
             this.pdf = pdf;
             this.underlyingDict = pageDictionary;
-            this.resources = new PDFResources(pdf, this, (Dictionary<Name, object>)underlyingDict["Resources"]);
+
+            if(underlyingDict["Resources"] is ObjectReference)
+            {
+                Dictionary<Name, object> dict = PDFReader.readIndirectDictionary(pdf, (ObjectReference)underlyingDict["Resources"]);
+                this.resources = new PDFResources(pdf, this, dict);
+            }
+            else
+            {
+                this.resources = new PDFResources(pdf, this, (Dictionary<Name, object>)underlyingDict["Resources"]);
+            }
         }
 
         public ObjectReference serialize(PDFWriter writer)

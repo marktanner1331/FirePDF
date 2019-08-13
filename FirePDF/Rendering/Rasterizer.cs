@@ -80,7 +80,9 @@ namespace FirePDF.Rendering
         {
             refreshGraphicsState();
 
-            Pen p = new Pen(getGraphicsState().strokingColor);
+            Model.GraphicsState gs = getGraphicsState();
+
+            Pen p = new Pen(gs.strokingColor, gs.lineWidth);
             graphics.DrawPath(p, path);
         }
     }

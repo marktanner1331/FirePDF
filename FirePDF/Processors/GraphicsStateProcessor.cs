@@ -183,43 +183,38 @@ namespace FirePDF.Processors
                         getCurrentState().strokingColor = color;
                     }
                     break;
-                    //            case "ri":
-                    //            {
-                    //                if (operands.size() < 1)
-                    //                {
-                    //                    throw new MissingOperandException(operator, operands);
-                    //                }
+                //            case "ri":
+                //            {
+                //                if (operands.size() < 1)
+                //                {
+                //                    throw new MissingOperandException(operator, operands);
+                //                }
 
-                    //                COSBase base = operands.get(0);
-                    //                if (!(base instanceof COSName))
-                    //                {
-                    //                    return;
-                    //                }
+                //                COSBase base = operands.get(0);
+                //                if (!(base instanceof COSName))
+                //                {
+                //                    return;
+                //                }
 
-                    //                getGraphicsState().setRenderingIntent(RenderingIntent.fromString(((COSName)base).getName()));
-                    //                break;
-                    //            }
-                    //            case "SC":
-                    //                setStrokingColor(operator, operands);
-                    //                break;
-                    //            case "sc":
-                    //                setNonStrokingColor(operator, operands);
-                    //                break;
-                    //            case "SCN":
-                    //                setStrokingColor(operator, operands);
-                    //                break;
-                    //            case "scn":
-                    //                setNonStrokingColor(operator, operands);
-                    //                break;
-                    //            case "w":
-                    //                if (operands.size() < 1)
-                    //                {
-                    //                    throw new MissingOperandException(operator, operands);
-                    //                }
-
-                    //                COSNumber width = (COSNumber)operands.get(0);
-                    //getGraphicsState().setLineWidth(width.floatValue());
-                    //                break;
+                //                getGraphicsState().setRenderingIntent(RenderingIntent.fromString(((COSName)base).getName()));
+                //                break;
+                //            }
+                //            case "SC":
+                //                setStrokingColor(operator, operands);
+                //                break;
+                //            case "sc":
+                //                setNonStrokingColor(operator, operands);
+                //                break;
+                //            case "SCN":
+                //                setStrokingColor(operator, operands);
+                //                break;
+                //            case "scn":
+                //                setNonStrokingColor(operator, operands);
+                //                break;
+                case "w":
+                    float lineWidth = operation.operands[0] is float ? (float)operation.operands[0] : (int)operation.operands[0];
+                    getCurrentState().lineWidth = lineWidth;
+                    break;
                     //            }
             }
         }
