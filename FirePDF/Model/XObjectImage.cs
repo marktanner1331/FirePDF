@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace FirePDF.Model
     public class XObjectImage
     {
         private PDF pdf;
-        private Dictionary<Name, object> underlyingDict;
+        public Dictionary<Name, object> underlyingDict { get; private set; }
         public long startOfStream;
 
         public XObjectImage(PDF pdf)
@@ -33,10 +34,24 @@ namespace FirePDF.Model
             this.startOfStream = startOfStream;
         }
 
-        public Image getImage()
+        public Bitmap getImage()
         {
             pdf.stream.Position = startOfStream;
-            return PDFReader.decompressImageStream(pdf.stream, underlyingDict);
+            Bitmap image = PDFReader.decompressImageStream(pdf.stream, underlyingDict);
+
+            if(underlyingDict.ContainsKey("SMask"))
+            {
+                XObjectImage mask = (XObjectImage)PDFReader.readIndirectObject(pdf, (ObjectReference)underlyingDict["SMask"]);
+                //DoApplyMask(image, mask);
+            }
+
+            return image;
+        }
+
+        public Stream getRawStream()
+        {
+            pdf.stream.Position = startOfStream;
+            return PDFReader.decompressStream(pdf.stream, underlyingDict);
         }
     }
 }

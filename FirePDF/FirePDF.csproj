@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -46,6 +47,7 @@
     <Compile Include="Distilling\ModificationEngine.cs" />
     <Compile Include="Model\Catalog.cs" />
     <Compile Include="Model\Name.cs" />
+    <Compile Include="Model\SoftMask.cs" />
     <Compile Include="Processors\ClippingProcessor.cs" />
     <Compile Include="Processors\PaintingProcessor.cs" />
     <Compile Include="Processors\StreamProcessor.cs" />

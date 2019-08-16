@@ -42,31 +42,42 @@ namespace FirePDF.StreamHelpers
                     decompressed.Seek(0, SeekOrigin.Begin);
                     return decompressed;
                 }
-                else
+
+                Dictionary<Name, object> decodeParms = (Dictionary<Name, object>)streamDictionary["DecodeParms"];
+
+                int predictor = 1;
+                if (decodeParms.ContainsKey("Predictor"))
                 {
-                    Dictionary<Name, object> decodeParms = (Dictionary<Name, object>)streamDictionary["DecodeParms"];
-                    int columns = (int)decodeParms["Columns"];
-
-                    int colors = 1;
-                    if(decodeParms.ContainsKey("Colors") )
-                    {
-                        colors = (int)decodeParms["Colors"];
-                    }
-
-                    int bitsPerComponent = 8;
-                    if (streamDictionary.ContainsKey("BitsPerComponent"))
-                    {
-                        bitsPerComponent = (int)streamDictionary["BitsPerComponent"];
-                    }
-
-                    int bytesPerPixel = colors * bitsPerComponent / 8;
-
-                    byte[] predictedBytes = decompressed.ToArray();
-                    byte[] plainBytes = PNGPredictor.decompress(predictedBytes, columns, bytesPerPixel);
-
-                    decompressed.Dispose();
-                    return new MemoryStream(plainBytes);
+                    predictor = (int)decodeParms["Predictor"];
                 }
+
+                if (predictor == 1)
+                {
+                    decompressed.Seek(0, SeekOrigin.Begin);
+                    return decompressed;
+                }
+
+                int columns = (int)decodeParms["Columns"];
+
+                int colors = 1;
+                if (decodeParms.ContainsKey("Colors"))
+                {
+                    colors = (int)decodeParms["Colors"];
+                }
+
+                int bitsPerComponent = 8;
+                if (streamDictionary.ContainsKey("BitsPerComponent"))
+                {
+                    bitsPerComponent = (int)streamDictionary["BitsPerComponent"];
+                }
+
+                int bytesPerPixel = colors * bitsPerComponent / 8;
+
+                byte[] predictedBytes = decompressed.ToArray();
+                byte[] plainBytes = PNGPredictor.decompress(predictedBytes, columns, bytesPerPixel);
+
+                decompressed.Dispose();
+                return new MemoryStream(plainBytes);
             }
         }
     }

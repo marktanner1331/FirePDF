@@ -67,7 +67,7 @@ namespace FirePDF.Reading
             }
         }
 
-        public static Image decompressImageStream(Stream stream, Dictionary<Name, object> streamDictionary)
+        public static Bitmap decompressImageStream(Stream stream, Dictionary<Name, object> streamDictionary)
         {
             switch ((Name)streamDictionary["Filter"])
             {
@@ -75,16 +75,13 @@ namespace FirePDF.Reading
                     {
                         MemoryStream decompressed = FlateStreamReader.decompressStream(stream, streamDictionary);
                         byte[] buffer = decompressed.ToArray();
-
-                        int width = (int)streamDictionary["Width"];
-                        int height = (int)streamDictionary["Height"];
-
-                        return RawStreamReader.convertRGBArrayToImage(buffer, width, height);
+                        
+                        return RawStreamReader.convertImageBufferToImage(buffer, streamDictionary);
                     }
                 case "DCTDecode":
                     {
                         Stream decompressed = RawStreamReader.decompressStream(stream, streamDictionary);
-                        return Image.FromStream(decompressed);
+                        return (Bitmap)Bitmap.FromStream(decompressed);
                     }
                 default:
                     throw new NotImplementedException();

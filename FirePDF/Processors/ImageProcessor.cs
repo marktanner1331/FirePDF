@@ -31,12 +31,16 @@ namespace FirePDF.Processors
                     string xObjectName = (Name)operation.operands[0];
                     object xObject = streamOwner.resources.getObjectAtPath("XObject", xObjectName);
 
-                    //TODO check if its really an image
-                    XObjectImage xObjectImage = streamOwner.resources.getXObjectImage(xObjectName);
-                    Image image = xObjectImage.getImage();
-                    renderer?.drawImage(image);
-
-                    return true;
+                    if(xObject is XObjectImage)
+                    {
+                        Image image = (xObject as XObjectImage).getImage();
+                        renderer?.drawImage(image);
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 default:
                     return false;
             }

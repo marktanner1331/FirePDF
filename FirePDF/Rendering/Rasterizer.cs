@@ -48,13 +48,6 @@ namespace FirePDF.Rendering
 
             Matrix temp = graphics.Transform.Clone();
             
-            //float[] elements = temp.Elements;
-            //elements[0]--;
-            //elements[3]--;
-            //elements[4]++;
-            //elements[5]++;
-            //temp = new Matrix(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
-
             temp.Scale(1, -1);
             temp.Translate(0, -1);
             
@@ -65,7 +58,8 @@ namespace FirePDF.Rendering
 
         public override void fillAndStrokePath(GraphicsPath path)
         {
-            throw new NotImplementedException();
+            fillPath(path);
+            strokePath(path);
         }
 
         public override void fillPath(GraphicsPath path)

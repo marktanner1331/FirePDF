@@ -13,6 +13,18 @@ namespace FirePDF.StreamHelpers
 {
     public class RawStreamReader
     {
+        public static Bitmap convertImageBufferToImage(byte[] buffer, Dictionary<Name, object> streamDictionary)
+        {
+            int width = (int)streamDictionary["Width"];
+            int height = (int)streamDictionary["Height"];
+            
+            switch ((Name)streamDictionary["ColorSpace"])
+            {
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         /// <summary>
         /// decompresses a stream from the pdf stream at the current position and returns it
         /// as the stream isn't compressed, this method has the effect of just copying the bytes to a new stream
@@ -42,7 +54,7 @@ namespace FirePDF.StreamHelpers
         /// <summary>
         /// takes a buffer containing RGB values and converts it into a System.Drawing.Image
         /// </summary>
-        public static Image convertRGBArrayToImage(byte[] buffer, int width, int height)
+        private static Bitmap convertRGBArrayToImage(byte[] buffer, int width, int height)
         {
             Bitmap b = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
