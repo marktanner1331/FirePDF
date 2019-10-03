@@ -11,6 +11,10 @@ namespace FirePDF.Model
     public class GraphicsState
     {
         public Matrix currentTransformationMatrix { get; private set; }
+
+        public Matrix textMatrix;
+        public Matrix textLineMatrix;
+
         public float flatnessTolerance;
 
         public Color nonStrokingColor;
@@ -29,6 +33,8 @@ namespace FirePDF.Model
             this.clippingPath = new Region(initialClippingPath);
             
             currentTransformationMatrix = new Matrix();
+            textMatrix = new Matrix();
+            textLineMatrix = new Matrix();
             flatnessTolerance = 0;
             nonStrokingColor = Color.Black;
             strokingColor = Color.Black;

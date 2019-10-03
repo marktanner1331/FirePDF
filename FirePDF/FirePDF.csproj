@@ -46,11 +46,14 @@
     <Compile Include="Distilling\Classifier.cs" />
     <Compile Include="Distilling\ModificationEngine.cs" />
     <Compile Include="Model\Catalog.cs" />
+    <Compile Include="Model\Font.cs" />
     <Compile Include="Model\Name.cs" />
     <Compile Include="Model\SoftMask.cs" />
+    <Compile Include="Model\Type0Font.cs" />
     <Compile Include="Processors\ClippingProcessor.cs" />
     <Compile Include="Processors\PaintingProcessor.cs" />
     <Compile Include="Processors\StreamProcessor.cs" />
+    <Compile Include="Processors\TextProcessor.cs" />
     <Compile Include="StreamHelpers\ASCIIHexDecodeWriter.cs" />
     <Compile Include="StreamPartFunctions\ClippingPathStreamPart.cs" />
     <Compile Include="StreamPartFunctions\DrawImageStreamPart.cs" />

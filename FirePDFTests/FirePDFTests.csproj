@@ -61,6 +61,7 @@
     <Compile Include="GraphicsPathTests.cs" />
     <Compile Include="Model\NameTests.cs" />
     <Compile Include="Model\XObjectImageTests.cs" />
+    <Compile Include="ModificationTests.cs" />
     <Compile Include="ProcessingTests.cs" />
     <Compile Include="MiscTests.cs" />
     <Compile Include="PageTests.cs" />

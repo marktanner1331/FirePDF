@@ -27,6 +27,16 @@ namespace FirePDF.Model
         
         public static bool operator ==(Name a, Name b)
         {
+            if(ReferenceEquals(a, null) && ReferenceEquals(b, null))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
+            {
+                return false;
+            }
+            
             return a.value == b.value;
         }
 

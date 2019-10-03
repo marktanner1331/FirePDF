@@ -22,38 +22,24 @@ namespace test
     {
         static void Main(string[] args)
         {
-            string file = @"C:\Users\Mark Tanner\scratch\handover.pdf";
+            string file = @"C:\Users\Mark Tanner\scratch\page 6.pdf";
             PDF pdf = new PDF(file);
+            
             Page page = pdf.getPage(1);
 
-            File.Delete(@"C:\Users\Mark Tanner\scratch\kuier 1 write test.pdf");
-            using (FileStream fs = new FileStream(@"C:\Users\Mark Tanner\scratch\kuier 1 write test.pdf", FileMode.CreateNew))
-            {
-                pdf.stream.Seek(0, SeekOrigin.Begin);
-                pdf.stream.CopyTo(fs);
+            Bitmap image = new Bitmap((int)page.boundingBox.Width, (int)page.boundingBox.Height);
+            Graphics graphics = Graphics.FromImage(image);
 
-                using (PDFWriter writer = new PDFWriter(fs, true))
-                {
-                    string formName = page.resources.listXObjectForms().First();
-                    XObjectForm form = page.resources.getXObjectForm(formName);
+            XObjectForm form = (XObjectForm) page.resources.getObjectAtPath("XObject", "Fm0");
 
-                    Stream s = form.readContentStream();
-                    List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
+            Stream s = form.readContentStream();
+            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
-                    ModificationEngine me = new ModificationEngine();
-                    me.increaseImageDimensionsByOnePixel = true;
-                    me.increaseClippingPathsByOnePixel = true;
-                    //me.removeImageClippingPaths = true;
-                    operations = me.run(form, operations);
+            Rasterizer renderer = new Rasterizer(graphics);
+            StreamProcessor sp = new StreamProcessor(renderer);
+            sp.render(form, operations);
 
-                    s = new MemoryStream();
-                    ContentStreamWriter.writeOperationsToStream(s, operations);
-                    form.writeContentStream(s);
-
-                    page.resources.overwriteXObject(form, formName);
-                    writer.updatePDF(pdf);
-                }
-            }
+            image.Save(@"C:\Users\Mark Tanner\scratch\page 6 firepdf.jpg");
         }
     }
 }

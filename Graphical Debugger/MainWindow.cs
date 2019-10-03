@@ -38,7 +38,7 @@ namespace Graphical_Debugger
             splitter.SplitterDistance = 200;
             Controls.Add(splitter);
 
-            string file = @"C:\Users\Mark Tanner\scratch\huisgenoot orig 1.pdf";
+            string file = @"C:\Users\Mark Tanner\scratch\page 6.pdf";
             //string file = @"C:\Users\Mark Tanner\scratch\page 2.pdf";
             PDF pdf = new PDF(file);
 
@@ -49,13 +49,7 @@ namespace Graphical_Debugger
 
             Stream s = form.readContentStream();
             operations = ContentStreamReader.readOperationsFromStream(s);
-
-            ModificationEngine me = new ModificationEngine();
-            //me.increaseImageDimensionsByOnePixel = true;
-            //me.removeClippingPaths = true;
-            me.increaseClippingPathsByOnePixel = true;
-            operations = me.run(form, operations);
-
+            
             pdfRenderer = new PDFRenderer();
             pdfRenderer.render(form, operations.Take(0));
             splitter.Panel2.Controls.Add(pdfRenderer);

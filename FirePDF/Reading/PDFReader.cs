@@ -199,34 +199,47 @@ namespace FirePDF.Reading
             }
 
             Dictionary<Name, object> dict = (Dictionary<Name, object>)obj;
+            Name type = dict.ContainsKey("Type") ? (Name)dict["Type"] : null;
 
-            bool isObjectStream = dict.ContainsKey("Type") && (Name)dict["Type"] == "ObjStm";
-            bool isFormXObject = isObjectStream == false && dict.ContainsKey("Subtype");
-
-            if (isObjectStream == false && isFormXObject == false)
+            if(type == null)
             {
                 return dict;
             }
-
-            skipOverStreamHeader(pdf.stream);
-
-            long startOfStream = pdf.stream.Position;
-
-            if (isObjectStream)
+            
+            if (type == "ObjStm")
             {
+                skipOverStreamHeader(pdf.stream);
+                long startOfStream = pdf.stream.Position;
+
                 return new PDFObjectStream(pdf, dict, startOfStream);
             }
-            else if ((Name)dict["Subtype"] == "Form")
+            else if(type == "XObject")
             {
-                return new XObjectForm(pdf, dict, startOfStream);
+                skipOverStreamHeader(pdf.stream);
+                long startOfStream = pdf.stream.Position;
+                
+                Name subType = dict.ContainsKey("Subtype") ? (Name)dict["Subtype"] : null;
+
+                if ((Name)dict["Subtype"] == "Form")
+                {
+                    return new XObjectForm(pdf, dict, startOfStream);
+                }
+                else if ((Name)dict["Subtype"] == "Image")
+                {
+                    return new XObjectImage(pdf, dict, startOfStream);
+                }
+                else
+                {
+                    throw new Exception($"unknown Subtype: " + dict["Subtype"]);
+                }
             }
-            else if ((Name)dict["Subtype"] == "Image")
+            else if(type == "Font")
             {
-                return new XObjectImage(pdf, dict, startOfStream);
+                return Model.Font.loadExistingFontFromPDF(pdf, dict);
             }
             else
             {
-                throw new Exception($"unknown Subtype: " + dict["Subtype"]);
+                return dict;
             }
         }
 
@@ -619,7 +632,7 @@ namespace FirePDF.Reading
                 {
                     sb.Append((char)current);
                 }
-                else if (current == '_' || current == '.')
+                else if (current == '_' || current == '.' || current == '-' || current == '+')
                 {
                     sb.Append((char)current);
                 }

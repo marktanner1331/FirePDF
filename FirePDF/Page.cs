@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FirePDF.Util;
 
 namespace FirePDF
 {
@@ -41,6 +42,8 @@ namespace FirePDF
             {
                 this.resources = new PDFResources(pdf, this, (Dictionary<Name, object>)underlyingDict["Resources"]);
             }
+
+           boundingBox = PDFReader.readRectangleFromArray(underlyingDict["MediaBox"] as List<Object>);
         }
 
         public ObjectReference serialize(PDFWriter writer)

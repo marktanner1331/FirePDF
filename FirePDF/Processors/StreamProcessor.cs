@@ -26,6 +26,7 @@ namespace FirePDF.Processors
             PaintingProcessor pp = new PaintingProcessor(renderer, lp);
             ClippingProcessor cp = new ClippingProcessor(gsp.getCurrentState, lp);
             ImageProcessor ip = new ImageProcessor(streamOwner, renderer);
+            TextProcessor tp = new TextProcessor(gsp.getCurrentState, renderer);
 
             renderer.willStartRenderingPage(gsp.getCurrentState);
             renderer.willStartRenderingStream(streamOwner);
@@ -37,6 +38,7 @@ namespace FirePDF.Processors
                 cp.processOperation(operation);
                 lp.processOperation(operation);
                 ip.processOperation(operation);
+                tp.processOperation(operation);
             }
         }
     }
