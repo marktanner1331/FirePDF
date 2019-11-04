@@ -24,7 +24,7 @@ namespace FirePDF.Model
 
             PDFReader.skipOverStreamHeader(pdf.stream);
             
-            using (Stream inner = PDFReader.decompressStream(pdf.stream, dict))
+            using (Stream inner = PDFReader.decompressStream(pdf, pdf.stream, dict))
             {
                 int size = (int)dict["Size"];
 

@@ -42,8 +42,16 @@ namespace FirePDF.Model
             this.pdf = pdf;
             this.underlyingDict = dict;
             this.startOfStream = startOfStream;
-
-            this.resources = new PDFResources(pdf, this, (Dictionary<Name, object>)underlyingDict["Resources"]);
+            
+            if(underlyingDict["Resources"] is Dictionary<Name, object>)
+            {
+                this.resources = new PDFResources(pdf, this, (Dictionary<Name, object>)underlyingDict["Resources"]);
+            }
+            else
+            {
+                this.resources = new PDFResources(pdf, this, PDFReader.readIndirectDictionary(pdf, (ObjectReference)underlyingDict["Resources"]));
+            }
+            
             this.boundingBox = PDFReader.readRectangleFromArray((List<object>)underlyingDict["BBox"]);
         }
 
@@ -93,7 +101,7 @@ namespace FirePDF.Model
         public Stream readContentStream()
         {
             pdf.stream.Position = startOfStream;
-            return PDFReader.decompressStream(pdf.stream, underlyingDict);
+            return PDFReader.decompressStream(pdf, pdf.stream, underlyingDict);
         }
     }
 }

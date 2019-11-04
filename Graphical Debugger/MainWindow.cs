@@ -30,6 +30,8 @@ namespace Graphical_Debugger
 
         public MainWindow()
         {
+            this.BackColor = Color.Black;
+
             InitializeComponent();
             Text = "FirePDF Graphical Debugger";
 
@@ -38,7 +40,7 @@ namespace Graphical_Debugger
             splitter.SplitterDistance = 200;
             Controls.Add(splitter);
 
-            string file = @"C:\Users\Mark Tanner\scratch\page 6.pdf";
+            string file = @"C:\Users\Mark Tanner\scratch\weslander orig.pdf";
             //string file = @"C:\Users\Mark Tanner\scratch\page 2.pdf";
             PDF pdf = new PDF(file);
 
@@ -64,6 +66,16 @@ namespace Graphical_Debugger
             foreach(Operation operation in operations)
             {
                 listBox.Items.Add(operation);
+            }
+        }
+
+        protected override void OnClientSizeChanged(EventArgs e)
+        {
+            base.OnClientSizeChanged(e);
+
+            if(splitter != null)
+            {
+                splitter.Size = ClientSize;
             }
         }
 

@@ -49,6 +49,7 @@
     <Compile Include="Model\Font.cs" />
     <Compile Include="Model\Name.cs" />
     <Compile Include="Model\SoftMask.cs" />
+    <Compile Include="Model\TextRenderingMode.cs" />
     <Compile Include="Model\Type0Font.cs" />
     <Compile Include="Processors\ClippingProcessor.cs" />
     <Compile Include="Processors\PaintingProcessor.cs" />

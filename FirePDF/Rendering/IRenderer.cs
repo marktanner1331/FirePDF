@@ -13,7 +13,7 @@ namespace FirePDF.Rendering
     {
         public Func<Model.GraphicsState> getGraphicsState;
         public IStreamOwner streamOwner;
-
+        public int dpi = 72;
         
         public virtual void willStartRenderingPage(Func<Model.GraphicsState> getGraphicsState)
         {
@@ -31,6 +31,6 @@ namespace FirePDF.Rendering
 
         public abstract void strokePath(GraphicsPath path);
 
-        public abstract void drawImage(Image image);
+        public abstract void drawImage(XObjectImage image);
     }
 }

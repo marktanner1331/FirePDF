@@ -47,8 +47,9 @@ namespace FirePDF.Reading
                         break;
                     case '[':
                         {
-                            string s = ASCIIReader.readASCIIString(stream, 50);
-                            stream.Position -= 50;
+                            //var temp = stream.Position;
+                            //string s = ASCIIReader.readASCIIString(stream, 50);
+                            //stream.Position = temp;
 
                             object obj = PDFReader.readArray(stream);
                             foundOperand(obj);
@@ -133,7 +134,7 @@ namespace FirePDF.Reading
                     case '.':
                         {
                             object obj = PDFReader.readNumber(stream);
-                            if(Convert.ToDouble(obj) == 20.1942)
+                            if (Convert.ToDouble(obj) == 20.1942)
                             {
 
                             }
@@ -222,7 +223,7 @@ namespace FirePDF.Reading
                     }
                 }
 
-            pushChar:;
+                pushChar:;
                 builder.Append(current);
                 previous = current;
             }

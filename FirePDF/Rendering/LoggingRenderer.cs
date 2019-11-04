@@ -21,7 +21,7 @@ namespace FirePDF.Rendering
             this.logger = logger;
         }
 
-        public override void drawImage(Image image)
+        public override void drawImage(XObjectImage image)
         {
             logger.Invoke("drawImage()");
         }

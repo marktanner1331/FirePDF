@@ -33,8 +33,7 @@ namespace FirePDF.Processors
 
                     if(xObject is XObjectImage)
                     {
-                        Image image = (xObject as XObjectImage).getImage();
-                        renderer?.drawImage(image);
+                        renderer?.drawImage(xObject as XObjectImage);
                         return true;
                     }
                     else

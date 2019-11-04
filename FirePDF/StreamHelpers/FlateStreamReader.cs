@@ -15,12 +15,26 @@ namespace FirePDF.StreamHelpers
         /// <summary>
         /// decompresses a stream from the pdf stream at the current position and returns it
         /// </summary>
-        public static MemoryStream decompressStream(Stream pdfStream, Dictionary<Name, object> streamDictionary)
+        public static MemoryStream decompressStream(PDF pdf, Stream pdfStream, Dictionary<Name, object> streamDictionary)
         {
             //http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
             pdfStream.Position += 2;
 
-            int length = (int)streamDictionary["Length"] - 2;
+            int length;
+            if (streamDictionary["Length"] is int)
+            {
+                length = (int)streamDictionary["Length"] - 2;
+            }
+            else if(streamDictionary["Length"] is ObjectReference)
+            {
+                long temp = pdfStream.Position;
+                length = (int)PDFReader.readIndirectObject(pdf, (ObjectReference)streamDictionary["Length"]) - 2;
+                pdfStream.Position = temp;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
 
             byte[] buffer = new byte[length];
             pdfStream.Read(buffer, 0, length);

@@ -22,24 +22,24 @@ namespace test
     {
         static void Main(string[] args)
         {
-            string file = @"C:\Users\Mark Tanner\scratch\page 6.pdf";
+            string file = @"C:\Users\Mark Tanner\scratch\sarie page 1.pdf";
             PDF pdf = new PDF(file);
             
             Page page = pdf.getPage(1);
 
             Bitmap image = new Bitmap((int)page.boundingBox.Width, (int)page.boundingBox.Height);
             Graphics graphics = Graphics.FromImage(image);
-
-            XObjectForm form = (XObjectForm) page.resources.getObjectAtPath("XObject", "Fm0");
-
-            Stream s = form.readContentStream();
+            
+            Stream s = page.readContentStream();
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
-            Rasterizer renderer = new Rasterizer(graphics);
-            StreamProcessor sp = new StreamProcessor(renderer);
-            sp.render(form, operations);
+            //IRenderer renderer = new Rasterizer(graphics);
+            IRenderer renderer = new LoggingRenderer(x => Debug.WriteLine(x));
 
-            image.Save(@"C:\Users\Mark Tanner\scratch\page 6 firepdf.jpg");
+            StreamProcessor sp = new StreamProcessor(renderer);
+            sp.render(page, operations);
+
+            image.Save(@"C:\Users\Mark Tanner\scratch\sarie page 1.jpg");
         }
     }
 }

@@ -23,10 +23,12 @@ namespace FirePDF.Rendering
         {
             base.willStartRenderingStream(streamOwner);
 
+            float scale = dpi / 72f;
+
             streamBounds = streamOwner.boundingBox;
             Model.GraphicsState graphicsState = getGraphicsState();
-            graphicsState.currentTransformationMatrix.Translate(0, streamBounds.Height);
-            graphicsState.currentTransformationMatrix.Scale(1, -1);
+            graphicsState.currentTransformationMatrix.Translate(0, scale * streamBounds.Height);
+            graphicsState.currentTransformationMatrix.Scale(scale, -scale);
         }
 
         /// <summary>
@@ -42,7 +44,7 @@ namespace FirePDF.Rendering
             graphics.Transform = gs.currentTransformationMatrix;
         }
 
-        public override void drawImage(Image image)
+        public override void drawImage(XObjectImage image)
         {
             refreshGraphicsState();
 
@@ -52,7 +54,7 @@ namespace FirePDF.Rendering
             temp.Translate(0, -1);
             
             graphics.Transform = temp;
-            graphics.DrawImage(image, 0, 0, 1, 1);
+            graphics.DrawImage(image.getImage(), 0, 0, 1, 1);
             graphics.Transform = getGraphicsState().currentTransformationMatrix;
         }
 

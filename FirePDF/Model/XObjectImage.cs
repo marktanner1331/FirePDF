@@ -37,7 +37,7 @@ namespace FirePDF.Model
         public Bitmap getImage()
         {
             pdf.stream.Position = startOfStream;
-            Bitmap image = PDFReader.decompressImageStream(pdf.stream, underlyingDict);
+            Bitmap image = PDFReader.decompressImageStream(pdf, pdf.stream, underlyingDict);
 
             if(underlyingDict.ContainsKey("SMask"))
             {
@@ -51,7 +51,7 @@ namespace FirePDF.Model
         public Stream getRawStream()
         {
             pdf.stream.Position = startOfStream;
-            return PDFReader.decompressStream(pdf.stream, underlyingDict);
+            return PDFReader.decompressStream(pdf, pdf.stream, underlyingDict);
         }
     }
 }

@@ -35,6 +35,11 @@ namespace FirePDF.Model
             }
         }
 
+        public int getOperandAsInt(int index)
+        {
+            return Convert.ToInt32(operands[index]);
+        }
+
         public float getOperandAsFloat(int index)
         {
             return (float)Convert.ToDouble(operands[index]);

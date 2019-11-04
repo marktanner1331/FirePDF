@@ -34,7 +34,7 @@ namespace FirePDF.Reading
             Dictionary<Name, object> dict = readIndirectDictionary(pdf, xrefRecord);
             skipOverStreamHeader(pdf.stream);
 
-            return decompressStream(pdf.stream, dict);
+            return decompressStream(pdf, pdf.stream, dict);
         }
 
         public static Stream decompressStream(PDF pdf, ObjectReference objectReference)
@@ -42,7 +42,7 @@ namespace FirePDF.Reading
             Dictionary<Name, object> dict = readIndirectDictionary(pdf, objectReference);
             skipOverStreamHeader(pdf.stream);
 
-            return decompressStream(pdf.stream, dict);
+            return decompressStream(pdf, pdf.stream, dict);
         }
 
         public static Stream decompressStream(PDF pdf, int objectNumber, int generation)
@@ -50,30 +50,30 @@ namespace FirePDF.Reading
             Dictionary<Name, object> dict = readIndirectDictionary(pdf, objectNumber, generation);
             skipOverStreamHeader(pdf.stream);
 
-            return decompressStream(pdf.stream, dict);
+            return decompressStream(pdf, pdf.stream, dict);
         }
 
         /// <summary>
         /// decompresses and returns a content stream at the current position
         /// </summary>
-        public static Stream decompressStream(Stream stream, Dictionary<Name, object> streamDictionary)
+        public static Stream decompressStream(PDF pdf, Stream stream, Dictionary<Name, object> streamDictionary)
         {
             switch ((Name)streamDictionary["Filter"])
             {
                 case "FlateDecode":
-                    return FlateStreamReader.decompressStream(stream, streamDictionary);
+                    return FlateStreamReader.decompressStream(pdf, stream, streamDictionary);
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        public static Bitmap decompressImageStream(Stream stream, Dictionary<Name, object> streamDictionary)
+        public static Bitmap decompressImageStream(PDF pdf, Stream stream, Dictionary<Name, object> streamDictionary)
         {
             switch ((Name)streamDictionary["Filter"])
             {
                 case "FlateDecode":
                     {
-                        MemoryStream decompressed = FlateStreamReader.decompressStream(stream, streamDictionary);
+                        MemoryStream decompressed = FlateStreamReader.decompressStream(pdf, stream, streamDictionary);
                         byte[] buffer = decompressed.ToArray();
                         
                         return RawStreamReader.convertImageBufferToImage(buffer, streamDictionary);
@@ -203,7 +203,23 @@ namespace FirePDF.Reading
 
             if(type == null)
             {
-                return dict;
+                if(dict.ContainsKey("Subtype"))
+                {
+                    switch((string)(Name)dict["Subtype"])
+                    {
+                        case "Image":
+                        case "Form":
+                            type = "XObject";
+                            break;
+                        default:
+                            throw new Exception($"unknown Subtype: " + dict["Subtype"]);
+                    }
+                }
+                else
+                {
+                    return dict;
+                }
+
             }
             
             if (type == "ObjStm")

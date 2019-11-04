@@ -14,6 +14,14 @@ namespace FirePDF.Model
 
         public Matrix textMatrix;
         public Matrix textLineMatrix;
+        public float lineWidth;
+        public float textLeading;
+        public float characterSpacing;
+        public float wordSpacing;
+        public float horizontalScaling;
+        public float fontSize;
+        public TextRenderingMode textRenderingMode;
+        public float textRise;
 
         public float flatnessTolerance;
 
@@ -21,7 +29,6 @@ namespace FirePDF.Model
         public Color strokingColor;
 
         public Region clippingPath;
-        public float lineWidth;
 
         /// <summary>
         /// used internally for cloning
@@ -33,8 +40,17 @@ namespace FirePDF.Model
             this.clippingPath = new Region(initialClippingPath);
             
             currentTransformationMatrix = new Matrix();
+
             textMatrix = new Matrix();
             textLineMatrix = new Matrix();
+            textLeading = 0;
+            characterSpacing = 0;
+            wordSpacing = 0;
+            horizontalScaling = 1;
+            fontSize = 0;
+            textRenderingMode = TextRenderingMode.FillText;
+            textRise = 0;
+
             flatnessTolerance = 0;
             nonStrokingColor = Color.Black;
             strokingColor = Color.Black;
@@ -46,11 +62,20 @@ namespace FirePDF.Model
             return new GraphicsState
             {
                 currentTransformationMatrix = currentTransformationMatrix.Clone(),
+                textMatrix = textMatrix.Clone(),
+                textLineMatrix = textLineMatrix.Clone(),
+                textLeading = textLeading,
+                characterSpacing = characterSpacing,
+                wordSpacing = wordSpacing,
+                horizontalScaling = horizontalScaling,
+                fontSize = fontSize,
+                textRenderingMode = textRenderingMode,
+                textRise = textRise,
                 flatnessTolerance = flatnessTolerance,
                 nonStrokingColor = nonStrokingColor,
                 strokingColor = strokingColor,
                 clippingPath = clippingPath.Clone(),
-                lineWidth = lineWidth
+                lineWidth = lineWidth,
             };
         }
 
