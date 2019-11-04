@@ -42,60 +42,56 @@ namespace FirePDF.Model
             this.pdf = pdf;
             this.underlyingDict = dict;
             this.startOfStream = startOfStream;
-            
-            if(underlyingDict["Resources"] is Dictionary<Name, object>)
-            {
-                this.resources = new PDFResources(pdf, this, (PDFDictionary)underlyingDict["Resources"]);
-            }
-            else
-            {
-                this.resources = new PDFResources(pdf, this, PDFReader.readIndirectDictionary(pdf, (ObjectReference)underlyingDict["Resources"]));
-            }
-            
-            this.boundingBox = PDFReader.readRectangleFromArray((List<object>)underlyingDict["BBox"]);
+
+            this.resources = new PDFResources(pdf, this, underlyingDict.get<PDFDictionary>("Resources"));
+            this.boundingBox = PDFReader.readRectangleFromArray(underlyingDict.get<List<object>>("BBox"));
         }
 
         public ObjectReference serialize(PDFWriter writer)
         {
-            if (resources.isDirty)
-            {
-                foreach (string dirtyObjectPath in resources.dirtyObjects)
-                {
-                    string[] path = dirtyObjectPath.Split('/');
-                    object obj = resources.getObjectAtPath(path);
+            throw new Exception("not doing serialization yet");
+            return null;
+            //if (resources.isDirty)
+            //{
+            //    foreach (string dirtyObjectPath in resources.dirtyObjects)
+            //    {
+            //        string[] path = dirtyObjectPath.Split('/');
+            //        object obj = resources.getObjectAtPath(path);
 
-                    ObjectReference objectRef = writer.writeIndirectObjectUsingNextFreeNumber(obj);
-                    resources.setObjectAtPath(objectRef, path);
-                }
+            //        ObjectReference objectRef = writer.writeIndirectObjectUsingNextFreeNumber(obj);
+            //        resources.setObjectAtPath(objectRef, path);
+            //    }
 
-                resources.dirtyObjects.Clear();
+            //    resources.dirtyObjects.Clear();
 
-                underlyingDict["Resources"] = resources.underlyingDict;
-            }
+            //    underlyingDict["Resources"] = resources.underlyingDict;
+            //}
             
-            if(stream == null)
-            {
-                stream = pdf.stream;
-            }
+            //if(stream == null)
+            //{
+            //    stream = pdf.stream;
+            //}
 
-            stream.Position = startOfStream;
-            return writer.writeIndirectObjectUsingNextFreeNumber(underlyingDict, stream);
+            //stream.Position = startOfStream;
+            //return writer.writeIndirectObjectUsingNextFreeNumber(underlyingDict, stream);
         }
 
         public void writeContentStream(Stream s)
         {
-            stream = new MemoryStream();
+            throw new Exception("not handling saving yet");
 
-            s.Position = 0;
-            ASCIIHexDecodeWriter.encode(s, stream);
+            //stream = new MemoryStream();
 
-            startOfStream = 0;
+            //s.Position = 0;
+            //ASCIIHexDecodeWriter.encode(s, stream);
+
+            //startOfStream = 0;
             
-            underlyingDict["Filter"] = (Name)"ASCIIHexDecode";
+            //underlyingDict["Filter"] = (Name)"ASCIIHexDecode";
 
-            underlyingDict["Length"] = (int)stream.Length;
+            //underlyingDict["Length"] = (int)stream.Length;
 
-            isStreamDirty = true;
+            //isStreamDirty = true;
         }
 
         public Stream readContentStream()

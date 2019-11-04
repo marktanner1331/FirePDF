@@ -72,7 +72,7 @@ namespace FirePDF.Reading
             Stream oldStream = currentStream;
             currentStream = stream.readContentStream();
 
-            List<Operation> operations = ContentStreamReader.readOperationsFromStream(currentStream);
+            List<Operation> operations = ContentStreamReader.readOperationsFromStream(page.pdf, currentStream);
             foreach(Operation operation in operations)
             {
                 if(operation.operatorName == "Do" && resources.isXObjectForm((Name)operation.operands[0]))

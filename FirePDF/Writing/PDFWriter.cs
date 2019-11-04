@@ -157,7 +157,7 @@ namespace FirePDF.Writing
 
             flush();
 
-            int length = (int)streamDictionary["Length"];
+            int length = streamDictionary.get<int>("Length");
             while (length > 0)
             {
                 byte[] buffer = new byte[1024];

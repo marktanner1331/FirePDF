@@ -15,10 +15,10 @@ namespace FirePDF.StreamHelpers
     {
         public static Bitmap convertImageBufferToImage(byte[] buffer, PDFDictionary streamDictionary)
         {
-            int width = (int)streamDictionary["Width"];
-            int height = (int)streamDictionary["Height"];
+            int width = streamDictionary.get<int>("Width");
+            int height = streamDictionary.get<int>("Height");
             
-            switch ((Name)streamDictionary["ColorSpace"])
+            switch (streamDictionary.get<Name>("ColorSpace"))
             {
                 default:
                     throw new NotImplementedException();
@@ -33,7 +33,7 @@ namespace FirePDF.StreamHelpers
         {
             MemoryStream temp = new MemoryStream();
 
-            long length = (int)streamDictionary["Length"];
+            long length = streamDictionary.get<int>("Length");
 
             byte[] buffer = new byte[4096];
             while (length > 0)

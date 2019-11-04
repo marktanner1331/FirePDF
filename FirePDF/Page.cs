@@ -15,7 +15,7 @@ namespace FirePDF
     public class Page : IStreamOwner
     {
         public readonly PDF pdf;
-        public Dictionary<Name, object> underlyingDict;
+        public PDFDictionary underlyingDict;
         public PDFResources resources { get; private set; }
         public RectangleF boundingBox { get; private set; }
 
@@ -28,70 +28,66 @@ namespace FirePDF
             throw new NotImplementedException();
         }
 
-        public Page(PDF pdf, Dictionary<Name, object> pageDictionary)
+        public Page(PDF pdf, PDFDictionary pageDictionary)
         {
             this.pdf = pdf;
             this.underlyingDict = pageDictionary;
 
-            if(underlyingDict["Resources"] is ObjectReference)
-            {
-                PDFDictionary dict = PDFReader.readIndirectDictionary(pdf, (ObjectReference)underlyingDict["Resources"]);
-                this.resources = new PDFResources(pdf, this, dict);
-            }
-            else
-            {
-                this.resources = new PDFResources(pdf, this, (PDFDictionary)underlyingDict["Resources"]);
-            }
+            this.resources = new PDFResources(pdf, this, underlyingDict.get<PDFDictionary>("Resources"));
 
-           boundingBox = PDFReader.readRectangleFromArray(underlyingDict["MediaBox"] as List<Object>);
+
+            //TODO probably want some kind of PDFList here
+            //in case we have a list containing indirect references
+            boundingBox = PDFReader.readRectangleFromArray(underlyingDict.get<List<object>>("MediaBox"));
         }
 
         public ObjectReference serialize(PDFWriter writer)
         {
-            if (resources.isDirty)
-            {
-                foreach (string dirtyObjectPath in resources.dirtyObjects)
-                {
-                    string[] path = dirtyObjectPath.Split('/');
-                    object obj = resources.getObjectAtPath(path);
+            throw new Exception("not handling saving yet");
+            return null;
+            //if (resources.isDirty)
+            //{
+            //    foreach (string dirtyObjectPath in resources.dirtyObjects)
+            //    {
+            //        string[] path = dirtyObjectPath.Split('/');
+            //        object obj = resources.getObjectAtPath(path);
 
-                    ObjectReference objectRef = writer.writeIndirectObjectUsingNextFreeNumber(obj);
-                    resources.setObjectAtPath(objectRef, path);
-                }
+            //        ObjectReference objectRef = writer.writeIndirectObjectUsingNextFreeNumber(obj);
+            //        resources.setObjectAtPath(objectRef, path);
+            //    }
 
-                resources.dirtyObjects.Clear();
+            //    resources.dirtyObjects.Clear();
 
-                underlyingDict["Resources"] = resources.underlyingDict;
-            }
+            //    underlyingDict["Resources"] = resources.underlyingDict;
+            //}
 
-            return writer.writeIndirectObjectUsingNextFreeNumber(underlyingDict);
+            //return writer.writeIndirectObjectUsingNextFreeNumber(underlyingDict);
         }
 
         public Stream readContentStream()
         {
             MemoryStream compositeStream = new MemoryStream();
 
-            List<object> contents;
+            object contents = underlyingDict.get<object>("Contents", false);
             
-            if(underlyingDict["Contents"] is List<object>)
+            //TODO this better
+            //some kind of StreamObject
+            //that PDFReader.readObject() returns, that we can get the stream from
+            if(contents is ObjectReference)
             {
-                contents = (List<object>)underlyingDict["Contents"];
-            }
-            else if(underlyingDict["Contents"] is ObjectReference)
-            {
-                contents = new List<object>();
-                contents.Add((ObjectReference)underlyingDict["Contents"]);
+                using (Stream stream = PDFReader.decompressStream(pdf, contents as ObjectReference))
+                {
+                    stream.CopyTo(compositeStream);
+                }
             }
             else
             {
-                throw new NotImplementedException();
-            }
-            
-            foreach (ObjectReference objectReference in contents)
-            {
-                using (Stream stream = PDFReader.decompressStream(pdf, objectReference))
+                foreach (ObjectReference objectReference in contents as List<object>)
                 {
-                    stream.CopyTo(compositeStream);
+                    using (Stream stream = PDFReader.decompressStream(pdf, objectReference))
+                    {
+                        stream.CopyTo(compositeStream);
+                    }
                 }
             }
 
@@ -99,14 +95,16 @@ namespace FirePDF
             return compositeStream;
         }
 
-        private Dictionary<Name, object> getEmptyUnderlyingDict()
+        private PDFDictionary getEmptyUnderlyingDict()
         {
+            throw new Exception("not done yet");
+
             //TODO finish getEmptyUnderlyingDict()
             //and do the same with other underlying dicts?
-            return new Dictionary<Name, object>
-            {
-                { "Contents", new List<ObjectReference>() }
-            };
+            //return new Dictionary<Name, object>
+            //{
+            //    { "Contents", new List<ObjectReference>() }
+            //};
         }
     }
 }

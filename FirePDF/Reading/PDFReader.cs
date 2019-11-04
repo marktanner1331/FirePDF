@@ -69,7 +69,7 @@ namespace FirePDF.Reading
 
         public static Bitmap decompressImageStream(PDF pdf, Stream stream, PDFDictionary streamDictionary)
         {
-            switch ((Name)streamDictionary["Filter"])
+            switch (streamDictionary.get<Name>("Filter"))
             {
                 case "FlateDecode":
                     {
@@ -199,20 +199,20 @@ namespace FirePDF.Reading
             }
 
             PDFDictionary dict = (PDFDictionary)obj;
-            Name type = dict.ContainsKey("Type") ? (Name)dict["Type"] : null;
+            Name type = dict.ContainsKey("Type") ? dict.get<Name>("Type") : null;
 
             if(type == null)
             {
                 if(dict.ContainsKey("Subtype"))
                 {
-                    switch((Name)dict["Subtype"])
+                    switch(dict.get<Name>("Subtype"))
                     {
                         case "Image":
                         case "Form":
                             type = "XObject";
                             break;
                         default:
-                            throw new Exception($"unknown Subtype: " + dict["Subtype"]);
+                            throw new Exception($"unknown Subtype: " + dict.get<Name>("Subtype"));
                     }
                 }
                 else
@@ -234,19 +234,16 @@ namespace FirePDF.Reading
                 skipOverStreamHeader(pdf.stream);
                 long startOfStream = pdf.stream.Position;
                 
-                Name subType = dict.ContainsKey("Subtype") ? (Name)dict["Subtype"] : null;
+                Name subType = dict.get<Name>("Subtype");
 
-                if ((Name)dict["Subtype"] == "Form")
+                switch(subType)
                 {
-                    return new XObjectForm(pdf, dict, startOfStream);
-                }
-                else if ((Name)dict["Subtype"] == "Image")
-                {
-                    return new XObjectImage(pdf, dict, startOfStream);
-                }
-                else
-                {
-                    throw new Exception($"unknown Subtype: " + dict["Subtype"]);
+                    case "Form":
+                        return new XObjectForm(pdf, dict, startOfStream);
+                    case "Image":
+                        return new XObjectImage(pdf, dict, startOfStream);
+                    default:
+                        throw new Exception($"unknown Subtype: " + subType);
                 }
             }
             else if(type == "Font")
@@ -314,7 +311,7 @@ namespace FirePDF.Reading
                 string key = readName(stream);
                 skipOverWhiteSpace(stream);
 
-                dict[key] = readObject(pdf, stream);
+                dict.set(key, readObject(pdf, stream));
                 skipOverWhiteSpace(stream);
             }
         }

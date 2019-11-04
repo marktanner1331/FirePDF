@@ -26,21 +26,21 @@ namespace FirePDF.Model
             
             using (Stream inner = PDFReader.decompressStream(pdf, pdf.stream, dict))
             {
-                int size = (int)dict["Size"];
+                int size = dict.get<int>("Size");
 
                 //An array containing a pair of integers for each subsection in this section.
                 //Default value: [0 Size].
                 List<int> index;
                 if (dict.ContainsKey("Index"))
                 {
-                    index = ((List<object>)dict["Index"]).Cast<int>().ToList();
+                    index = (dict.get<List<object>>("Index")).Cast<int>().ToList();
                 }
                 else
                 {
                     index = new List<int> { 0, size };
                 }
 
-                List<int> w = ((List<object>)dict["W"]).Cast<int>().ToList();
+                List<int> w = (dict.get<List<object>>("W")).Cast<int>().ToList();
 
                 List<Tuple<int, int>> sections = new List<Tuple<int, int>>();
                 for (int i = 0; i < index.Count; i += 2)

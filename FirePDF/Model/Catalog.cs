@@ -13,17 +13,17 @@ namespace FirePDF.Model
     public class Catalog : IEnumerable<Page>
     {
         private PDF pdf;
-        private Dictionary<Name, object> underlyingDict;
+        private PDFDictionary underlyingDict;
         internal PageTreeNode pagesRoot;
 
         public bool isDirty => pagesRoot.isDirty;
 
-        public Catalog(PDF pdf, Dictionary<Name, object> underlyingDict)
+        public Catalog(PDF pdf, PDFDictionary underlyingDict)
         {
             this.pdf = pdf;
             this.underlyingDict = underlyingDict;
 
-            Dictionary<Name, object> pagesDict = PDFReader.readIndirectDictionary(pdf, (ObjectReference)underlyingDict["Pages"]);
+            PDFDictionary pagesDict = underlyingDict.get<PDFDictionary>("Pages");
             pagesRoot = new PageTreeNode(pdf, pagesDict);
         }
 
@@ -86,8 +86,10 @@ namespace FirePDF.Model
 
         internal ObjectReference serialize(PDFWriter pdfWriter)
         {
-            underlyingDict["Pages"] = pagesRoot.serialize(pdfWriter);
-            return pdfWriter.writeIndirectObjectUsingNextFreeNumber(underlyingDict);
+            throw new Exception("not handling saving yet");
+            return null;
+            //underlyingDict["Pages"] = pagesRoot.serialize(pdfWriter);
+            //return pdfWriter.writeIndirectObjectUsingNextFreeNumber(underlyingDict);
         }
     }
 }

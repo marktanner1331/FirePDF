@@ -12,7 +12,7 @@ namespace FirePDF.Model
     class SoftMask
     {
         private readonly Stream stream;
-        private readonly Dictionary<Name, object> underlyingDict;
+        private readonly PDFDictionary underlyingDict;
         private readonly int maskWidth;
         private readonly int maskHeight;
 

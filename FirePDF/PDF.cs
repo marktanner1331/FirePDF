@@ -91,7 +91,7 @@ namespace FirePDF
 
                     readableTable.mergeIn(table);
                     
-                    trailer = PDFReader.readTrailer(stream);
+                    trailer = PDFReader.readTrailer(this, stream);
                 }
                 
                 if (root == null)
@@ -105,7 +105,7 @@ namespace FirePDF
                 }
             }
 
-            Dictionary<Name, object> rootDict = PDFReader.readIndirectDictionary(this, root);
+            PDFDictionary rootDict = PDFReader.readIndirectDictionary(this, root);
             catalog = new Catalog(this, rootDict);
         }
     }

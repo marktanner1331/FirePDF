@@ -99,12 +99,12 @@ namespace FirePDF.Model
             object root = underlyingDict;
             foreach (string part in path)
             {
-                if (root is Dictionary<Name, object>)
+                if (root is PDFDictionary)
                 {
-                    Dictionary<Name, object> temp = (Dictionary<Name, object>)root;
+                    PDFDictionary temp = (PDFDictionary)root;
                     if (temp.ContainsKey(part))
                     {
-                        root = temp[part];
+                        root = temp.get<object>(part);
                     }
                     else
                     {
@@ -113,7 +113,7 @@ namespace FirePDF.Model
                 }
                 else if(root is PDFResources)
                 {
-                    root = ((PDFResources)root).underlyingDict[part];
+                    root = ((PDFResources)root).underlyingDict.get<object>(part);
                 }
                 else if(root is IStreamOwner)
                 {
@@ -143,6 +143,8 @@ namespace FirePDF.Model
 
                 if (root is ObjectReference)
                 {
+                    //bad things
+                    throw new Exception();
                     root = PDFReader.readIndirectObject(pdf, (ObjectReference)root);
                 }
             }

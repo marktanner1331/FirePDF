@@ -28,12 +28,14 @@ namespace FirePDF.Model
             inner[key] = value;
         }
 
-        public T get<T>(Name key)
+        public T get<T>(Name key, bool resolveReferences = true)
         {
             if (inner.ContainsKey(key))
             {
-                object value = (T)inner[key];
-                if(value is ObjectReference)
+                object value = inner[key];
+
+                //if we get an object reference, and we don't want an object reference, then resolve it
+                if(value is ObjectReference && resolveReferences && typeof(T) != typeof(ObjectReference))
                 {
                     value = PDFReader.readIndirectObject(pdf, value as ObjectReference);
                 }

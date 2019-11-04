@@ -48,7 +48,7 @@ namespace FirePDF.StreamHelpers
                 int predictor = 1;
                 if (decodeParms.ContainsKey("Predictor"))
                 {
-                    predictor = (int)decodeParms["Predictor"];
+                    predictor = decodeParms.get<int>("Predictor");
                 }
 
                 if (predictor == 1)
@@ -57,18 +57,18 @@ namespace FirePDF.StreamHelpers
                     return decompressed;
                 }
 
-                int columns = (int)decodeParms["Columns"];
+                int columns = decodeParms.get<int>("Columns");
 
                 int colors = 1;
                 if (decodeParms.ContainsKey("Colors"))
                 {
-                    colors = (int)decodeParms["Colors"];
+                    colors = decodeParms.get<int>("Colors");
                 }
 
                 int bitsPerComponent = 8;
                 if (streamDictionary.ContainsKey("BitsPerComponent"))
                 {
-                    bitsPerComponent = (int)streamDictionary["BitsPerComponent"];
+                    bitsPerComponent = streamDictionary.get<int>("BitsPerComponent");
                 }
 
                 int bytesPerPixel = colors * bitsPerComponent / 8;

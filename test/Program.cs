@@ -30,8 +30,8 @@ namespace test
             Bitmap image = new Bitmap((int)page.boundingBox.Width, (int)page.boundingBox.Height);
             Graphics graphics = Graphics.FromImage(image);
 
-            IRenderer renderer = new Rasterizer(graphics);
-            //IRenderer renderer = new LoggingRenderer(x => Debug.WriteLine(x));
+            //IRenderer renderer = new Rasterizer(graphics);
+            IRenderer renderer = new LoggingRenderer(x => Debug.WriteLine(x));
 
             StreamProcessor sp = new StreamProcessor(renderer);
             RecursiveStreamReader streamReader = new RecursiveStreamReader(sp);

@@ -13,19 +13,19 @@ namespace FirePDF.Model
     {
         private PDF pdf;
         private List<object> pages;
-        internal Dictionary<Name, object> underlyingDict;
+        internal PDFDictionary underlyingDict;
         internal bool isDirty => pages.Where(x => x is Page).Any(x => ((Page)x).isDirty);
 
-        public PageTreeNode(PDF pdf, Dictionary<Name, object> underlyingDict)
+        public PageTreeNode(PDF pdf, PDFDictionary underlyingDict)
         {
             this.pdf = pdf;
             this.pages = new List<object>();
             this.underlyingDict = underlyingDict;
 
-            foreach(ObjectReference objectReference in (List<object>)underlyingDict["Kids"])
+            foreach(ObjectReference objectReference in underlyingDict.get<List<object>>("Kids"))
             {
-                Dictionary<Name, object> kidsDict = PDFReader.readIndirectDictionary(pdf, objectReference);
-                switch((Name)kidsDict["Type"])
+                PDFDictionary kidsDict = PDFReader.readIndirectDictionary(pdf, objectReference);
+                switch(kidsDict.get<Name>("Type"))
                 {
                     case "Page":
                         Page page = new Page(pdf, kidsDict);
@@ -76,7 +76,7 @@ namespace FirePDF.Model
         
         internal ObjectReference serialize(PDFWriter pdfWriter)
         {
-            List<object> kidsArray = (List<object>)underlyingDict["Kids"];
+            List<object> kidsArray = underlyingDict.get<List<object>>("Kids");
             for (int i = 0; i < kidsArray.Count; i++)
             {
                 if(pages[i] is Page)

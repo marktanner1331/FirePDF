@@ -19,26 +19,27 @@ namespace FirePDF.Model
         {
 
         }
-        
+
         public Trailer(PDFDictionary underylingDict)
         {
-            foreach (var pair in underylingDict)
+            foreach (Name key in underylingDict.keys)
             {
-                switch (pair.Key)
+                switch (key)
                 {
                     case "Size":
-                        size = (int)pair.Value;
+                        size = underylingDict.get<int>(key);
                         break;
                     case "Root":
-                        root = (ObjectReference)pair.Value;
+                        root = underylingDict.get<ObjectReference>(key);
                         break;
                     case "Info":
-                        info = (ObjectReference)pair.Value;
+                        info = underylingDict.get<ObjectReference>(key);
                         break;
                     case "ID":
-                        if (((List<object>)pair.Value).All(X => X is string))
+                        List<object> tempList = underylingDict.get<List<object>>(key);
+                        if (tempList.All(X => X is string))
                         {
-                            id = ((List<object>)pair.Value)
+                            id = tempList
                                 .Select(x => ((string)x)
                                     .ToCharArray()
                                     .Select(y => (byte)y)
@@ -47,11 +48,11 @@ namespace FirePDF.Model
                         }
                         else
                         {
-                            id = ((List<object>)pair.Value).Cast<byte[]>().ToList();
+                            id = tempList.Cast<byte[]>().ToList();
                         }
                         break;
                     case "Prev":
-                        prev = (int)pair.Value;
+                        prev = underylingDict.get<int>(key);
                         break;
                 }
             }
