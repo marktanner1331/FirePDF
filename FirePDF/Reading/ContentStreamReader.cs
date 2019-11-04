@@ -10,12 +10,13 @@ namespace FirePDF.Reading
 {
     public static class ContentStreamReader
     {
-        public static List<Operation> readOperationsFromStream(Stream decompressedStream)
+        public static List<Operation> readOperationsFromStream(PDF pdf, Stream decompressedStream)
         {
             List<Operation> operations = new List<Operation>();
             Operation currentOperation = new Operation();
 
             readTokens(
+                pdf, 
                 decompressedStream,
                 operatorName =>
                 {
@@ -29,7 +30,7 @@ namespace FirePDF.Reading
             return operations;
         }
 
-        private static void readTokens(Stream stream, Action<string> foundOperator, Action<object> foundOperand)
+        private static void readTokens(PDF pdf, Stream stream, Action<string> foundOperator, Action<object> foundOperand)
         {
             while (stream.Position < stream.Length)
             {
@@ -41,7 +42,7 @@ namespace FirePDF.Reading
                 {
                     case '<': //either start of dict or hex string
                         {
-                            object obj = PDFReader.readObject(stream);
+                            object obj = PDFReader.readObject(pdf, stream);
                             foundOperand(obj);
                         }
                         break;
@@ -51,7 +52,7 @@ namespace FirePDF.Reading
                             //string s = ASCIIReader.readASCIIString(stream, 50);
                             //stream.Position = temp;
 
-                            object obj = PDFReader.readArray(stream);
+                            object obj = PDFReader.readArray(pdf, stream);
                             foundOperand(obj);
                         }
                         break;

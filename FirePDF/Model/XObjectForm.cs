@@ -15,7 +15,7 @@ namespace FirePDF.Model
     public class XObjectForm : IStreamOwner
     {
         public PDF pdf { get; private set; }
-        public Dictionary<Name, object> underlyingDict;
+        public PDFDictionary underlyingDict;
 
         public long startOfStream;
         private Stream stream;
@@ -37,7 +37,7 @@ namespace FirePDF.Model
         /// <summary>
         /// initializing a form xobject with the owning pdf, its dictionary, and the offset to the start of the stream relative to the start of the pdf
         /// </summary>
-        public XObjectForm(PDF pdf, Dictionary<Name, object> dict, long startOfStream)
+        public XObjectForm(PDF pdf, PDFDictionary dict, long startOfStream)
         {
             this.pdf = pdf;
             this.underlyingDict = dict;
@@ -45,7 +45,7 @@ namespace FirePDF.Model
             
             if(underlyingDict["Resources"] is Dictionary<Name, object>)
             {
-                this.resources = new PDFResources(pdf, this, (Dictionary<Name, object>)underlyingDict["Resources"]);
+                this.resources = new PDFResources(pdf, this, (PDFDictionary)underlyingDict["Resources"]);
             }
             else
             {

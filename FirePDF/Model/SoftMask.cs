@@ -20,7 +20,7 @@ namespace FirePDF.Model
         {
         }
 
-        public SoftMask(Stream stream, Dictionary<Name, object> underlyingDict)
+        public SoftMask(Stream stream, PDFDictionary underlyingDict)
         {
             this.stream = stream;
             this.underlyingDict = underlyingDict;

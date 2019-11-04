@@ -115,7 +115,7 @@ namespace FirePDF.Writing
             return new ObjectReference(pageRecord.objectNumber, pageRecord.generation);
         }
 
-        public ObjectReference writeIndirectObjectUsingNextFreeNumber(Dictionary<Name, object> streamDictionary, Stream stream)
+        public ObjectReference writeIndirectObjectUsingNextFreeNumber(PDFDictionary streamDictionary, Stream stream)
         {
             int nextFreeNumber2 = readTable.getNextFreeRecordNumber();
             XREFTable.XREFRecord pageRecord = new XREFTable.XREFRecord
@@ -146,7 +146,7 @@ namespace FirePDF.Writing
         //    resources.dirtyObjects.Clear();
         //}
 
-        public void writeIndirectObject(int objectNumber, int generation, Dictionary<Name, object> streamDictionary, Stream stream)
+        public void writeIndirectObject(int objectNumber, int generation, PDFDictionary streamDictionary, Stream stream)
         {
             writeASCII(objectNumber + " " + generation + " obj");
             writeNewLine();

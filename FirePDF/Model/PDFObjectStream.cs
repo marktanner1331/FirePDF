@@ -16,7 +16,7 @@ namespace FirePDF.Model
     {
         private long startOfStream;
         private PDF pdf;
-        private Dictionary<Name, object> streamDict;
+        private PDFDictionary streamDict;
 
         private int n;
         private int first;
@@ -24,13 +24,13 @@ namespace FirePDF.Model
         /// <summary>
         /// initializes the PDFObjectStream with a specific pdf object
         /// </summary>
-        public PDFObjectStream(PDF pdf, Dictionary<Name, object> streamDict, long startOfStream)
+        public PDFObjectStream(PDF pdf, PDFDictionary streamDict, long startOfStream)
         {
             this.pdf = pdf;
             this.streamDict = streamDict;
             this.startOfStream = startOfStream;
             
-            if((Name)streamDict["Type"] != "ObjStm")
+            if(streamDict.get<Name>("Type") != "ObjStm")
             {
                 throw new Exception("Object is not an object stream");
             }
@@ -40,8 +40,8 @@ namespace FirePDF.Model
                 throw new NotImplementedException();
             }
 
-            n = (int)streamDict["N"];
-            first = (int)streamDict["First"];
+            n = streamDict.get<int>("N");
+            first = streamDict.get<int>("First");
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace FirePDF.Model
             return pairs;
         }
 
-        public object readObject(int objectNumber)
+        public object readObject(PDF pdf, int objectNumber)
         {
             pdf.stream.Position = startOfStream;
             using (Stream stream = PDFReader.decompressStream(pdf, pdf.stream, streamDict))
@@ -79,7 +79,7 @@ namespace FirePDF.Model
 
                 stream.Position = offset;
 
-                return PDFReader.readObject(stream);
+                return PDFReader.readObject(pdf, stream);
             }
         }
     }

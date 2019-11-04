@@ -12,7 +12,7 @@ namespace FirePDF.Model
     {
         private readonly PDF pdf;
         private readonly IStreamOwner owner;
-        internal readonly Dictionary<Name, object> underlyingDict;
+        internal readonly PDFDictionary underlyingDict;
 
         private Dictionary<Name, object> cache;
 
@@ -23,10 +23,10 @@ namespace FirePDF.Model
         {
             this.pdf = null;
             this.owner = null;
-            this.underlyingDict = new Dictionary<Name, object>();
+            this.underlyingDict = new PDFDictionary(null);
         }
 
-        public PDFResources(PDF pdf, IStreamOwner owner, Dictionary<Name, object> underlyingDict)
+        public PDFResources(PDF pdf, IStreamOwner owner, PDFDictionary underlyingDict)
         {
             this.pdf = pdf;
             this.owner = owner;

@@ -9,7 +9,7 @@ namespace FirePDF.Model
     class Type0Font : Font
     {
         
-        public Type0Font(PDF pdf, Dictionary<Name, object> dictionary) : base(pdf, dictionary)
+        public Type0Font(PDF pdf, PDFDictionary dictionary) : base(pdf, dictionary)
         {
             
         }

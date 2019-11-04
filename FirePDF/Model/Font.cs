@@ -9,18 +9,18 @@ namespace FirePDF.Model
     abstract class Font
     {
         private PDF pdf;
-        private Dictionary<Name, object> dictionary;
+        private PDFDictionary dictionary;
 
-        protected Font(PDF pdf, Dictionary<Name, object> dictionary)
+        protected Font(PDF pdf, PDFDictionary dictionary)
         {
             this.pdf = pdf;
             this.dictionary = dictionary;
         }
 
-        public static Font loadExistingFontFromPDF(PDF pdf, Dictionary<Name, object> dictionary)
+        public static Font loadExistingFontFromPDF(PDF pdf, PDFDictionary dictionary)
         {
-            Name subType = dictionary.ContainsKey("Subtype") ? (Name)dictionary["Subtype"] : null;
-            switch(subType.ToString())
+            Name subType = dictionary.get<Name>("Subtype");
+            switch(subType)
             {
                 case "Type0":
                     return new Type0Font(pdf, dictionary);

@@ -13,7 +13,7 @@ namespace FirePDF.StreamHelpers
 {
     public class RawStreamReader
     {
-        public static Bitmap convertImageBufferToImage(byte[] buffer, Dictionary<Name, object> streamDictionary)
+        public static Bitmap convertImageBufferToImage(byte[] buffer, PDFDictionary streamDictionary)
         {
             int width = (int)streamDictionary["Width"];
             int height = (int)streamDictionary["Height"];
@@ -29,7 +29,7 @@ namespace FirePDF.StreamHelpers
         /// decompresses a stream from the pdf stream at the current position and returns it
         /// as the stream isn't compressed, this method has the effect of just copying the bytes to a new stream
         /// </summary>
-        public static Stream decompressStream(Stream pdfStream, Dictionary<Name, object> streamDictionary)
+        public static Stream decompressStream(Stream pdfStream, PDFDictionary streamDictionary)
         {
             MemoryStream temp = new MemoryStream();
 

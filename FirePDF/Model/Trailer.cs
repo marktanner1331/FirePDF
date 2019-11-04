@@ -19,43 +19,8 @@ namespace FirePDF.Model
         {
 
         }
-
-        public void serialize(PDFWriter writer)
-        {
-            writer.writeASCII("trailer");
-            writer.writeNewLine();
-
-            Dictionary<Name, object> underylingDict = new Dictionary<Name, object>();
-            if(size != null)
-            {
-                underylingDict["Size"] = size.Value;
-            }
-
-            if(root != null)
-            {
-                underylingDict["Root"] = root;
-            }
-
-            if(info != null)
-            {
-                underylingDict["Info"] = info;
-            }
-
-            if(id != null)
-            {
-                throw new NotImplementedException();
-            }
-
-            if(prev != null)
-            {
-                underylingDict["Prev"] = prev.Value;
-            }
-
-            writer.writeDirectObject(underylingDict);
-            writer.writeNewLine();
-        }
-
-        public Trailer(Dictionary<Name, object> underylingDict)
+        
+        public Trailer(PDFDictionary underylingDict)
         {
             foreach (var pair in underylingDict)
             {
@@ -91,5 +56,41 @@ namespace FirePDF.Model
                 }
             }
         }
+
+        public void serialize(PDFWriter writer)
+        {
+            writer.writeASCII("trailer");
+            writer.writeNewLine();
+
+            Dictionary<Name, object> underylingDict = new Dictionary<Name, object>();
+            if (size != null)
+            {
+                underylingDict["Size"] = size.Value;
+            }
+
+            if (root != null)
+            {
+                underylingDict["Root"] = root;
+            }
+
+            if (info != null)
+            {
+                underylingDict["Info"] = info;
+            }
+
+            if (id != null)
+            {
+                throw new NotImplementedException();
+            }
+
+            if (prev != null)
+            {
+                underylingDict["Prev"] = prev.Value;
+            }
+
+            writer.writeDirectObject(underylingDict);
+            writer.writeNewLine();
+        }
+
     }
 }

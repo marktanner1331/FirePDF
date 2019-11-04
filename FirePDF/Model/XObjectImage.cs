@@ -13,7 +13,7 @@ namespace FirePDF.Model
     public class XObjectImage
     {
         private PDF pdf;
-        public Dictionary<Name, object> underlyingDict { get; private set; }
+        public PDFDictionary underlyingDict { get; private set; }
         public long startOfStream;
 
         public XObjectImage(PDF pdf)
@@ -27,7 +27,7 @@ namespace FirePDF.Model
         /// <summary>
         /// initializing an xobject image with the owning pdf, its dictionary, and the offset to the start of the stream relative to the start of the pdf
         /// </summary>
-        public XObjectImage(PDF pdf, Dictionary<Name, object> dict, long startOfStream)
+        public XObjectImage(PDF pdf, PDFDictionary dict, long startOfStream)
         {
             this.pdf = pdf;
             this.underlyingDict = dict;
@@ -41,7 +41,7 @@ namespace FirePDF.Model
 
             if(underlyingDict.ContainsKey("SMask"))
             {
-                XObjectImage mask = (XObjectImage)PDFReader.readIndirectObject(pdf, (ObjectReference)underlyingDict["SMask"]);
+                XObjectImage mask = underlyingDict.get<XObjectImage>("SMask");
                 //DoApplyMask(image, mask);
             }
 

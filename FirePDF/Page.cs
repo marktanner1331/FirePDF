@@ -35,12 +35,12 @@ namespace FirePDF
 
             if(underlyingDict["Resources"] is ObjectReference)
             {
-                Dictionary<Name, object> dict = PDFReader.readIndirectDictionary(pdf, (ObjectReference)underlyingDict["Resources"]);
+                PDFDictionary dict = PDFReader.readIndirectDictionary(pdf, (ObjectReference)underlyingDict["Resources"]);
                 this.resources = new PDFResources(pdf, this, dict);
             }
             else
             {
-                this.resources = new PDFResources(pdf, this, (Dictionary<Name, object>)underlyingDict["Resources"]);
+                this.resources = new PDFResources(pdf, this, (PDFDictionary)underlyingDict["Resources"]);
             }
 
            boundingBox = PDFReader.readRectangleFromArray(underlyingDict["MediaBox"] as List<Object>);
