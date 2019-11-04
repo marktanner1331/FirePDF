@@ -52,9 +52,11 @@
     <Compile Include="Model\TextRenderingMode.cs" />
     <Compile Include="Model\Type0Font.cs" />
     <Compile Include="Processors\ClippingProcessor.cs" />
+    <Compile Include="Processors\IStreamProcessor.cs" />
     <Compile Include="Processors\PaintingProcessor.cs" />
     <Compile Include="Processors\StreamProcessor.cs" />
     <Compile Include="Processors\TextProcessor.cs" />
+    <Compile Include="Reading\RecursiveStreamReader.cs" />
     <Compile Include="StreamHelpers\ASCIIHexDecodeWriter.cs" />
     <Compile Include="StreamPartFunctions\ClippingPathStreamPart.cs" />
     <Compile Include="StreamPartFunctions\DrawImageStreamPart.cs" />

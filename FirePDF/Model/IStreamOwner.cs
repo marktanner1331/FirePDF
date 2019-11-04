@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,5 +12,6 @@ namespace FirePDF.Model
     {
         PDFResources resources { get; }
         RectangleF boundingBox { get; }
+        Stream readContentStream();
     }
 }

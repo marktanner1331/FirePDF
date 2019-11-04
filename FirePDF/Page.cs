@@ -14,7 +14,7 @@ namespace FirePDF
 {
     public class Page : IStreamOwner
     {
-        public PDF pdf { get; private set; }
+        public readonly PDF pdf;
         public Dictionary<Name, object> underlyingDict;
         public PDFResources resources { get; private set; }
         public RectangleF boundingBox { get; private set; }

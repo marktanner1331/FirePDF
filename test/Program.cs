@@ -29,16 +29,15 @@ namespace test
 
             Bitmap image = new Bitmap((int)page.boundingBox.Width, (int)page.boundingBox.Height);
             Graphics graphics = Graphics.FromImage(image);
-            
-            Stream s = page.readContentStream();
-            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
-            //IRenderer renderer = new Rasterizer(graphics);
-            IRenderer renderer = new LoggingRenderer(x => Debug.WriteLine(x));
+            IRenderer renderer = new Rasterizer(graphics);
+            //IRenderer renderer = new LoggingRenderer(x => Debug.WriteLine(x));
 
             StreamProcessor sp = new StreamProcessor(renderer);
-            sp.render(page, operations);
+            RecursiveStreamReader streamReader = new RecursiveStreamReader(sp);
 
+            streamReader.readPage(page);
+            
             image.Save(@"C:\Users\Mark Tanner\scratch\sarie page 1.jpg");
         }
     }

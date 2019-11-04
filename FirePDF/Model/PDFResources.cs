@@ -10,14 +10,21 @@ namespace FirePDF.Model
 {
     public class PDFResources
     {
-        private PDF pdf;
-        private IStreamOwner owner;
+        private readonly PDF pdf;
+        private readonly IStreamOwner owner;
         internal readonly Dictionary<Name, object> underlyingDict;
 
         private Dictionary<Name, object> cache;
 
         internal HashSet<string> dirtyObjects;
         internal bool isDirty => dirtyObjects.Count > 0;
+
+        public PDFResources()
+        {
+            this.pdf = null;
+            this.owner = null;
+            this.underlyingDict = new Dictionary<Name, object>();
+        }
 
         public PDFResources(PDF pdf, IStreamOwner owner, Dictionary<Name, object> underlyingDict)
         {
@@ -69,6 +76,12 @@ namespace FirePDF.Model
         {
             object xObject = getObjectAtPath("XObject", xObjectName);
             return xObject is XObjectImage;
+        }
+
+        public bool isXObjectForm(string xObjectName)
+        {
+            object xObject = getObjectAtPath("XObject", xObjectName);
+            return xObject is XObjectForm;
         }
 
         /// <summary>

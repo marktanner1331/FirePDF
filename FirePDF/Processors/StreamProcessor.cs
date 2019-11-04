@@ -1,4 +1,5 @@
 ﻿using FirePDF.Model;
+using FirePDF.Reading;
 using FirePDF.Rendering;
 using System;
 using System.Collections.Generic;
@@ -8,38 +9,60 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Processors
 {
-    public class StreamProcessor
+    public class StreamProcessor : IStreamProcessor
     {
         private IRenderer renderer;
+        private GraphicsStateProcessor gsp;
+        private LineProcessor lp;
+        private PaintingProcessor pp;
+        private ClippingProcessor cp;
+        private ImageProcessor ip;
+        private TextProcessor tp;
+
+        private RecursiveStreamReader streamReader;
 
         public StreamProcessor(IRenderer renderer)
         {
             this.renderer = renderer;
         }
 
-        public void render(IStreamOwner streamOwner, IEnumerable<Operation> operations)
+        public void didStartReadingStream()
         {
-            //hint: when doing recursive streams, make StreamProcessor a IStreamOwner and initialize the gsp with 'this' in the constructor of StreamProcessor
+            renderer.willStartRenderingStream(streamReader);
+        }
 
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(streamOwner);
-            LineProcessor lp = new LineProcessor();
-            PaintingProcessor pp = new PaintingProcessor(renderer, lp);
-            ClippingProcessor cp = new ClippingProcessor(gsp.getCurrentState, lp);
-            ImageProcessor ip = new ImageProcessor(streamOwner, renderer);
-            TextProcessor tp = new TextProcessor(gsp.getCurrentState, streamOwner, renderer);
+        public void processOperation(Operation operation)
+        {
+            gsp.processOperation(operation);
+            pp.processOperation(operation);
+            cp.processOperation(operation);
+            lp.processOperation(operation);
+            ip.processOperation(operation);
+            tp.processOperation(operation);
+        }
+       
+        public void willFinishReadingPage()
+        {
+            
+        }
+
+        public void willFinishReadingStream()
+        {
+            
+        }
+
+        public void willStartReadingPage(RecursiveStreamReader parser)
+        {
+            streamReader = parser;
+            
+            gsp = new GraphicsStateProcessor(streamReader);
+            lp = new LineProcessor();
+            pp = new PaintingProcessor(renderer, lp);
+            cp = new ClippingProcessor(gsp.getCurrentState, lp);
+            ip = new ImageProcessor(streamReader, renderer);
+            tp = new TextProcessor(gsp.getCurrentState, streamReader, renderer);
 
             renderer.willStartRenderingPage(gsp.getCurrentState);
-            renderer.willStartRenderingStream(streamOwner);
-
-            foreach (Operation operation in operations)
-            {
-                gsp.processOperation(operation);
-                pp.processOperation(operation);
-                cp.processOperation(operation);
-                lp.processOperation(operation);
-                ip.processOperation(operation);
-                tp.processOperation(operation);
-            }
         }
     }
 }
