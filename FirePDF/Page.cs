@@ -14,13 +14,13 @@ namespace FirePDF
 {
     public class Page : IStreamOwner
     {
-        public readonly PDF pdf;
+        public PDF pdf { get; }
         public PDFDictionary underlyingDict;
         public PDFResources resources { get; private set; }
         public RectangleF boundingBox { get; private set; }
 
         public bool isDirty => resources.isDirty;
-
+        
         public Page(PDF pdf)
         {
             this.pdf = pdf;
@@ -64,7 +64,7 @@ namespace FirePDF
             //return writer.writeIndirectObjectUsingNextFreeNumber(underlyingDict);
         }
 
-        public Stream readContentStream()
+        public Stream getStream()
         {
             MemoryStream compositeStream = new MemoryStream();
 

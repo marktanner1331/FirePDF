@@ -26,9 +26,9 @@ namespace FirePDF.Processors
             this.renderer = renderer;
         }
 
-        public void didStartReadingStream()
+        public void didStartReadingStream(IStreamOwner streamOwner)
         {
-            renderer.willStartRenderingStream(streamReader);
+            renderer.willStartRenderingStream(streamOwner);
         }
 
         public void processOperation(Operation operation)
@@ -55,14 +55,14 @@ namespace FirePDF.Processors
         {
             streamReader = parser;
             
-            gsp = new GraphicsStateProcessor(streamReader);
+            gsp = new GraphicsStateProcessor(() => parser.resources, parser.page.boundingBox);
             lp = new LineProcessor();
             pp = new PaintingProcessor(renderer, lp);
             cp = new ClippingProcessor(gsp.getCurrentState, lp);
-            ip = new ImageProcessor(streamReader, renderer);
-            tp = new TextProcessor(gsp.getCurrentState, streamReader, renderer);
+            ip = new ImageProcessor(() => parser.resources, renderer);
+            tp = new TextProcessor(gsp.getCurrentState, () => parser.resources, renderer);
 
-            renderer.willStartRenderingPage(gsp.getCurrentState);
+            renderer.willStartRenderingPage(parser.page.boundingBox, gsp.getCurrentState);
         }
     }
 }

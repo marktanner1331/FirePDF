@@ -14,12 +14,12 @@ namespace FirePDF.Processors
     /// </summary>
     public class ImageProcessor
     {
-        private IStreamOwner streamOwner;
+        private Func<PDFResources> getResources;
         private IRenderer renderer;
 
-        public ImageProcessor(IStreamOwner streamOwner, IRenderer renderer)
+        public ImageProcessor(Func<PDFResources> getResources, IRenderer renderer)
         {
-            this.streamOwner = streamOwner;
+            this.getResources = getResources;
             this.renderer = renderer;
         }
 
@@ -29,7 +29,7 @@ namespace FirePDF.Processors
             {
                 case "Do":
                     string xObjectName = (Name)operation.operands[0];
-                    object xObject = streamOwner.resources.getObjectAtPath("XObject", xObjectName);
+                    object xObject = getResources().getObjectAtPath("XObject", xObjectName);
 
                     if(xObject is XObjectImage)
                     {

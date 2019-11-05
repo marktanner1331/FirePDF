@@ -15,13 +15,14 @@ namespace FirePDF.Processors
         private readonly IRenderer renderer;
 
         private bool isInTextObject = false;
-        private readonly Func<Model.GraphicsState> getGraphicsState;
+        private readonly Func<GraphicsState> getGraphicsState;
+        private Func<PDFResources> getResources;
 
-        public TextProcessor(Func<Model.GraphicsState> getGraphicsState, IStreamOwner streamOwner, IRenderer renderer)
+        public TextProcessor(Func<Model.GraphicsState> getGraphicsState, Func<PDFResources> getResources, IRenderer renderer)
         {
-            this.renderer = renderer;
-
             this.getGraphicsState = getGraphicsState;
+            this.getResources = getResources;
+            this.renderer = renderer;
         }
 
         public bool processOperation(Operation operation)
@@ -56,7 +57,6 @@ namespace FirePDF.Processors
                     }
                 case "TD":
                     {
-                        throw new Exception("should work but needs testing");
                         getGraphicsState().textLeading = -operation.getOperandAsFloat(1);
                         goto case "Td";
                     }

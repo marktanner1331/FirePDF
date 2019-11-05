@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Reading
 {
-    public class RecursiveStreamReader : IStreamOwner
+    public class RecursiveStreamReader
     {
         private IStreamProcessor streamProcessor;
         
@@ -18,7 +18,8 @@ namespace FirePDF.Reading
         private Stack<IStreamOwner> streamStack;
         private Stream currentStream;
 
-        private Page page;
+        //TODO rename this
+        public IStreamOwner page;
 
         public RecursiveStreamReader(IStreamProcessor streamProcessor)
         {
@@ -26,18 +27,10 @@ namespace FirePDF.Reading
         }
 
         public PDFResources resources => resourcesStack.Peek();
-
-        public RectangleF boundingBox => streamStack.Count > 0 ? streamStack.Peek().boundingBox : RectangleF.Empty;
-
-        /// <summary>
-        /// returns the stream that is currently being read (or null if we are not in readPage())s
-        /// </summary>
-        public Stream readContentStream()
-        {
-            return currentStream;
-        }
-
-        public void readPage(Page page)
+        
+        public PDF pdf => page.pdf;
+        
+        public void readStreamRecursively(IStreamOwner page)
         {
             this.page = page;
 
@@ -67,10 +60,10 @@ namespace FirePDF.Reading
             resourcesStack.Push(resources);
             streamStack.Push(stream);
 
-            streamProcessor.didStartReadingStream();
+            streamProcessor.didStartReadingStream(stream);
 
             Stream oldStream = currentStream;
-            currentStream = stream.readContentStream();
+            currentStream = stream.getStream();
 
             List<Operation> operations = ContentStreamReader.readOperationsFromStream(page.pdf, currentStream);
             foreach(Operation operation in operations)

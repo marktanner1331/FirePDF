@@ -40,7 +40,7 @@ namespace Graphical_Debugger
             splitter.SplitterDistance = 200;
             Controls.Add(splitter);
 
-            string file = @"C:\Users\Mark Tanner\scratch\weslander orig.pdf";
+            string file = @"C:\Users\Mark Tanner\scratch\sarie page 1.pdf";
             //string file = @"C:\Users\Mark Tanner\scratch\page 2.pdf";
             PDF pdf = new PDF(file);
 
@@ -49,8 +49,8 @@ namespace Graphical_Debugger
             XObjectForm form = (XObjectForm)page.resources.getObjectAtPath("XObject", "Fm0");
             owner = form;
 
-            Stream s = form.readContentStream();
-            operations = ContentStreamReader.readOperationsFromStream(s);
+            Stream s = form.getStream();
+            operations = ContentStreamReader.readOperationsFromStream(pdf, s);
             
             pdfRenderer = new PDFRenderer();
             pdfRenderer.render(form, operations.Take(0));

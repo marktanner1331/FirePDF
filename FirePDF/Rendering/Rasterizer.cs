@@ -19,18 +19,17 @@ namespace FirePDF.Rendering
             graphics = graphicsContext;
         }
 
-        public override void willStartRenderingStream(IStreamOwner streamOwner)
+        public override void willStartRenderingPage(RectangleF boundingBox, Func<Model.GraphicsState> getGraphicsState)
         {
-            base.willStartRenderingStream(streamOwner);
+            base.willStartRenderingPage(boundingBox, getGraphicsState);
 
             float scale = dpi / 72f;
 
-            streamBounds = streamOwner.boundingBox;
             Model.GraphicsState graphicsState = getGraphicsState();
-            graphicsState.currentTransformationMatrix.Translate(0, scale * streamBounds.Height);
+            graphicsState.currentTransformationMatrix.Translate(0, scale * boundingBox.Height);
             graphicsState.currentTransformationMatrix.Scale(scale, -scale);
         }
-
+        
         /// <summary>
         /// refreshes the state of the graphicsContext from the graphics state returned by getGraphicsState
         /// </summary>
@@ -39,7 +38,7 @@ namespace FirePDF.Rendering
             Model.GraphicsState gs = getGraphicsState();
 
             graphics.Transform = new Matrix();
-            graphics.SetClip(gs.clippingPath, CombineMode.Replace);
+            //graphics.SetClip(gs.clippingPath, CombineMode.Replace);
 
             graphics.Transform = gs.currentTransformationMatrix;
         }

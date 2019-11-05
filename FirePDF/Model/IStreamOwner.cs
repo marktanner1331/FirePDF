@@ -12,6 +12,8 @@ namespace FirePDF.Model
     {
         PDFResources resources { get; }
         RectangleF boundingBox { get; }
-        Stream readContentStream();
+        PDF pdf { get; }
+
+        Stream getStream();
     }
 }

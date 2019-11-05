@@ -15,7 +15,7 @@ namespace FirePDF.Rendering
         public IStreamOwner streamOwner;
         public int dpi = 72;
         
-        public virtual void willStartRenderingPage(Func<Model.GraphicsState> getGraphicsState)
+        public virtual void willStartRenderingPage(RectangleF boundingBox, Func<Model.GraphicsState> getGraphicsState)
         {
             this.getGraphicsState = getGraphicsState;
         }

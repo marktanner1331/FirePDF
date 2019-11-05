@@ -34,14 +34,14 @@ namespace FirePDF.Tests
             List<string> forms = page.resources.listXObjectForms().ToList();
             XObjectForm form = page.resources.getXObjectForm(forms.First());
 
-            Stream s = form.readContentStream();
-            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
+            Stream s = form.getStream();
+            //List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
-            foreach(Operation operation in operations)
-            {
-                gsp.processOperation(operation);
-            }
+            //GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
+            //foreach(Operation operation in operations)
+            //{
+            //    gsp.processOperation(operation);
+            //}
         }
 
         [TestMethod()]
@@ -55,14 +55,14 @@ namespace FirePDF.Tests
             List<string> forms = page.resources.listXObjectForms().ToList();
             XObjectForm form = page.resources.getXObjectForm(forms.First());
 
-            Stream s = form.readContentStream();
-            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
+            Stream s = form.getStream();
+            //List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
             
-            StringBuilder sb = new StringBuilder();
-            LoggingRenderer renderer = new LoggingRenderer(x => sb.AppendLine(x));
+            //StringBuilder sb = new StringBuilder();
+            //LoggingRenderer renderer = new LoggingRenderer(x => sb.AppendLine(x));
 
-            StreamProcessor sp = new StreamProcessor(renderer);
-            sp.render(form, operations);
+            //StreamProcessor sp = new StreamProcessor(renderer);
+            //sp.render(form, operations);
         }
 
         [TestMethod()]
@@ -76,13 +76,13 @@ namespace FirePDF.Tests
             List<string> forms = page.resources.listXObjectForms().ToList();
             XObjectForm form = page.resources.getXObjectForm(forms.First());
 
-            Stream s = form.readContentStream();
-            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
+            Stream s = form.getStream();
+            //List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
             
-            StringBuilder sb = new StringBuilder();
-            LoggingRenderer renderer = new LoggingRenderer(x => sb.AppendLine(x));
-            StreamProcessor sp = new StreamProcessor(renderer);
-            sp.render(form, operations);
+            //StringBuilder sb = new StringBuilder();
+            //LoggingRenderer renderer = new LoggingRenderer(x => sb.AppendLine(x));
+            //StreamProcessor sp = new StreamProcessor(renderer);
+            //sp.render(form, operations);
         }
 
         [TestMethod()]
@@ -96,18 +96,18 @@ namespace FirePDF.Tests
             List<string> forms = page.resources.listXObjectForms().ToList();
             XObjectForm form = page.resources.getXObjectForm(forms.First());
 
-            Stream s = form.readContentStream();
-            List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
+            Stream s = form.getStream();
+            //List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
-            GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
+            //GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
 
-            RectangleF bounds = form.boundingBox;
-            Bitmap image = new Bitmap((int)bounds.Width, (int)bounds.Height);
-            Graphics g = Graphics.FromImage(image);
+            //RectangleF bounds = form.boundingBox;
+            //Bitmap image = new Bitmap((int)bounds.Width, (int)bounds.Height);
+            //Graphics g = Graphics.FromImage(image);
             
-            Rasterizer renderer = new Rasterizer(g);
-            StreamProcessor sp = new StreamProcessor(renderer);
-            sp.render(form, operations);
+            //Rasterizer renderer = new Rasterizer(g);
+            //StreamProcessor sp = new StreamProcessor(renderer);
+            //sp.render(form, operations);
         }
     }
 }

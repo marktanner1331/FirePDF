@@ -1,5 +1,6 @@
 ﻿using FirePDF.Model;
 using FirePDF.Processors;
+using FirePDF.Reading;
 using FirePDF.Rendering;
 using System;
 using System.Collections.Generic;
@@ -34,6 +35,7 @@ namespace Graphical_Debugger
         {
             Rasterizer renderer = new Rasterizer(graphics);
             StreamProcessor sp = new StreamProcessor(renderer);
+            RecursiveStreamReader streamReader = new RecursiveStreamReader(sp);
 
             float xScale = ClientSize.Width / streamOwner.boundingBox.Width;
             float yScale = ClientSize.Height / streamOwner.boundingBox.Height;
@@ -47,7 +49,7 @@ namespace Graphical_Debugger
             graphics.FillRectangle(Brushes.White, box);
             renderer.dpi = (int)(72 * scale);
 
-            sp.render(streamOwner, operations);
+            streamReader.readStreamRecursively(streamOwner);
         }
 
         protected override void OnClientSizeChanged(EventArgs e)

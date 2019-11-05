@@ -12,31 +12,31 @@ namespace FirePDF.Processors
 {
     public class GraphicsStateProcessor
     {
-        private IStreamOwner streamOwner;
+        private Func<PDFResources> getResources;
         private Stack<GraphicsState> graphicsStack;
 
         /// <summary>
         /// initializes a new graphics state processor
         /// </summary>
-        /// <param name="streamOwner">the graphics state processor will need access to the resources, i.e. for fonts, color spaces etc</param>
-        public GraphicsStateProcessor(IStreamOwner streamOwner)
+        /// <param name="getResources">the graphics state processor will need access to the resources, i.e. for fonts, color spaces etc</param>
+        public GraphicsStateProcessor(Func<PDFResources> getResources, RectangleF boundingBox)
         {
-            this.streamOwner = streamOwner;
+            this.getResources = getResources;
 
             this.graphicsStack = new Stack<GraphicsState>();
 
             GraphicsPath clippingPath = new GraphicsPath();
-            clippingPath.AddRectangle(streamOwner.boundingBox);
+            clippingPath.AddRectangle(boundingBox);
             this.graphicsStack.Push(new GraphicsState(clippingPath));
         }
 
         /// <summary>
         /// initializes a new graphics state processor
         /// </summary>
-        /// <param name="streamOwner">the graphics state processor will need access to the resources, i.e. for fonts, color spaces etc</param>
-        public GraphicsStateProcessor(IStreamOwner streamOwner, GraphicsPath initialClippingPath)
+        /// <param name="getResources">the graphics state processor will need access to the resources, i.e. for fonts, color spaces etc</param>
+        public GraphicsStateProcessor(Func<PDFResources> getResources, GraphicsPath initialClippingPath)
         {
-            this.streamOwner = streamOwner;
+            this.getResources = getResources;
 
             this.graphicsStack = new Stack<GraphicsState>();
             this.graphicsStack.Push(new GraphicsState(initialClippingPath));

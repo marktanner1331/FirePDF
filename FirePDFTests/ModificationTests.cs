@@ -31,21 +31,21 @@ namespace FirePDFTests
                     string formName = page.resources.listXObjectForms().First();
                     XObjectForm form = page.resources.getXObjectForm(formName);
 
-                    Stream s = form.readContentStream();
-                    List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
+                    Stream s = form.getStream();
+                    //List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
 
-                    ModificationEngine me = new ModificationEngine();
-                    me.increaseImageDimensionsByOnePixel = true;
-                    me.increaseClippingPathsByOnePixel = true;
-                    //me.removeImageClippingPaths = true;
-                    operations = me.run(form, operations);
+                    //ModificationEngine me = new ModificationEngine();
+                    //me.increaseImageDimensionsByOnePixel = true;
+                    //me.increaseClippingPathsByOnePixel = true;
+                    ////me.removeImageClippingPaths = true;
+                    //operations = me.run(form, operations);
 
-                    s = new MemoryStream();
-                    ContentStreamWriter.writeOperationsToStream(s, operations);
-                    form.writeContentStream(s);
+                    //s = new MemoryStream();
+                    //ContentStreamWriter.writeOperationsToStream(s, operations);
+                    //form.writeContentStream(s);
 
-                    page.resources.overwriteXObject(form, formName);
-                    writer.updatePDF(pdf);
+                    //page.resources.overwriteXObject(form, formName);
+                    //writer.updatePDF(pdf);
                 }
             }
         }
