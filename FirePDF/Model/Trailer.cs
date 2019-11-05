@@ -36,7 +36,7 @@ namespace FirePDF.Model
                         info = underylingDict.get<ObjectReference>(key);
                         break;
                     case "ID":
-                        List<object> tempList = underylingDict.get<List<object>>(key);
+                        List<object> tempList = underylingDict.get<PDFList>(key).cast<object>();
                         if (tempList.All(X => X is string))
                         {
                             id = tempList
@@ -60,37 +60,38 @@ namespace FirePDF.Model
 
         public void serialize(PDFWriter writer)
         {
-            writer.writeASCII("trailer");
-            writer.writeNewLine();
+            throw new Exception("not saving yet");
+            //writer.writeASCII("trailer");
+            //writer.writeNewLine();
 
-            Dictionary<Name, object> underylingDict = new Dictionary<Name, object>();
-            if (size != null)
-            {
-                underylingDict["Size"] = size.Value;
-            }
+            //PDFDictionary underylingDict = new PDFDictionary(pdf);
+            //if (size != null)
+            //{
+            //    underylingDict.set("Size"], size.Value);
+            //}
 
-            if (root != null)
-            {
-                underylingDict["Root"] = root;
-            }
+            //if (root != null)
+            //{
+            //    underylingDict["Root"] = root;
+            //}
 
-            if (info != null)
-            {
-                underylingDict["Info"] = info;
-            }
+            //if (info != null)
+            //{
+            //    underylingDict["Info"] = info;
+            //}
 
-            if (id != null)
-            {
-                throw new NotImplementedException();
-            }
+            //if (id != null)
+            //{
+            //    throw new NotImplementedException();
+            //}
 
-            if (prev != null)
-            {
-                underylingDict["Prev"] = prev.Value;
-            }
+            //if (prev != null)
+            //{
+            //    underylingDict["Prev"] = prev.Value;
+            //}
 
-            writer.writeDirectObject(underylingDict);
-            writer.writeNewLine();
+            //writer.writeDirectObject(underylingDict);
+            //writer.writeNewLine();
         }
 
     }

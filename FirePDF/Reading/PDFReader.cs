@@ -13,22 +13,6 @@ namespace FirePDF.Reading
 {
     public static class PDFReader
     {
-        public static RectangleF readRectangleFromArray(List<object> array)
-        {
-            float left = (float)Convert.ToDouble(array[0]);
-            float bottom = (float)Convert.ToDouble(array[1]);
-            float right = (float)Convert.ToDouble(array[2]);
-            float top = (float)Convert.ToDouble(array[3]);
-
-            return new RectangleF
-            {
-                X = left,
-                Y = bottom,
-                Width = right - left,
-                Height = top - bottom
-            };
-        }
-
         public static Stream decompressStream(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
             PDFDictionary dict = readIndirectDictionary(pdf, xrefRecord);
@@ -39,7 +23,7 @@ namespace FirePDF.Reading
 
         public static Stream decompressStream(PDF pdf, ObjectReference objectReference)
         {
-            PDFDictionary dict = readIndirectDictionary(pdf, objectReference);
+            PDFDictionary dict = (PDFDictionary)readIndirectObject(pdf, objectReference);
             skipOverStreamHeader(pdf.stream);
 
             return decompressStream(pdf, pdf.stream, dict);
@@ -151,12 +135,7 @@ namespace FirePDF.Reading
 
             skipOverWhiteSpace(stream);
         }
-
-        public static PDFDictionary readIndirectDictionary(PDF pdf, ObjectReference objectReference)
-        {
-            return (PDFDictionary)readIndirectObject(pdf, objectReference);
-        }
-
+        
         public static PDFDictionary readIndirectDictionary(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
             return (PDFDictionary)readIndirectObject(pdf, xrefRecord);
@@ -357,7 +336,7 @@ namespace FirePDF.Reading
                 long currentOffset = stream.Position;
                 try
                 {
-                    return readObjectReference(stream);
+                    return readObjectReference(pdf, stream);
                 }
                 catch
                 {
@@ -534,12 +513,12 @@ namespace FirePDF.Reading
         /// reads an array from the stream. The streams position should be 
         /// at the '['
         /// </summary>
-        public static List<object> readArray(PDF pdf, Stream stream)
+        public static PDFList readArray(PDF pdf, Stream stream)
         {
             //skip over the [
             stream.Position++;
 
-            List<object> array = new List<object>();
+            PDFList array = new PDFList(pdf);
 
             while (true)
             {
@@ -554,7 +533,7 @@ namespace FirePDF.Reading
                     stream.Position--;
                 }
 
-                array.Add(readObject(pdf, stream));
+                array.add(readObject(pdf, stream));
             }
         }
 
@@ -592,7 +571,7 @@ namespace FirePDF.Reading
             }
         }
 
-        private static ObjectReference readObjectReference(Stream stream)
+        private static ObjectReference readObjectReference(PDF pdf, Stream stream)
         {
             int number = ASCIIReader.readASCIIInteger(stream);
 
@@ -614,7 +593,7 @@ namespace FirePDF.Reading
                 throw new Exception();
             }
 
-            return new ObjectReference(number, generation);
+            return new ObjectReference(pdf, number, generation);
         }
 
         /// <summary>

@@ -105,7 +105,7 @@ namespace FirePDF
                 }
             }
 
-            PDFDictionary rootDict = PDFReader.readIndirectDictionary(this, root);
+            PDFDictionary rootDict = root.get<PDFDictionary>();
             catalog = new Catalog(this, rootDict);
         }
     }

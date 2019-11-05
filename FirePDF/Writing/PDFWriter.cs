@@ -93,7 +93,7 @@ namespace FirePDF.Writing
             writeASCII("%%EOF");
         }
 
-        public ObjectReference writeIndirectObjectUsingNextFreeNumber(object obj)
+        public ObjectReference writeIndirectObjectUsingNextFreeNumber(PDF pdf, object obj)
         {
             if (obj is XObjectForm)
             {
@@ -112,10 +112,10 @@ namespace FirePDF.Writing
             writeTable.addRecord(pageRecord);
 
             writeIndirectObject(pageRecord.objectNumber, pageRecord.generation, obj);
-            return new ObjectReference(pageRecord.objectNumber, pageRecord.generation);
+            return new ObjectReference(pdf, pageRecord.objectNumber, pageRecord.generation);
         }
 
-        public ObjectReference writeIndirectObjectUsingNextFreeNumber(PDFDictionary streamDictionary, Stream stream)
+        public ObjectReference writeIndirectObjectUsingNextFreeNumber(PDF pdf, PDFDictionary streamDictionary, Stream stream)
         {
             int nextFreeNumber2 = readTable.getNextFreeRecordNumber();
             XREFTable.XREFRecord pageRecord = new XREFTable.XREFRecord
@@ -129,7 +129,7 @@ namespace FirePDF.Writing
             writeTable.addRecord(pageRecord);
 
             writeIndirectObject(pageRecord.objectNumber, pageRecord.generation, streamDictionary, stream);
-            return new ObjectReference(pageRecord.objectNumber, pageRecord.generation);
+            return new ObjectReference(pdf, pageRecord.objectNumber, pageRecord.generation);
         }
 
         //public void writeDirtyResources(PDFResources resources)
@@ -188,6 +188,7 @@ namespace FirePDF.Writing
 
         public void writeDirectObject(object obj)
         {
+            throw new Exception("need to change to use PDFDictionary");
             if (obj is Dictionary<Name, object>)
             {
                 writeDirectObject(obj as Dictionary<Name, object>);
@@ -281,29 +282,31 @@ namespace FirePDF.Writing
             writeASCII("/" + name);
         }
 
-        public void writeDirectObject(List<object> array)
+        public void writeDirectObject(PDFList array)
         {
-            writeASCII("[");
-            bool isFirst = true;
+            throw new Exception("not saving yet");
+            //writeASCII("[");
+            //bool isFirst = true;
 
-            foreach (object element in array)
-            {
-                if (isFirst)
-                {
-                    isFirst = false;
-                }
-                else
-                {
-                    writeASCII(" ");
-                }
+            //foreach (object element in array)
+            //{
+            //    if (isFirst)
+            //    {
+            //        isFirst = false;
+            //    }
+            //    else
+            //    {
+            //        writeASCII(" ");
+            //    }
 
-                writeDirectObject(element);
-            }
-            writeASCII("]");
+            //    writeDirectObject(element);
+            //}
+            //writeASCII("]");
         }
 
         public void writeDirectObject(Dictionary<Name, object> dict)
         {
+            throw new Exception("need to change to use PDFDictionary");
             writeASCII("<<");
             foreach (var pair in dict)
             {

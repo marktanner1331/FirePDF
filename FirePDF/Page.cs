@@ -35,10 +35,7 @@ namespace FirePDF
 
             this.resources = new PDFResources(pdf, this, underlyingDict.get<PDFDictionary>("Resources"));
 
-
-            //TODO probably want some kind of PDFList here
-            //in case we have a list containing indirect references
-            boundingBox = PDFReader.readRectangleFromArray(underlyingDict.get<List<object>>("MediaBox"));
+            boundingBox = underlyingDict.get<PDFList>("MediaBox").asRectangle();
         }
 
         public ObjectReference serialize(PDFWriter writer)
@@ -82,7 +79,7 @@ namespace FirePDF
             }
             else
             {
-                foreach (ObjectReference objectReference in contents as List<object>)
+                foreach (ObjectReference objectReference in (contents as PDFList).cast<ObjectReference>())
                 {
                     using (Stream stream = PDFReader.decompressStream(pdf, objectReference))
                     {

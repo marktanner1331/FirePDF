@@ -22,9 +22,9 @@ namespace FirePDF.Model
             this.pages = new List<object>();
             this.underlyingDict = underlyingDict;
 
-            foreach(ObjectReference objectReference in underlyingDict.get<List<object>>("Kids"))
+            PDFList kids = underlyingDict.get<PDFList>("Kids");
+            foreach (PDFDictionary kidsDict in kids.cast<PDFDictionary>())
             {
-                PDFDictionary kidsDict = PDFReader.readIndirectDictionary(pdf, objectReference);
                 switch(kidsDict.get<Name>("Type"))
                 {
                     case "Page":
@@ -97,7 +97,7 @@ namespace FirePDF.Model
                 }
             }
 
-            return pdfWriter.writeIndirectObjectUsingNextFreeNumber(underlyingDict);
+            return pdfWriter.writeIndirectObjectUsingNextFreeNumber(pdf, underlyingDict);
         }
 
         public int getNumPages()

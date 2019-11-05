@@ -33,14 +33,14 @@ namespace FirePDF.Model
                 List<int> index;
                 if (dict.ContainsKey("Index"))
                 {
-                    index = (dict.get<List<object>>("Index")).Cast<int>().ToList();
+                    index = dict.get<PDFList>("Index").cast<int>();
                 }
                 else
                 {
                     index = new List<int> { 0, size };
                 }
 
-                List<int> w = (dict.get<List<object>>("W")).Cast<int>().ToList();
+                List<int> w = dict.get<PDFList>("W").cast<int>().ToList();
 
                 List<Tuple<int, int>> sections = new List<Tuple<int, int>>();
                 for (int i = 0; i < index.Count; i += 2)

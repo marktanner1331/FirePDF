@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirePDF.Reading;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,13 +9,20 @@ namespace FirePDF.Model
 {
     public class ObjectReference
     {
-        public int objectNumber;
-        public int generation;
+        private PDF pdf;
+        public readonly int objectNumber;
+        public readonly int generation;
 
-        public ObjectReference(int objectNumber, int generation)
+        public ObjectReference(PDF pdf, int objectNumber, int generation)
         {
+            this.pdf = pdf;
             this.objectNumber = objectNumber;
             this.generation = generation;
+        }
+
+        public T get<T>()
+        {
+            return (T)PDFReader.readIndirectObject(pdf, this);
         }
 
         public override string ToString()

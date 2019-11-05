@@ -37,7 +37,7 @@ namespace FirePDF.Model
                 //if we get an object reference, and we don't want an object reference, then resolve it
                 if(value is ObjectReference && resolveReferences && typeof(T) != typeof(ObjectReference))
                 {
-                    value = PDFReader.readIndirectObject(pdf, value as ObjectReference);
+                    return (value as ObjectReference).get<T>();
                 }
 
                 return (T)value;

@@ -44,7 +44,7 @@ namespace FirePDF.Model
             this.startOfStream = startOfStream;
 
             this.resources = new PDFResources(pdf, this, underlyingDict.get<PDFDictionary>("Resources"));
-            this.boundingBox = PDFReader.readRectangleFromArray(underlyingDict.get<List<object>>("BBox"));
+            this.boundingBox = underlyingDict.get<PDFList>("BBox").asRectangle();
         }
 
         public ObjectReference serialize(PDFWriter writer)
