@@ -15,7 +15,7 @@ namespace FirePDF.Reading
     {
         public static Stream decompressStream(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
-            PDFDictionary dict = readIndirectDictionary(pdf, xrefRecord);
+            PDFDictionary dict = (PDFDictionary)readIndirectObject(pdf, xrefRecord);
             skipOverStreamHeader(pdf.stream);
 
             return decompressStream(pdf, pdf.stream, dict);
@@ -31,7 +31,7 @@ namespace FirePDF.Reading
 
         public static Stream decompressStream(PDF pdf, int objectNumber, int generation)
         {
-            PDFDictionary dict = readIndirectDictionary(pdf, objectNumber, generation);
+            PDFDictionary dict = (PDFDictionary)readIndirectObject(pdf, objectNumber, generation);
             skipOverStreamHeader(pdf.stream);
 
             return decompressStream(pdf, pdf.stream, dict);
@@ -113,6 +113,14 @@ namespace FirePDF.Reading
             return Regex.IsMatch(start, @"^\d+ \d+ obj");
         }
 
+        /// <summary>
+        /// Given a stream whose position is at the start of an indirect object.
+        /// This method will skip over the object header and update the streams position to be the first byte of the object.
+        /// For example, if the next set of bytes in the stream are:
+        ///     1 0 obj\r\n<<...>>
+        /// then this method will skip the '1 0 obj\r\n'
+        /// if the stream is not positioned at the start of an indirect object then this method will throw an exception
+        /// </summary>
         public static void skipOverObjectHeader(Stream stream)
         {
             int objectNumber = ASCIIReader.readASCIIInteger(stream);
@@ -136,16 +144,6 @@ namespace FirePDF.Reading
             skipOverWhiteSpace(stream);
         }
         
-        public static PDFDictionary readIndirectDictionary(PDF pdf, XREFTable.XREFRecord xrefRecord)
-        {
-            return (PDFDictionary)readIndirectObject(pdf, xrefRecord);
-        }
-
-        public static PDFDictionary readIndirectDictionary(PDF pdf, int objectNumber, int generation)
-        {
-            return (PDFDictionary)readIndirectObject(pdf, objectNumber, generation);
-        }
-
         /// <summary>
         /// reads an indirect object from the PDF
         /// </summary>
@@ -178,83 +176,95 @@ namespace FirePDF.Reading
             }
 
             PDFDictionary dict = (PDFDictionary)obj;
-            Name type = dict.ContainsKey("Type") ? dict.get<Name>("Type") : null;
-
-            if(type == null)
+            
+            if(dict.ContainsKey("Type") || dict.ContainsKey("Subtype"))
             {
-                if(dict.ContainsKey("Subtype"))
+                if(dict.ContainsKey("Type") == false)
                 {
-                    switch(dict.get<Name>("Subtype"))
+                    switch (dict.get<Name>("Subtype"))
                     {
                         case "Image":
                         case "Form":
-                            type = "XObject";
+                            dict.set("Type", "XObject");
                             break;
                         default:
                             throw new Exception($"unknown Subtype: " + dict.get<Name>("Subtype"));
                     }
                 }
+
+                Name type = dict.get<Name>("Type");
+
+                if (type == "ObjStm")
+                {
+                    skipOverStreamHeader(pdf.stream);
+                    long startOfStream = pdf.stream.Position;
+
+                    return new PDFObjectStream(pdf, dict, startOfStream);
+                }
+                else if (type == "XObject")
+                {
+                    skipOverStreamHeader(pdf.stream);
+                    long startOfStream = pdf.stream.Position;
+
+                    Name subType = dict.get<Name>("Subtype");
+
+                    switch (subType)
+                    {
+                        case "Form":
+                            return new XObjectForm(pdf, dict, startOfStream);
+                        case "Image":
+                            return new XObjectImage(pdf, dict, startOfStream);
+                        default:
+                            throw new Exception($"unknown Subtype: " + subType);
+                    }
+                }
+                else if (type == "Font")
+                {
+                    return Model.Font.loadExistingFontFromPDF(pdf, dict);
+                }
                 else
                 {
                     return dict;
                 }
-
             }
-            
-            if (type == "ObjStm")
+            else if(dict.ContainsKey("Length"))
             {
-                skipOverStreamHeader(pdf.stream);
-                long startOfStream = pdf.stream.Position;
-
-                return new PDFObjectStream(pdf, dict, startOfStream);
-            }
-            else if(type == "XObject")
-            {
-                skipOverStreamHeader(pdf.stream);
-                long startOfStream = pdf.stream.Position;
-                
-                Name subType = dict.get<Name>("Subtype");
-
-                switch(subType)
+                bool isStream = skipOverStreamHeader(pdf.stream);
+                if(isStream == false)
                 {
-                    case "Form":
-                        return new XObjectForm(pdf, dict, startOfStream);
-                    case "Image":
-                        return new XObjectImage(pdf, dict, startOfStream);
-                    default:
-                        throw new Exception($"unknown Subtype: " + subType);
+                    return dict;
+                }
+                else
+                {
+                    return new PDFStream(pdf, dict, pdf.stream.Position);
                 }
             }
-            else if(type == "Font")
-            {
-                return Model.Font.loadExistingFontFromPDF(pdf, dict);
-            }
-            else
-            {
-                return dict;
-            }
+
+            return dict;
         }
 
         /// <summary>
         /// skips over the 'stream keyword and any whitespace surrounding it
+        /// returns false if no stream keyword was found
         /// </summary>
-        public static void skipOverStreamHeader(Stream stream)
+        public static bool skipOverStreamHeader(Stream stream)
         {
             skipOverWhiteSpace(stream);
 
             string chunk = ASCIIReader.readASCIIString(stream, 6);
             if (chunk != "stream")
             {
-                throw new Exception("not at start of stream");
+                return false;
             }
 
             skipOverWhiteSpace(stream);
+            return true;
         }
 
         private static object readCompressedObject(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
             PDFObjectStream objectStream = (PDFObjectStream)readIndirectObject(pdf, xrefRecord.compressedObjectNumber, 0);
-            return objectStream.readObject(pdf, xrefRecord.objectNumber);
+            return objectStream.readObject(xrefRecord.objectNumber);
         }
 
         /// <summary>

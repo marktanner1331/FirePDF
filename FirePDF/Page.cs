@@ -65,27 +65,28 @@ namespace FirePDF
         {
             MemoryStream compositeStream = new MemoryStream();
 
-            object contents = underlyingDict.get<object>("Contents", false);
+            object contents = underlyingDict.get<object>("Contents", true);
             
-            //TODO this better
-            //some kind of StreamObject
-            //that PDFReader.readObject() returns, that we can get the stream from
-            if(contents is ObjectReference)
+            if(contents is PDFStream)
             {
-                using (Stream stream = PDFReader.decompressStream(pdf, contents as ObjectReference))
+                using (Stream stream = (contents as PDFStream).getRawStream())
                 {
                     stream.CopyTo(compositeStream);
                 }
             }
-            else
+            else if(contents is PDFList)
             {
-                foreach (ObjectReference objectReference in (contents as PDFList).cast<ObjectReference>())
+                foreach (PDFStream pdfStream in (contents as PDFList).cast<PDFStream>())
                 {
-                    using (Stream stream = PDFReader.decompressStream(pdf, objectReference))
+                    using (Stream stream = pdfStream.getRawStream())
                     {
                         stream.CopyTo(compositeStream);
                     }
                 }
+            }
+            else
+            {
+                throw new Exception();
             }
 
             compositeStream.Position = 0;

@@ -10,28 +10,14 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class XObjectImage
+    public class XObjectImage : PDFStream
     {
-        private PDF pdf;
-        public PDFDictionary underlyingDict { get; private set; }
-        public long startOfStream;
-
-        public XObjectImage(PDF pdf)
-        {
-            this.pdf = pdf;
-
-            //need to initialize a new underlyingDict and stream
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// initializing an xobject image with the owning pdf, its dictionary, and the offset to the start of the stream relative to the start of the pdf
         /// </summary>
-        public XObjectImage(PDF pdf, PDFDictionary dict, long startOfStream)
+        public XObjectImage(PDF pdf, PDFDictionary dict, long startOfStream) : base(pdf, dict, startOfStream)
         {
-            this.pdf = pdf;
-            this.underlyingDict = dict;
-            this.startOfStream = startOfStream;
+            
         }
 
         public Bitmap getImage()
@@ -48,10 +34,5 @@ namespace FirePDF.Model
             return image;
         }
 
-        public Stream getRawStream()
-        {
-            pdf.stream.Position = startOfStream;
-            return PDFReader.decompressStream(pdf, pdf.stream, underlyingDict);
-        }
     }
 }

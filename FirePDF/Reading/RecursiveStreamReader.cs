@@ -18,8 +18,11 @@ namespace FirePDF.Reading
         private Stack<IStreamOwner> streamStack;
         private Stream currentStream;
 
-        //TODO rename this
-        public IStreamOwner page;
+        //hint: this will be the same streamOwner found at the bottom of the stream stack
+        //we cache it here for efficiency
+        private IStreamOwner rootStream;
+
+        public RectangleF boundingBox => rootStream?.boundingBox ?? RectangleF.Empty;
 
         public RecursiveStreamReader(IStreamProcessor streamProcessor)
         {
@@ -28,11 +31,11 @@ namespace FirePDF.Reading
 
         public PDFResources resources => resourcesStack.Peek();
         
-        public PDF pdf => page.pdf;
+        public PDF pdf => rootStream.pdf;
         
-        public void readStreamRecursively(IStreamOwner page)
+        public void readStreamRecursively(IStreamOwner stream)
         {
-            this.page = page;
+            this.rootStream = stream;
 
             resourcesStack = new Stack<PDFResources>();
             streamStack = new Stack<IStreamOwner>();
@@ -42,7 +45,7 @@ namespace FirePDF.Reading
             resourcesStack.Push(new PDFResources());
 
             streamProcessor.willStartReadingPage(this);
-            processStream(page);
+            processStream(stream);
             streamProcessor.willFinishReadingPage();
         }
 
@@ -65,7 +68,7 @@ namespace FirePDF.Reading
             Stream oldStream = currentStream;
             currentStream = stream.getStream();
 
-            List<Operation> operations = ContentStreamReader.readOperationsFromStream(page.pdf, currentStream);
+            List<Operation> operations = ContentStreamReader.readOperationsFromStream(pdf, currentStream);
             foreach(Operation operation in operations)
             {
                 if(operation.operatorName == "Do" && resources.isXObjectForm((Name)operation.operands[0]))

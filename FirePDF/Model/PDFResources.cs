@@ -205,7 +205,7 @@ namespace FirePDF.Model
 
         public void setObjectAtPath(ObjectReference objectReference, string[] path)
         {
-            //TODO replace most of this with getObjectAtPAth(path.take(-1))
+            //TODO replace most of this with getObjectAtPath(path.take(-1))
             object root = underlyingDict;
             for (int i = 0; i < path.Length - 1; i++)
             {

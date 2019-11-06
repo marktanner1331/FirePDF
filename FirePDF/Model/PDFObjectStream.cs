@@ -64,7 +64,7 @@ namespace FirePDF.Model
             return pairs;
         }
 
-        public object readObject(PDF pdf, int objectNumber)
+        public object readObject(int objectNumber)
         {
             pdf.stream.Position = startOfStream;
             using (Stream stream = PDFReader.decompressStream(pdf, pdf.stream, streamDict))

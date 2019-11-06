@@ -12,37 +12,22 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class XObjectForm : IStreamOwner
+    public class XObjectForm : PDFStream, IStreamOwner
     {
-        public PDF pdf { get; private set; }
-        public PDFDictionary underlyingDict;
-
-        public long startOfStream;
-        private Stream stream;
+        public PDF pdf => base.pdf;
+        //private Stream stream;
 
         public PDFResources resources { get; private set; }
         public RectangleF boundingBox { get; private set; }
 
-        private bool isStreamDirty = false;
-        public bool isDirty => isStreamDirty || resources.isDirty;
-
-        public XObjectForm(PDF pdf)
-        {
-            this.pdf = pdf;
-
-            //need to initialize a new underlyingDict and stream
-            throw new NotImplementedException();
-        }
-
+        //private bool isStreamDirty = false;
+        //public bool isDirty => isStreamDirty || resources.isDirty;
+        
         /// <summary>
         /// initializing a form xobject with the owning pdf, its dictionary, and the offset to the start of the stream relative to the start of the pdf
         /// </summary>
-        public XObjectForm(PDF pdf, PDFDictionary dict, long startOfStream)
+        public XObjectForm(PDF pdf, PDFDictionary dict, long startOfStream) : base(pdf, dict, startOfStream)
         {
-            this.pdf = pdf;
-            this.underlyingDict = dict;
-            this.startOfStream = startOfStream;
-
             this.resources = new PDFResources(pdf, this, underlyingDict.get<PDFDictionary>("Resources"));
             this.boundingBox = underlyingDict.get<PDFList>("BBox").asRectangle();
         }
@@ -94,10 +79,6 @@ namespace FirePDF.Model
             //isStreamDirty = true;
         }
 
-        public Stream getStream()
-        {
-            pdf.stream.Position = startOfStream;
-            return PDFReader.decompressStream(pdf, pdf.stream, underlyingDict);
-        }
+        public Stream getStream() => getRawStream();
     }
 }

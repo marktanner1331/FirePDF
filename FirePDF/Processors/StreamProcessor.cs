@@ -55,14 +55,14 @@ namespace FirePDF.Processors
         {
             streamReader = parser;
             
-            gsp = new GraphicsStateProcessor(() => parser.resources, parser.page.boundingBox);
+            gsp = new GraphicsStateProcessor(() => parser.resources, parser.boundingBox);
             lp = new LineProcessor();
             pp = new PaintingProcessor(renderer, lp);
             cp = new ClippingProcessor(gsp.getCurrentState, lp);
             ip = new ImageProcessor(() => parser.resources, renderer);
             tp = new TextProcessor(gsp.getCurrentState, () => parser.resources, renderer);
 
-            renderer.willStartRenderingPage(parser.page.boundingBox, gsp.getCurrentState);
+            renderer.willStartRenderingPage(parser.boundingBox, gsp.getCurrentState);
         }
     }
 }

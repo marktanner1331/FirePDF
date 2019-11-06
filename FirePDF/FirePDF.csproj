@@ -50,6 +50,7 @@
     <Compile Include="Model\Name.cs" />
     <Compile Include="Model\PDFDictionary.cs" />
     <Compile Include="Model\PDFList.cs" />
+    <Compile Include="Model\PDFStream.cs" />
     <Compile Include="Model\SoftMask.cs" />
     <Compile Include="Model\TextRenderingMode.cs" />
     <Compile Include="Model\Type0Font.cs" />
