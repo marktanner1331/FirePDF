@@ -652,6 +652,7 @@ namespace FirePDF.Reading
             {
                 switch (stream.ReadByte())
                 {
+                    case 0x09:
                     case ' ':
                     case '\r':
                     case '\n':

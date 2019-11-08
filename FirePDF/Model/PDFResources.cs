@@ -78,6 +78,11 @@ namespace FirePDF.Model
             return xObject is XObjectImage;
         }
 
+        internal Font getFont(Name name)
+        {
+            return (Font)getObjectAtPath("Font", name);
+        }
+
         public bool isXObjectForm(string xObjectName)
         {
             object xObject = getObjectAtPath("XObject", xObjectName);

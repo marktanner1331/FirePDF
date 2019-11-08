@@ -10,6 +10,11 @@ namespace FirePDF.Util
 {
     public static class Logger
     {
+        public static void warning(string message)
+        {
+            Debug.WriteLine(message);
+        }
+
         public static void logOperationsWithLineNumbers(IEnumerable<Operation> operations)
         {
             int i = 0;

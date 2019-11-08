@@ -13,11 +13,22 @@ namespace FirePDF.Model
     public class XObjectImage : PDFStream
     {
         /// <summary>
+        /// the natural width of the image
+        /// </summary>
+        public readonly int width;
+
+        /// <summary>
+        /// the natural height of the image
+        /// </summary>
+        public readonly int height;
+
+        /// <summary>
         /// initializing an xobject image with the owning pdf, its dictionary, and the offset to the start of the stream relative to the start of the pdf
         /// </summary>
         public XObjectImage(PDF pdf, PDFDictionary dict, long startOfStream) : base(pdf, dict, startOfStream)
         {
-            
+            width = dict.get<int>("Width");
+            height = dict.get<int>("Height");
         }
 
         public Bitmap getImage()

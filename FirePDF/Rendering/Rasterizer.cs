@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -12,11 +13,10 @@ namespace FirePDF.Rendering
     public class Rasterizer : IRenderer
     {
         private Graphics graphics;
-        private RectangleF streamBounds;
 
-        public Rasterizer(Graphics graphicsContext)
+        public Rasterizer(Graphics graphics)
         {
-            graphics = graphicsContext;
+            this.graphics = graphics;
         }
 
         public override void willStartRenderingPage(RectangleF boundingBox, Func<Model.GraphicsState> getGraphicsState)
@@ -38,8 +38,8 @@ namespace FirePDF.Rendering
             Model.GraphicsState gs = getGraphicsState();
 
             graphics.Transform = new Matrix();
-            //graphics.SetClip(gs.clippingPath, CombineMode.Replace);
-
+            graphics.SetClip(gs.clippingPath, CombineMode.Replace);
+            
             graphics.Transform = gs.currentTransformationMatrix;
         }
 
@@ -79,6 +79,31 @@ namespace FirePDF.Rendering
 
             Pen p = new Pen(gs.strokingColor, gs.lineWidth);
             graphics.DrawPath(p, path);
+        }
+
+        public override void drawText(byte[] text)
+        {
+            refreshGraphicsState();
+
+            FirePDF.Model.GraphicsState gs = getGraphicsState();
+            Model.Font font = gs.font;
+            string s = font.readUnicodeStringFromHexString(text);
+
+            Matrix textRenderingMatrix = new Matrix(gs.fontSize * gs.horizontalScaling, 0, 0, gs.fontSize, 0, gs.textRise);
+            textRenderingMatrix.Multiply(gs.textMatrix, MatrixOrder.Append);
+            textRenderingMatrix.Multiply(gs.currentTransformationMatrix, MatrixOrder.Append);
+
+            graphics.Transform = textRenderingMatrix;
+
+            Matrix temp = graphics.Transform.Clone();
+
+            temp.Scale(1, -1);
+            temp.Translate(0, -1);
+
+            graphics.Transform = temp;
+
+            graphics.DrawString(s, new System.Drawing.Font(FontFamily.GenericSerif, 1), new SolidBrush(gs.nonStrokingColor), PointF.Empty);
+            graphics.Transform = getGraphicsState().currentTransformationMatrix;
         }
     }
 }

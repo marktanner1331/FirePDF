@@ -23,22 +23,27 @@ namespace FirePDF.Rendering
 
         public override void drawImage(XObjectImage image)
         {
-            logger.Invoke("drawImage()");
+            logger("drawImage()");
+        }
+
+        public override void drawText(byte[] text)
+        {
+            logger("drawText()");
         }
 
         public override void fillAndStrokePath(GraphicsPath path)
         {
-            logger.Invoke("fillAndStrokePath(path)");
+            logger("fillAndStrokePath()");
         }
 
         public override void fillPath(GraphicsPath path)
         {
-            logger.Invoke("fillPath(path)");
+            logger("fillPath()");
         }
 
         public override void strokePath(GraphicsPath path)
         {
-            logger.Invoke("strokePath(path)");
+            logger("strokePath()");
         }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    abstract class Font
+    public abstract class Font
     {
         private PDF pdf;
         private PDFDictionary dictionary;
@@ -24,19 +25,26 @@ namespace FirePDF.Model
             {
                 case "Type0":
                     return new Type0Font(pdf, dictionary);
+                case "CIDFontType0":
+                    return new CIDType0Font(pdf, dictionary);
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        public void getToUnicodeMap()
-        {
-            if(dictionary.ContainsKey("ToUnicode") == false)
-            {
-                return;
-            }
+        /// <summary>
+        /// converts a hex string to unicode
+        /// this is not always possible, and this method can return an empty string in that case
+        /// </summary>
+        public abstract string readUnicodeStringFromHexString(byte[] hexString);
 
+        public abstract FontDescriptor getFontDescriptor();
 
-        }
+        /// <summary>
+        /// returns the size of the text
+        /// including char spacing, word spacing, and scaling by the horizontal scaling, font size, text matrix
+        /// but not the current transformation matrix
+        /// </summary>
+        public abstract SizeF measureText(byte[] hexString, GraphicsState graphicsState);
     }
 }

@@ -32,5 +32,7 @@ namespace FirePDF.Rendering
         public abstract void strokePath(GraphicsPath path);
 
         public abstract void drawImage(XObjectImage image);
+
+        public abstract void drawText(byte[] text);
     }
 }

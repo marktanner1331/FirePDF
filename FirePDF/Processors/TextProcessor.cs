@@ -36,7 +36,6 @@ namespace FirePDF.Processors
                         GraphicsState g = getGraphicsState();
                         g.textMatrix = new Matrix();
                         g.textLineMatrix = new Matrix();
-                        g.textMatrix.Invert();
                         break;
                     }
                 case "ET":
@@ -61,10 +60,11 @@ namespace FirePDF.Processors
                         goto case "Td";
                     }
                 case "Tf":
+                    getGraphicsState().font = getResources().getFont(operation.getOperandAsName(0));
                     getGraphicsState().fontSize = operation.getOperandAsFloat(1);
                     break;
                 case "Tj":
-
+                    renderer.drawText(operation.operands[0] as byte[]);
                     break;
                 case "TJ":
 

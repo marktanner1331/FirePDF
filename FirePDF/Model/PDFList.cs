@@ -59,7 +59,7 @@ namespace FirePDF.Model
 
         public T get<T>(int index, bool resolveReferences = true)
         {
-            if (index >= inner.Count)
+            if (index < inner.Count)
             {
                 object value = inner[index];
 

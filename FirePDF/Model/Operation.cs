@@ -44,6 +44,11 @@ namespace FirePDF.Model
         {
             return (float)Convert.ToDouble(operands[index]);
         }
+        
+        public Name getOperandAsName(int index)
+        {
+            return (Name)operands[index];
+        }
 
         private string operandToString(object operand)
         {

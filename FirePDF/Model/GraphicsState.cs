@@ -29,6 +29,7 @@ namespace FirePDF.Model
         public Color strokingColor;
 
         public Region clippingPath;
+        public Font font;
 
         /// <summary>
         /// used internally for cloning
@@ -55,6 +56,8 @@ namespace FirePDF.Model
             nonStrokingColor = Color.Black;
             strokingColor = Color.Black;
             lineWidth = 1;
+
+            font = null;
         }
 
         public GraphicsState clone()
@@ -76,6 +79,7 @@ namespace FirePDF.Model
                 strokingColor = strokingColor,
                 clippingPath = clippingPath.Clone(),
                 lineWidth = lineWidth,
+                font = font,
             };
         }
 
