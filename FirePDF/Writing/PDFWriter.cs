@@ -55,42 +55,42 @@ namespace FirePDF.Writing
 
         public void updatePDF(PDF pdf)
         {
-            this.readTable = pdf.readableTable;
+            //this.readTable = pdf.readableTable;
 
-            //not modifying the existing readTable here makes more sense to me
-            //this is becuase the existing records have very valid pointers to existing objects
-            //don't want to screw with that unnecessarily
-            writeTable.clear();
+            ////not modifying the existing readTable here makes more sense to me
+            ////this is becuase the existing records have very valid pointers to existing objects
+            ////don't want to screw with that unnecessarily
+            //writeTable.clear();
 
-            ObjectReference root;
-            if (pdf.catalog.isDirty)
-            {
-                root = pdf.catalog.serialize(this);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            //ObjectReference root;
+            //if (pdf.catalog.isDirty)
+            //{
+            //    root = pdf.catalog.serialize(this);
+            //}
+            //else
+            //{
+            //    throw new NotImplementedException();
+            //}
 
-            long xrefOffset = stream.Position + bufferIndex;
-            writeTable.serialize(this);
+            //long xrefOffset = stream.Position + bufferIndex;
+            //writeTable.serialize(this);
 
-            Trailer trailer = new Trailer();
-            trailer.root = root;
+            //Trailer trailer = new Trailer();
+            //trailer.root = root;
 
-            if (pdf.offsetOfLastXRefTable != null)
-            {
-                trailer.prev = (int)pdf.offsetOfLastXRefTable;
-            }
-            trailer.serialize(this);
+            //if (pdf.offsetOfLastXRefTable != null)
+            //{
+            //    trailer.prev = (int)pdf.offsetOfLastXRefTable;
+            //}
+            //trailer.serialize(this);
 
-            writeASCII("startxref");
-            writeNewLine();
+            //writeASCII("startxref");
+            //writeNewLine();
 
-            writeASCII(xrefOffset);
-            writeNewLine();
+            //writeASCII(xrefOffset);
+            //writeNewLine();
 
-            writeASCII("%%EOF");
+            //writeASCII("%%EOF");
         }
 
         public ObjectReference writeIndirectObjectUsingNextFreeNumber(PDF pdf, object obj)

@@ -26,7 +26,7 @@ namespace FirePDF.Model
         /// <summary>
         /// initializing a form xobject with the owning pdf, its dictionary, and the offset to the start of the stream relative to the start of the pdf
         /// </summary>
-        public XObjectForm(PDF pdf, PDFDictionary dict, long startOfStream) : base(pdf, dict, startOfStream)
+        public XObjectForm(PDF pdf, Stream stream, PDFDictionary dict, long startOfStream) : base(pdf, stream, dict, startOfStream)
         {
             this.resources = new PDFResources(pdf, this, underlyingDict.get<PDFDictionary>("Resources"));
             this.boundingBox = underlyingDict.get<PDFList>("BBox").asRectangle();

@@ -145,13 +145,6 @@ namespace FirePDF.Model
 
                     root = temp.get<object>(index);
                 }
-
-                if (root is ObjectReference)
-                {
-                    //bad things
-                    throw new Exception();
-                    root = PDFReader.readIndirectObject(pdf, (ObjectReference)root);
-                }
             }
 
             cache[joinedPath] = root;

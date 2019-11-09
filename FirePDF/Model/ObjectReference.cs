@@ -22,7 +22,7 @@ namespace FirePDF.Model
 
         public T get<T>()
         {
-            return (T)PDFReader.readIndirectObject(pdf, this);
+            return (T)pdf.get<T>(this);
         }
 
         public override string ToString()

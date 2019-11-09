@@ -16,6 +16,7 @@ namespace FirePDF.Model
     {
         private long startOfStream;
         private PDF pdf;
+        private Stream stream;
         private PDFDictionary streamDict;
 
         private int n;
@@ -24,9 +25,10 @@ namespace FirePDF.Model
         /// <summary>
         /// initializes the PDFObjectStream with a specific pdf object
         /// </summary>
-        public PDFObjectStream(PDF pdf, PDFDictionary streamDict, long startOfStream)
+        public PDFObjectStream(PDF pdf, Stream stream, PDFDictionary streamDict, long startOfStream)
         {
             this.pdf = pdf;
+            this.stream = stream;
             this.streamDict = streamDict;
             this.startOfStream = startOfStream;
             
@@ -66,20 +68,20 @@ namespace FirePDF.Model
 
         public object readObject(int objectNumber)
         {
-            pdf.stream.Position = startOfStream;
-            using (Stream stream = PDFReader.decompressStream(pdf, pdf.stream, streamDict))
+            stream.Position = startOfStream;
+            using (Stream decompressedStream = PDFReader.decompressStream(pdf, stream, streamDict))
             {
-                BinaryReader reader = new BinaryReader(stream);
+                BinaryReader reader = new BinaryReader(decompressedStream);
                 
                 //key is the object number (object index)
                 //the value is the offset, relative to the 'first' variable
-                Dictionary<int, int> pairs = readHeader(stream);
+                Dictionary<int, int> pairs = readHeader(decompressedStream);
 
                 int offset = first + pairs[objectNumber];
 
-                stream.Position = offset;
+                decompressedStream.Position = offset;
 
-                return PDFReader.readObject(pdf, stream);
+                return PDFReader.readObject(pdf, decompressedStream);
             }
         }
     }

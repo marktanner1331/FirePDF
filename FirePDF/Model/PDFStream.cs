@@ -14,20 +14,22 @@ namespace FirePDF.Model
     public class PDFStream
     {
         protected readonly PDF pdf;
+        protected Stream stream;
         public readonly PDFDictionary underlyingDict;
         protected readonly long startOfStream;
 
-        public PDFStream(PDF pdf, PDFDictionary underlyingDictionary, long startOfStream)
+        public PDFStream(PDF pdf, Stream stream, PDFDictionary underlyingDictionary, long startOfStream)
         {
             this.pdf = pdf;
+            this.stream = stream;
             this.underlyingDict = underlyingDictionary;
             this.startOfStream = startOfStream;
         }
         
         public Stream getRawStream()
         {
-            pdf.stream.Position = startOfStream;
-            return PDFReader.decompressStream(pdf, pdf.stream, underlyingDict);
+            stream.Position = startOfStream;
+            return PDFReader.decompressStream(pdf, stream, underlyingDict);
         }
     }
 }

@@ -15,16 +15,16 @@ namespace FirePDF.Model
         /// <summary>
         /// assumes the current position of the stream is the first byte of the object header
         /// </summary>
-        public void fromStream(PDF pdf)
+        public void fromStream(PDF pdf, Stream stream)
         {
-            PDFReader.skipOverObjectHeader(pdf.stream);
+            PDFReader.skipOverObjectHeader(stream);
 
-            PDFDictionary dict = PDFReader.readDictionary(pdf, pdf.stream);
+            PDFDictionary dict = PDFReader.readDictionary(pdf, stream);
             trailer = new Trailer(dict);
 
-            PDFReader.skipOverStreamHeader(pdf.stream);
+            PDFReader.skipOverStreamHeader(stream);
             
-            using (Stream inner = PDFReader.decompressStream(pdf, pdf.stream, dict))
+            using (Stream inner = PDFReader.decompressStream(pdf, stream, dict))
             {
                 int size = dict.get<int>("Size");
 
