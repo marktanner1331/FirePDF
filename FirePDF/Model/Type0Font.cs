@@ -13,33 +13,51 @@ namespace FirePDF.Model
     //pdf spec 9.7
     class Type0Font : Font
     {
-        private CIDFont descendantFont;
-        private CMAP encoding;
-        private CMAP toUnicode;
-
-        public Type0Font(PDF pdf, PDFDictionary dictionary) : base(pdf, dictionary)
+        private CIDFont descendantFont
         {
-            descendantFont = (CIDFont)dictionary.get<PDFList>("DescendantFonts").get<Font>(0);
+            get => (CIDFont)underlyingDict.get<PDFList>("DescendantFonts").get<Font>(0);
+        }
 
-            object encodingObj = dictionary.get<object>("Encoding");
-            if (encodingObj is Name)
+        private Lazy<CMAP> _encoding;
+        private CMAP encoding => _encoding.Value;
+
+        private Lazy<CMAP> _toUnicode;
+        private CMAP toUnicode => _toUnicode.Value;
+
+        public Type0Font(PDFDictionary dictionary) : base(dictionary)
+        {
+            _encoding = new Lazy<CMAP>(() =>
+             {
+                 object encodingObj = underlyingDict.get<object>("Encoding");
+                 if (encodingObj is Name)
+                 {
+                     return CMAPReader.readNamedCMAP((Name)encodingObj);
+                 }
+                 else
+                 {
+                     throw new NotImplementedException();
+                 }
+             });
+
+            _toUnicode = new Lazy<CMAP>(() =>
             {
-                encoding = CMAPReader.readNamedCMAP((Name)encodingObj);
-            }
-
-            if (dictionary.ContainsKey("ToUnicode"))
-            {
-                PDFStream stream = dictionary.get<PDFStream>("ToUnicode");
-
-                if (stream.underlyingDict.ContainsKey("UseCMap"))
+                if (dictionary.ContainsKey("ToUnicode"))
                 {
-                    //in theory we just load the other cmap and merge it with this one
-                    throw new NotImplementedException();
+                    PDFStream stream = dictionary.get<PDFStream>("ToUnicode");
+
+                    if (stream.underlyingDict.ContainsKey("UseCMap"))
+                    {
+                        //in theory we just load the other cmap and merge it with this one
+                        throw new NotImplementedException();
+                    }
+
+                    return CMAPReader.readCMAP(stream.getDecompressedStream());
                 }
-
-                toUnicode = CMAPReader.readCMAP(stream.getRawStream());
-
-            }
+                else
+                {
+                    return null;
+                }
+            });
         }
 
         public override FontDescriptor getFontDescriptor()

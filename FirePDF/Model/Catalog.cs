@@ -10,23 +10,24 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class Catalog : IEnumerable<Page>
+    public class Catalog : IHaveUnderlyingDict, IEnumerable<Page>
     {
-        private PDF pdf;
-        private PDFDictionary underlyingDict;
         internal PageTreeNode pagesRoot;
-
-        public bool isDirty => pagesRoot.isDirty;
-
-        public Catalog(PDF pdf, PDFDictionary underlyingDict)
+        
+        public Catalog(PDFDictionary underlyingDict) : base(underlyingDict)
         {
-            this.pdf = pdf;
-            this.underlyingDict = underlyingDict;
-
-            PDFDictionary pagesDict = underlyingDict.get<PDFDictionary>("Pages");
-            pagesRoot = new PageTreeNode(pdf, pagesDict);
+            pagesRoot = underlyingDict.get<PageTreeNode>("Pages");
         }
 
+        public Catalog(PDF pdf) : base(new PDFDictionary(pdf))
+        {
+            pagesRoot = new PageTreeNode(pdf);
+
+            underlyingDict.set("Type", (Name)"Catalog");
+            //we really want a new object here, so we aren't going to check the cache to see if it already exists
+            underlyingDict.set("Pages", pdf.store.add(pagesRoot, false));
+        }
+        
         public int getNumPages()
         {
             return pagesRoot.getNumPages();
@@ -90,6 +91,11 @@ namespace FirePDF.Model
             return null;
             //underlyingDict["Pages"] = pagesRoot.serialize(pdfWriter);
             //return pdfWriter.writeIndirectObjectUsingNextFreeNumber(underlyingDict);
+        }
+
+        internal void insertPage(Page newPage, ObjectReference objRef, int oneBasedPageNumber)
+        {
+            pagesRoot.insertPage(newPage, objRef, oneBasedPageNumber);
         }
     }
 }

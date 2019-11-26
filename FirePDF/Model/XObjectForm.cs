@@ -26,9 +26,9 @@ namespace FirePDF.Model
         /// <summary>
         /// initializing a form xobject with the owning pdf, its dictionary, and the offset to the start of the stream relative to the start of the pdf
         /// </summary>
-        public XObjectForm(PDF pdf, Stream stream, PDFDictionary dict, long startOfStream) : base(pdf, stream, dict, startOfStream)
+        public XObjectForm(Stream stream, PDFDictionary dict, long startOfStream) : base(stream, dict, startOfStream)
         {
-            this.resources = new PDFResources(pdf, this, underlyingDict.get<PDFDictionary>("Resources"));
+            this.resources = new PDFResources(this, underlyingDict.get<PDFDictionary>("Resources"));
             this.boundingBox = underlyingDict.get<PDFList>("BBox").asRectangle();
         }
 
@@ -79,6 +79,6 @@ namespace FirePDF.Model
             //isStreamDirty = true;
         }
 
-        public Stream getStream() => getRawStream();
+        public Stream getStream() => getDecompressedStream();
     }
 }

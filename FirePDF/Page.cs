@@ -12,29 +12,33 @@ using FirePDF.Util;
 
 namespace FirePDF
 {
-    public class Page : IStreamOwner
+    public class Page : IHaveUnderlyingDict, IStreamOwner
     {
-        public PDF pdf { get; }
-        public PDFDictionary underlyingDict;
         public PDFResources resources { get; private set; }
         public RectangleF boundingBox { get; private set; }
 
         public bool isDirty => resources.isDirty;
-        
-        public Page(PDF pdf)
+        public bool isOrphan { get; internal set; }
+
+        PDF IStreamOwner.pdf => pdf;
+
+        public Page(PDF owner, Size pageSize) : base(new PDFDictionary(owner, new Dictionary<Name, object>()))
         {
-            this.pdf = pdf;
-            underlyingDict = getEmptyUnderlyingDict();
-            throw new NotImplementedException();
+            this.isOrphan = true;
+
+            this.resources = new PDFResources(this, new PDFDictionary(pdf));
+            this.underlyingDict.set("Resources", pdf.store.add(resources.underlyingDict, false));
+            
+            this.underlyingDict.set("Type", (Name)"Page");
+            this.underlyingDict.set("MediaBox", new PDFList(pdf, 0, 0, pageSize.Width, pageSize.Height));
         }
 
-        public Page(PDF pdf, PDFDictionary pageDictionary)
+        internal Page(PDFDictionary pageDictionary) : this(pageDictionary, false) { }
+
+        internal Page(PDFDictionary pageDictionary, bool isOrphan) : base(pageDictionary)
         {
-            this.pdf = pdf;
-            this.underlyingDict = pageDictionary;
-
-            this.resources = new PDFResources(pdf, this, underlyingDict.get<PDFDictionary>("Resources"));
-
+            this.resources = new PDFResources(this, underlyingDict.get<PDFDictionary>("Resources"));
+            this.isOrphan = isOrphan;
             boundingBox = underlyingDict.get<PDFList>("MediaBox").asRectangle();
         }
 
@@ -66,19 +70,19 @@ namespace FirePDF
             MemoryStream compositeStream = new MemoryStream();
 
             object contents = underlyingDict.get<object>("Contents", true);
-            
-            if(contents is PDFStream)
+
+            if (contents is PDFStream)
             {
-                using (Stream stream = (contents as PDFStream).getRawStream())
+                using (Stream stream = (contents as PDFStream).getDecompressedStream())
                 {
                     stream.CopyTo(compositeStream);
                 }
             }
-            else if(contents is PDFList)
+            else if (contents is PDFList)
             {
                 foreach (PDFStream pdfStream in (contents as PDFList).cast<PDFStream>())
                 {
-                    using (Stream stream = pdfStream.getRawStream())
+                    using (Stream stream = pdfStream.getDecompressedStream())
                     {
                         stream.CopyTo(compositeStream);
                     }
@@ -91,18 +95,6 @@ namespace FirePDF
 
             compositeStream.Position = 0;
             return compositeStream;
-        }
-
-        private PDFDictionary getEmptyUnderlyingDict()
-        {
-            throw new Exception("not done yet");
-
-            //TODO finish getEmptyUnderlyingDict()
-            //and do the same with other underlying dicts?
-            //return new Dictionary<Name, object>
-            //{
-            //    { "Contents", new List<ObjectReference>() }
-            //};
         }
     }
 }

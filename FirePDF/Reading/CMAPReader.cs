@@ -63,7 +63,6 @@ namespace FirePDF.Reading
                     case TokenType.Operator:
                         switch ((string)token)
                         {
-
                             case "beginbfchar":
                                 readBeginBFChar((int)previousToken, stream, cmap);
                                 break;

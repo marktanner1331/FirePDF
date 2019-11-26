@@ -2,7 +2,7 @@
 {
     public abstract class CIDFont : Font
     {
-        public CIDFont(PDF pdf, PDFDictionary dictionary) : base(pdf, dictionary)
+        public CIDFont(PDFDictionary dictionary) : base(dictionary)
         {
 
         }

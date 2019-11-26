@@ -11,25 +11,70 @@ namespace FirePDF.Model
     /// <summary>
     /// represents any pdf object that includes a stream, including forms and images
     /// </summary>
-    public class PDFStream
+    public class PDFStream : IHaveUnderlyingDict
     {
-        protected readonly PDF pdf;
         protected Stream stream;
-        public readonly PDFDictionary underlyingDict;
         protected readonly long startOfStream;
 
-        public PDFStream(PDF pdf, Stream stream, PDFDictionary underlyingDictionary, long startOfStream)
+        public PDFStream(Stream stream, PDFDictionary underlyingDictionary, long startOfStream) : base(underlyingDictionary)
         {
-            this.pdf = pdf;
             this.stream = stream;
-            this.underlyingDict = underlyingDictionary;
             this.startOfStream = startOfStream;
         }
+
+        public Stream getCompressedStream()
+        {
+            if(isDirtyShallow())
+            {
+                throw new NotImplementedException();
+            }
+
+            Stream newStream = new ProxyStream(stream, startOfStream, underlyingDict.get<int>("Length"));
+            newStream.Position = 0;
+            return newStream;
+        }
         
-        public Stream getRawStream()
+        public Stream getDecompressedStream()
         {
             stream.Position = startOfStream;
             return PDFReader.decompressStream(pdf, stream, underlyingDict);
+        }
+
+        public static PDFStream fromDictionary(PDFDictionary dict, Stream stream, long startOfStream)
+        {
+            if(dict.ContainsKey("Type") == false)
+            {
+                return new PDFStream(stream, dict, startOfStream);
+            }
+
+            switch (dict.get<Name>("Type"))
+            {
+                case "ObjStm":
+                    return new PDFObjectStream(stream, dict, startOfStream);
+                case "XObject":
+                    switch (dict.get<Name>("Subtype"))
+                    {
+                        case "Form":
+                            return new XObjectForm(stream, dict, startOfStream);
+                        case "Image":
+                            return new XObjectImage(stream, dict, startOfStream);
+                        default:
+                            throw new NotImplementedException();
+                    }
+                case "Font":
+                    switch (dict.get<Name>("Subtype"))
+                    {
+                        case "CIDFontType0C":
+                            return new PDFStream(stream, dict, startOfStream);
+                        default:
+                            throw new NotImplementedException();
+                    }
+                case "Metadata":
+                    return new PDFMetaData(stream, dict, startOfStream);
+                default:
+                    throw new NotImplementedException();
+            }
+            
         }
     }
 }

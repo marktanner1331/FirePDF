@@ -50,7 +50,7 @@ namespace FirePDF.Writing.Tests
                     XObjectForm form = page.resources.getXObjectForm(formName);
 
                     page.resources.overwriteXObject(form, formName);
-                    writer.updatePDF(pdf);
+                    writer.writeUpdatedPDF(pdf);
                 }
                 
                 ms.Position = 0;

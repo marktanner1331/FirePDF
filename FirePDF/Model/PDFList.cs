@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -7,15 +8,24 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class PDFList
+    public class PDFList : IHavePDF, ICanBeDirty, IHaveChildren, IEnumerable<object>
     {
         private List<object> inner;
-        private readonly PDF pdf;
+        private bool _isDirty = false;
 
-        public PDFList(PDF pdf)
+        public PDFList(PDF pdf) : base(pdf)
         {
-            this.pdf = pdf;
             inner = new List<object>();
+        }
+
+        public PDFList(PDF pdf, List<object> inner) : base(pdf)
+        {
+            this.inner = inner;
+        }
+
+        public PDFList(PDF pdf, params object[] values) : base(pdf)
+        {
+            inner = new List<object>(values);
         }
 
         public RectangleF asRectangle()
@@ -36,6 +46,10 @@ namespace FirePDF.Model
 
         public void add(object value) => inner.Add(value);
         public int count => inner.Count;
+        
+        public bool isDirtyShallow() => _isDirty || inner.Where(x => x is ICanBeDirty).Any(x => ((ICanBeDirty)x).isDirtyShallow());
+
+        public bool isDirtyRecursive() => _isDirty || inner.Where(x => x is ICanBeDirty).Any(x => ((ICanBeDirty)x).isDirtyRecursive());
 
         public List<T> cast<T>(bool resolveReferences = true)
         {
@@ -79,6 +93,44 @@ namespace FirePDF.Model
             }
         }
 
-        public void set(int index, ObjectReference objectReference) => inner[index] = objectReference;
+        public void set(int index, ObjectReference objectReference)
+        {
+            inner[index] = objectReference;
+            _isDirty = true;
+        }
+
+        public void insert(int i, ObjectReference objRef)
+        {
+            inner.Insert(i, objRef);
+            _isDirty = true;
+        }
+
+        public void add(ObjectReference objRef)
+        {
+            inner.Add(objRef);
+            _isDirty = true;
+        }
+
+        public IEnumerator<object> GetEnumerator() => inner.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => inner.GetEnumerator();
+
+        public IEnumerable<ObjectReference> GetObjectReferences()
+        {
+            foreach (object value in inner)
+            {
+                if (value is ObjectReference)
+                {
+                    yield return value as ObjectReference;
+                }
+                else if (value is IHaveChildren)
+                {
+                    foreach (ObjectReference subValue in (value as IHaveChildren).GetObjectReferences())
+                    {
+                        yield return subValue;
+                    }
+                }
+            }
+        }
     }
 }

@@ -7,26 +7,27 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public abstract class Font
+    public abstract class Font :IHaveUnderlyingDict
     {
-        private PDF pdf;
-        private PDFDictionary dictionary;
-
-        protected Font(PDF pdf, PDFDictionary dictionary)
+        protected Font(PDFDictionary dictionary) : base(dictionary)
         {
-            this.pdf = pdf;
-            this.dictionary = dictionary;
         }
 
-        public static Font loadExistingFontFromPDF(PDF pdf, PDFDictionary dictionary)
+        public static Font loadExistingFontFromPDF(PDFDictionary dictionary)
         {
             Name subType = dictionary.get<Name>("Subtype");
             switch(subType)
             {
                 case "Type0":
-                    return new Type0Font(pdf, dictionary);
+                    return new Type0Font(dictionary);
+                case "Type1":
+                    return new Type1Font(dictionary);
                 case "CIDFontType0":
-                    return new CIDType0Font(pdf, dictionary);
+                    return new CIDType0Font(dictionary);
+                case "CIDFontType2":
+                    return new CIDFontType2(dictionary);
+                case "TrueType":
+                    return new TrueTypeFont(dictionary);
                 default:
                     throw new NotImplementedException();
             }

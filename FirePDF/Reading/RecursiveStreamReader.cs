@@ -40,9 +40,9 @@ namespace FirePDF.Reading
             resourcesStack = new Stack<PDFResources>();
             streamStack = new Stack<IStreamOwner>();
 
-            //we always need resources, so initializing the stack with an empty resourcse object
+            //we always need resources, so initializing the stack with an empty resources object
             //will ensure that everything is ok, even if its never used
-            resourcesStack.Push(new PDFResources());
+            resourcesStack.Push(new PDFResources(rootStream, new PDFDictionary(pdf, new Dictionary<Name, object>())));
 
             streamProcessor.willStartReadingPage(this);
             processStream(stream);

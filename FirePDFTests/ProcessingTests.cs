@@ -31,17 +31,17 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<string> forms = page.resources.listXObjectForms().ToList();
+            List<Name> forms = page.resources.listXObjectForms().ToList();
             XObjectForm form = page.resources.getXObjectForm(forms.First());
 
             Stream s = form.getStream();
-            //List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
+            List<Operation> operations = ContentStreamReader.readOperationsFromStream(pdf, s);
 
-            //GraphicsStateProcessor gsp = new GraphicsStateProcessor(form);
-            //foreach(Operation operation in operations)
-            //{
-            //    gsp.processOperation(operation);
-            //}
+            GraphicsStateProcessor gsp = new GraphicsStateProcessor(() => form.resources, form.boundingBox);
+            foreach (Operation operation in operations)
+            {
+                gsp.processOperation(operation);
+            }
         }
 
         [TestMethod()]
@@ -52,17 +52,11 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<string> forms = page.resources.listXObjectForms().ToList();
+            List<Name> forms = page.resources.listXObjectForms().ToList();
             XObjectForm form = page.resources.getXObjectForm(forms.First());
 
             Stream s = form.getStream();
-            //List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
-            
-            //StringBuilder sb = new StringBuilder();
-            //LoggingRenderer renderer = new LoggingRenderer(x => sb.AppendLine(x));
-
-            //StreamProcessor sp = new StreamProcessor(renderer);
-            //sp.render(form, operations);
+            List<Operation> operations = ContentStreamReader.readOperationsFromStream(pdf, s);
         }
 
         [TestMethod()]
@@ -73,16 +67,10 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<string> forms = page.resources.listXObjectForms().ToList();
+            List<Name> forms = page.resources.listXObjectForms().ToList();
             XObjectForm form = page.resources.getXObjectForm(forms.First());
 
             Stream s = form.getStream();
-            //List<Operation> operations = ContentStreamReader.readOperationsFromStream(s);
-            
-            //StringBuilder sb = new StringBuilder();
-            //LoggingRenderer renderer = new LoggingRenderer(x => sb.AppendLine(x));
-            //StreamProcessor sp = new StreamProcessor(renderer);
-            //sp.render(form, operations);
         }
 
         [TestMethod()]
@@ -93,7 +81,7 @@ namespace FirePDF.Tests
 
             Page page = pdf.getPage(1);
 
-            List<string> forms = page.resources.listXObjectForms().ToList();
+            List<Name> forms = page.resources.listXObjectForms().ToList();
             XObjectForm form = page.resources.getXObjectForm(forms.First());
 
             Stream s = form.getStream();

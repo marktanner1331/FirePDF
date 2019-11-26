@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class FontDescriptor
+    public class FontDescriptor : IHaveUnderlyingDict
     {
         public readonly RectangleF bbox;
 
-        public FontDescriptor(PDFDictionary dictionary)
+        public FontDescriptor(PDFDictionary dictionary) : base(dictionary)
         {
             bbox = dictionary.get<PDFList>("FontBBox").asRectangle();
         }

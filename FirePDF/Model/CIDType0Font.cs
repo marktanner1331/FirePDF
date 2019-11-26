@@ -7,20 +7,30 @@ namespace FirePDF.Model
     //pdf spec 9.7.4
     public class CIDType0Font : CIDFont
     {
-        private int defaultWidth = 1000;
-        private Dictionary<int, int> widths = new Dictionary<int, int>();
-        private FontDescriptor fontDescriptor;
-
-        public CIDType0Font(PDF pdf, PDFDictionary dictionary) : base(pdf, dictionary)
+        private int defaultWidth
         {
-            if (dictionary.ContainsKey("DW"))
-            {
-                defaultWidth = dictionary.get<int>("DW");
-            }
+            get => underlyingDict.get<int?>("DW") ?? 1000;
+            set => underlyingDict.set("DW", value);
+        }
 
-            if (dictionary.ContainsKey("W"))
+        private Lazy<Dictionary<int, int>> widths;
+
+        private FontDescriptor fontDescriptor
+        {
+            get => underlyingDict.get<FontDescriptor>("FontDescriptor");
+        }
+
+        public CIDType0Font(PDFDictionary dictionary) : base(dictionary)
+        {
+            widths = new Lazy<Dictionary<int, int>>(parseWidths);
+        }
+
+        private Dictionary<int, int> parseWidths()
+        {
+            if (underlyingDict.ContainsKey("W"))
             {
-                PDFList w = dictionary.get<PDFList>("W");
+                PDFList w = underlyingDict.get<PDFList>("W");
+                Dictionary<int, int> widths = new Dictionary<int, int>();
 
                 int counter = 0;
                 while (counter < w.count)
@@ -48,24 +58,28 @@ namespace FirePDF.Model
                         }
                     }
                 }
-            }
 
-            fontDescriptor = new FontDescriptor(dictionary.get<PDFDictionary>("FontDescriptor"));
+                return widths;
+            }
+            else
+            {
+                return new Dictionary<int, int>();
+            }
         }
 
         public override FontDescriptor getFontDescriptor()
         {
             return fontDescriptor;
         }
-        
+
         /// <summary>
         /// returns the intended width of the cid expressed in user space (before scaling by the text rendering matrix)
         /// </summary>
         public override float getWidthForCID(int cid)
         {
-            if(widths.ContainsKey(cid))
+            if (widths.Value.ContainsKey(cid))
             {
-                return widths[cid] / 1000f;
+                return widths.Value[cid] / 1000f;
             }
             else
             {

@@ -16,7 +16,7 @@ namespace FirePDF.Model
         private readonly int maskWidth;
         private readonly int maskHeight;
 
-        public SoftMask(XObjectImage image) : this(image.getRawStream(), image.underlyingDict)
+        public SoftMask(XObjectImage image) : this(image.getDecompressedStream(), image.underlyingDict)
         {
         }
 

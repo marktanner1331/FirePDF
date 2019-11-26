@@ -62,7 +62,14 @@ namespace FirePDF.Model
             //also might not need the select as the keys should still be well-ordered
             //as the object numbers form the most significant bits
 
-            return usedRecords.Values.Select(x => x.objectNumber).Max() + 1;
+            if(usedRecords.Count == 0)
+            {
+                return 1;
+            }
+            else
+            {
+                return usedRecords.Values.Select(x => x.objectNumber).Max() + 1;
+            }
         }
 
         public void clear()
@@ -115,6 +122,11 @@ namespace FirePDF.Model
             serializeSubSection(pdfWriter, subRecords);
         }
 
+        public bool hasXREFRecord(ObjectReference indirectReference)
+        {
+            return usedRecords.ContainsKey(indirectReference.GetHashCode());
+        }
+
         private void serializeSubSection(PDFWriter pdfWriter, List<XREFRecord> records)
         {
             pdfWriter.writeASCII(records.First().objectNumber + " " + records.Count);
@@ -134,15 +146,22 @@ namespace FirePDF.Model
             objectNumber = (int)(hash & 0xffffffff);
         }
 
-        public XREFRecord getXREFRecord(ObjectReference indirectReference)
+        public XREFRecord? getXREFRecord(ObjectReference indirectReference)
         {
             return getXREFRecord(indirectReference.objectNumber, indirectReference.generation);
         }
 
-        public XREFRecord getXREFRecord(int objectNumber, int generation)
+        public XREFRecord? getXREFRecord(int objectNumber, int generation)
         {
             long hash = ((objectNumber & 0xffffffff) << 16) + (generation & 0xffff);
-            return usedRecords[hash];
+            if(usedRecords.ContainsKey(hash))
+            {
+                return usedRecords[hash];
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>

@@ -7,91 +7,49 @@ using System.Linq;
 
 namespace FirePDF.Model
 {
-    public class Trailer
+    public class Trailer : IHaveUnderlyingDict
     {
-        public int? size;
-        public ObjectReference root;
-        public ObjectReference info;
-        public List<byte[]> id;
-        public int? prev;
+        public int? size
+        {
+            get => underlyingDict.get<int?>("Size");
+            set => underlyingDict.set("Size", value);
+        }
 
-        public Trailer()
+        public ObjectReference root
+        {
+            get => underlyingDict.get<ObjectReference>("Root");
+            set => underlyingDict.set("Root", value);
+        }
+
+        public int? prev
+        {
+            get => underlyingDict.get<int?>("Prev");
+            set => underlyingDict.set("Prev", value);
+        }
+        
+        public int? XRefStm
+        {
+            get => underlyingDict.get<int?>("XRefStm");
+            set => underlyingDict.set("XRefStm", value);
+        }
+
+        public Trailer(PDF pdf) : base(new PDFDictionary(pdf))
         {
 
         }
 
-        public Trailer(PDFDictionary underylingDict)
+        public Trailer(PDFDictionary underylingDict) : base(underylingDict)
         {
-            foreach (Name key in underylingDict.keys)
-            {
-                switch (key)
-                {
-                    case "Size":
-                        size = underylingDict.get<int>(key);
-                        break;
-                    case "Root":
-                        root = underylingDict.get<ObjectReference>(key);
-                        break;
-                    case "Info":
-                        info = underylingDict.get<ObjectReference>(key);
-                        break;
-                    case "ID":
-                        List<object> tempList = underylingDict.get<PDFList>(key).cast<object>();
-                        if (tempList.All(X => X is string))
-                        {
-                            id = tempList
-                                .Select(x => ((string)x)
-                                    .ToCharArray()
-                                    .Select(y => (byte)y)
-                                    .ToArray())
-                                .ToList();
-                        }
-                        else
-                        {
-                            id = tempList.Cast<byte[]>().ToList();
-                        }
-                        break;
-                    case "Prev":
-                        prev = underylingDict.get<int>(key);
-                        break;
-                }
-            }
+            
         }
 
         public void serialize(PDFWriter writer)
         {
-            throw new Exception("not saving yet");
-            //writer.writeASCII("trailer");
-            //writer.writeNewLine();
-
-            //PDFDictionary underylingDict = new PDFDictionary(pdf);
-            //if (size != null)
-            //{
-            //    underylingDict.set("Size"], size.Value);
-            //}
-
-            //if (root != null)
-            //{
-            //    underylingDict["Root"] = root;
-            //}
-
-            //if (info != null)
-            //{
-            //    underylingDict["Info"] = info;
-            //}
-
-            //if (id != null)
-            //{
-            //    throw new NotImplementedException();
-            //}
-
-            //if (prev != null)
-            //{
-            //    underylingDict["Prev"] = prev.Value;
-            //}
-
-            //writer.writeDirectObject(underylingDict);
-            //writer.writeNewLine();
+            writer.writeASCII("trailer");
+            writer.writeNewLine();
+            
+            writer.writeDirectObject(underlyingDict);
+            writer.writeNewLine();
         }
 
     }

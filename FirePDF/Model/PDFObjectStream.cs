@@ -12,34 +12,20 @@ namespace FirePDF.Model
     /// a class that wraps a pdf object stream and provides methods to access objects in its compressed stream
     /// 7.5.7
     /// </summary>
-    public class PDFObjectStream
+    //TODO can this derive from PDFStream?
+    public class PDFObjectStream : PDFStream
     {
-        private long startOfStream;
-        private PDF pdf;
-        private Stream stream;
-        private PDFDictionary streamDict;
-
         private int n;
         private int first;
 
         /// <summary>
         /// initializes the PDFObjectStream with a specific pdf object
         /// </summary>
-        public PDFObjectStream(PDF pdf, Stream stream, PDFDictionary streamDict, long startOfStream)
+        public PDFObjectStream(Stream stream, PDFDictionary streamDict, long startOfStream) : base(stream, streamDict, startOfStream)
         {
-            this.pdf = pdf;
-            this.stream = stream;
-            this.streamDict = streamDict;
-            this.startOfStream = startOfStream;
-            
             if(streamDict.get<Name>("Type") != "ObjStm")
             {
                 throw new Exception("Object is not an object stream");
-            }
-
-            if(streamDict.ContainsKey("Extends"))
-            {
-                throw new NotImplementedException();
             }
 
             n = streamDict.get<int>("N");
@@ -69,7 +55,7 @@ namespace FirePDF.Model
         public object readObject(int objectNumber)
         {
             stream.Position = startOfStream;
-            using (Stream decompressedStream = PDFReader.decompressStream(pdf, stream, streamDict))
+            using (Stream decompressedStream = PDFReader.decompressStream(pdf, stream, underlyingDict))
             {
                 BinaryReader reader = new BinaryReader(decompressedStream);
                 

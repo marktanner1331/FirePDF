@@ -8,29 +8,18 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class PDFResources
+    public class PDFResources : IHaveUnderlyingDict
     {
-        private readonly PDF pdf;
         private readonly IStreamOwner owner;
-        internal readonly PDFDictionary underlyingDict;
 
         private Dictionary<Name, object> cache;
 
         internal HashSet<string> dirtyObjects;
         internal bool isDirty => dirtyObjects.Count > 0;
-
-        public PDFResources()
+        
+        public PDFResources(IStreamOwner owner, PDFDictionary underlyingDict) : base(underlyingDict)
         {
-            this.pdf = null;
-            this.owner = null;
-            this.underlyingDict = new PDFDictionary(null);
-        }
-
-        public PDFResources(PDF pdf, IStreamOwner owner, PDFDictionary underlyingDict)
-        {
-            this.pdf = pdf;
             this.owner = owner;
-            this.underlyingDict = underlyingDict;
             
             this.cache = new Dictionary<Name, object>();
             this.dirtyObjects = new HashSet<string>();

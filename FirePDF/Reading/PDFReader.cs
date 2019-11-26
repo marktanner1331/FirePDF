@@ -20,7 +20,7 @@ namespace FirePDF.Reading
 
             return decompressStream(pdf, stream, dict);
         }
-        
+
         /// <summary>
         /// decompresses and returns a content stream at the current position
         /// </summary>
@@ -43,7 +43,7 @@ namespace FirePDF.Reading
                     {
                         MemoryStream decompressed = FlateStreamReader.decompressStream(pdf, stream, streamDictionary);
                         byte[] buffer = decompressed.ToArray();
-                        
+
                         return RawStreamReader.convertImageBufferToImage(buffer, streamDictionary);
                     }
                 case "DCTDecode":
@@ -55,7 +55,7 @@ namespace FirePDF.Reading
                     throw new NotImplementedException();
             }
         }
-        
+
         public static float readVersion(Stream stream)
         {
             string header = ASCIIReader.readASCIIString(stream, 16);
@@ -188,88 +188,64 @@ namespace FirePDF.Reading
                 {
                     xrefOffsets.Enqueue(trailer.prev.Value);
                 }
+
+                if(trailer.XRefStm.HasValue && readOffsets.Contains(trailer.XRefStm.Value) == false)
+                {
+                    xrefOffsets.Enqueue(trailer.XRefStm.Value);
+                }
             }
         }
 
         public static object readIndirectObject(PDF pdf, Stream stream, XREFTable.XREFRecord xrefRecord)
         {
+            object obj;
             if (xrefRecord.isCompressed)
             {
-                return readCompressedObject(pdf, xrefRecord);
+                obj = readCompressedObject(pdf, xrefRecord);
+            }
+            else
+            {
+                stream.Position = xrefRecord.offset;
+                skipOverObjectHeader(stream);
+
+                obj = readObject(pdf, stream);
             }
 
-            stream.Position = xrefRecord.offset;
-            skipOverObjectHeader(stream);
-
-            object obj = readObject(pdf, stream);
             if (obj is PDFDictionary == false)
             {
                 return obj;
             }
 
             PDFDictionary dict = (PDFDictionary)obj;
-            
-            if(dict.ContainsKey("Type") || dict.ContainsKey("Subtype"))
+
+            if (dict.ContainsKey("Subtype") && !dict.ContainsKey("Type"))
             {
-                if(dict.ContainsKey("Type") == false)
+                switch (dict.get<Name>("Subtype"))
                 {
-                    switch (dict.get<Name>("Subtype"))
-                    {
-                        case "Image":
-                        case "Form":
-                            dict.set("Type", "XObject");
-                            break;
-                        default:
-                            throw new Exception($"unknown Subtype: " + dict.get<Name>("Subtype"));
-                    }
-                }
-
-                Name type = dict.get<Name>("Type");
-
-                if (type == "ObjStm")
-                {
-                    skipOverStreamHeader(stream);
-                    long startOfStream = stream.Position;
-
-                    return new PDFObjectStream(pdf, stream, dict, startOfStream);
-                }
-                else if (type == "XObject")
-                {
-                    skipOverStreamHeader(stream);
-                    long startOfStream = stream.Position;
-
-                    Name subType = dict.get<Name>("Subtype");
-
-                    switch (subType)
-                    {
-                        case "Form":
-                            return new XObjectForm(pdf, stream, dict, startOfStream);
-                        case "Image":
-                            return new XObjectImage(pdf, stream, dict, startOfStream);
-                        default:
-                            throw new Exception($"unknown Subtype: " + subType);
-                    }
-                }
-                else if (type == "Font")
-                {
-                    return Model.Font.loadExistingFontFromPDF(pdf, dict);
-                }
-                else
-                {
-                    return dict;
+                    case "Image":
+                    case "Form":
+                        dict.setWithoutDirtying("Type", (Name)"XObject");
+                        break;
+                    case "CIDFontType0C":
+                        dict.setWithoutDirtying("Type", (Name)"Font");
+                        break;
+                    default:
+                        throw new Exception($"unknown Subtype: " + dict.get<Name>("Subtype"));
                 }
             }
-            else if(dict.ContainsKey("Length"))
+
+            if (dict.ContainsKey("Length"))
             {
                 bool isStream = skipOverStreamHeader(stream);
-                if(isStream == false)
+                if (isStream)
                 {
-                    return dict;
+                    return PDFStream.fromDictionary(dict, stream, stream.Position);
                 }
-                else
-                {
-                    return new PDFStream(pdf, stream, dict, stream.Position);
-                }
+            }
+
+            if (dict.ContainsKey("Type"))
+            {
+                return IHaveUnderlyingDict.fromDictionary(dict);
             }
 
             return dict;
@@ -295,7 +271,6 @@ namespace FirePDF.Reading
 
         private static object readCompressedObject(PDF pdf, XREFTable.XREFRecord xrefRecord)
         {
-
             PDFObjectStream objectStream = pdf.get<PDFObjectStream>(xrefRecord.compressedObjectNumber, 0);
             return objectStream.readObject(xrefRecord.objectNumber);
         }
@@ -305,7 +280,7 @@ namespace FirePDF.Reading
         /// </summary>
         public static PDFDictionary readDictionary(PDF pdf, Stream stream)
         {
-            PDFDictionary dict = new PDFDictionary(pdf);
+            Dictionary<Name, object> dict = new Dictionary<Name, object>();
 
             //skip over the <<
             stream.Position += 2;
@@ -318,7 +293,7 @@ namespace FirePDF.Reading
                 {
                     if (stream.ReadByte() == '>')
                     {
-                        return dict;
+                        return new PDFDictionary(pdf, dict);
                     }
                     else
                     {
@@ -333,7 +308,7 @@ namespace FirePDF.Reading
                 string key = readName(stream);
                 skipOverWhiteSpace(stream);
 
-                dict.set(key, readObject(pdf, stream));
+                dict.Add(key, readObject(pdf, stream));
                 skipOverWhiteSpace(stream);
             }
         }
@@ -355,9 +330,13 @@ namespace FirePDF.Reading
             {
                 return readArray(pdf, stream);
             }
-            else if (current == 't')
+            else if (current == 't' || current == 'f')
             {
                 return readBoolean(stream);
+            }
+            else if (current == 'n')
+            {
+                return readNull(stream);
             }
             else if (current == '<')
             {
@@ -390,11 +369,24 @@ namespace FirePDF.Reading
             }
             else
             {
+                string s = ASCIIReader.readASCIIString(stream, 10);
                 throw new Exception("unknown object");
             }
         }
 
-        private static object readBoolean(Stream stream)
+        private static object readNull(Stream stream)
+        {
+            string text = ASCIIReader.readASCIIString(stream, 4);
+            switch (text)
+            {
+                case "null":
+                    return null;
+                default:
+                    throw new Exception();
+            }
+        }
+
+        private static bool readBoolean(Stream stream)
         {
             string text = ASCIIReader.readASCIIString(stream, 4);
             switch (text)
@@ -543,7 +535,7 @@ namespace FirePDF.Reading
                 }
             }
         }
-
+        
         private static byte[] StringToByteArray(string hex)
         {
             return Enumerable.Range(0, hex.Length)
@@ -561,7 +553,7 @@ namespace FirePDF.Reading
             //skip over the [
             stream.Position++;
 
-            PDFList array = new PDFList(pdf);
+            List<object> list = new List<object>();
 
             while (true)
             {
@@ -569,14 +561,14 @@ namespace FirePDF.Reading
 
                 if (stream.ReadByte() == ']')
                 {
-                    return array;
+                    return new PDFList(pdf, list);
                 }
                 else
                 {
                     stream.Position--;
                 }
 
-                array.add(readObject(pdf, stream));
+                list.Add(readObject(pdf, stream));
             }
         }
 
@@ -670,6 +662,14 @@ namespace FirePDF.Reading
                 else if (current == '_' || current == '.' || current == '-' || current == '+')
                 {
                     sb.Append((char)current);
+                }
+                else if(current == '#')
+                {
+                    string code = "";
+                    code += (char)stream.ReadByte();
+                    code += (char)stream.ReadByte();
+
+                    sb.Append((char)Convert.ToByte(code, 16));
                 }
                 else
                 {

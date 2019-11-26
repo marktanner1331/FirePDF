@@ -8,22 +8,33 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class PDFDictionary
+    //TODO: merge some of these interfaces
+    public class PDFDictionary : IHavePDF, ICanBeDirty, IHaveChildren, IEnumerable<KeyValuePair<Name, object>>
     {
         private Dictionary<Name, object> inner;
-        private readonly PDF pdf;
+        private bool _isDirty = false;
 
-        public PDFDictionary(PDF pdf)
+        public PDFDictionary(PDF pdf, Dictionary<Name, object> inner) : base(pdf)
         {
-            this.pdf = pdf;
-            inner = new Dictionary<Name, object>();
+            this.inner = inner;
+        }
+
+        public PDFDictionary(PDF pdf) : base(pdf)
+        {
+            this.inner = new Dictionary<Name, object>();
         }
 
         public bool ContainsKey(string key) => inner.ContainsKey(key);
 
         public IEnumerable<Name> keys => inner.Keys;
-
+        
         public void set(Name key, object value)
+        {
+            inner[key] = value;
+            _isDirty = true;
+        }
+
+        internal void setWithoutDirtying(Name key, object value)
         {
             inner[key] = value;
         }
@@ -37,15 +48,41 @@ namespace FirePDF.Model
                 //if we get an object reference, and we don't want an object reference, then resolve it
                 if(value is ObjectReference && resolveReferences && typeof(T) != typeof(ObjectReference))
                 {
-                    return (value as ObjectReference).get<T>();
+                    return pdf.store.get<T>(value as ObjectReference);
                 }
 
                 return (T)value;
             }
             else
             {
-                throw new KeyNotFoundException();
+                return default(T);
             }
         }
+
+        public IEnumerator<KeyValuePair<Name, object>> GetEnumerator() => inner.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => inner.GetEnumerator();
+
+        public IEnumerable<ObjectReference> GetObjectReferences()
+        {
+            foreach(object value in inner.Values)
+            {
+                if (value is ObjectReference)
+                {
+                    yield return value as ObjectReference;
+                }
+                else if (value is IHaveChildren)
+                {
+                    foreach (ObjectReference subValue in (value as IHaveChildren).GetObjectReferences())
+                    {
+                        yield return subValue;
+                    }
+                }
+            }
+        }
+
+        public bool isDirtyShallow() => _isDirty || inner.Values.Where(x => x is ICanBeDirty).Any(x => ((ICanBeDirty)x).isDirtyShallow());
+
+        public bool isDirtyRecursive() => _isDirty || inner.Values.Where(x => x is ICanBeDirty).Any(x => ((ICanBeDirty)x).isDirtyRecursive());
     }
 }
