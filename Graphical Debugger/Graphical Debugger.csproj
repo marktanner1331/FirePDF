@@ -46,6 +46,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FilteredStreamProcessor.cs" />
+    <Compile Include="OperationListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="OperationTreeNode.cs" />
     <Compile Include="PDFRenderer.cs">
       <SubType>Component</SubType>
     </Compile>

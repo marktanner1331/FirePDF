@@ -16,25 +16,32 @@ namespace Graphical_Debugger
     class PDFRenderer : Control
     {
         private IStreamOwner streamOwner;
-        private IEnumerable<Operation> operations;
+        private List<bool> operationsMap;
 
         public PDFRenderer()
         {
             
         }
 
-        public void render(IStreamOwner streamOwner, IEnumerable<Operation> operations)
+        public void render(IStreamOwner streamOwner, List<bool> operationsMap)
         {
             this.streamOwner = streamOwner;
-            this.operations = operations;
+            this.operationsMap = operationsMap;
 
             Invalidate();
         }
 
         private void renderGraphics(Graphics graphics)
         {
+            graphics.Clear(Color.White);
+
+            if(streamOwner == null)
+            {
+                return;
+            }
+
             Rasterizer renderer = new Rasterizer(graphics);
-            StreamProcessor sp = new StreamProcessor(renderer);
+            StreamProcessor sp = new FilteredStreamProcessor(operationsMap, renderer);
             RecursiveStreamReader streamReader = new RecursiveStreamReader(sp);
 
             float xScale = ClientSize.Width / streamOwner.boundingBox.Width;
@@ -48,7 +55,7 @@ namespace Graphical_Debugger
             box.Height *= scale;
             graphics.FillRectangle(Brushes.White, box);
             renderer.dpi = (int)(72 * scale);
-
+            
             streamReader.readStreamRecursively(streamOwner);
         }
 

@@ -23,7 +23,7 @@ namespace Graphical_Debugger
         private SplitContainer splitter;
 
         private PDFRenderer pdfRenderer;
-        private ListBox listBox;
+        private OperationListBox listBox;
 
         private IStreamOwner owner;
         private List<Operation> operations;
@@ -39,34 +39,38 @@ namespace Graphical_Debugger
             splitter.Size = ClientSize;
             splitter.SplitterDistance = 200;
             Controls.Add(splitter);
-
-            string file = @"C:\Users\Mark Tanner\scratch\sarie page 1.pdf";
-            //string file = @"C:\Users\Mark Tanner\scratch\page 2.pdf";
-            PDF pdf = new PDF(file);
-
-            Page page = pdf.getPage(1);
-            
-            XObjectForm form = (XObjectForm)page.resources.getObjectAtPath("XObject", "Fm0");
-            owner = form;
-
-            Stream s = form.getStream();
-            operations = ContentStreamReader.readOperationsFromStream(pdf, s);
             
             pdfRenderer = new PDFRenderer();
-            pdfRenderer.render(form, operations.Take(0));
             splitter.Panel2.Controls.Add(pdfRenderer);
             pdfRenderer.Size = splitter.Panel2.ClientSize;
 
-            listBox = new ListBox();
+            listBox = new OperationListBox();
             splitter.Panel1.Controls.Add(listBox);
             splitter.SplitterMoved += Splitter_SplitterMoved;
+            listBox.onCheckChanged += ListBox_onCheckChanged;
             listBox.Size = splitter.Panel1.ClientSize;
-            listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
+            
+            loadPDF(@"C:\Users\Mark Tanner\Documents\c#\FirePDF\FirePDFTests\pdfs\page 24 fixed.pdf");
+        }
 
-            foreach(Operation operation in operations)
-            {
-                listBox.Items.Add(operation);
-            }
+        private void ListBox_onCheckChanged()
+        {
+            pdfRenderer.render(owner, listBox.getCheckedMap());
+        }
+
+        private void loadPDF(string fullPathToFile)
+        {
+            PDF pdf = new PDF(fullPathToFile);
+
+            Page page = pdf.getPage(1);
+            owner = page;
+            StreamCollector collector = new StreamCollector();
+            RecursiveStreamReader reader = new RecursiveStreamReader(collector);
+
+            reader.readStreamRecursively(page);
+            operations = collector.operations;
+            
+            listBox.setOperations(operations);
         }
 
         protected override void OnClientSizeChanged(EventArgs e)
@@ -83,12 +87,6 @@ namespace Graphical_Debugger
         {
             listBox.Size = splitter.Panel1.ClientSize;
             pdfRenderer.Size = splitter.Panel2.ClientSize;
-        }
-
-        private void ListBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            int index = listBox.SelectedIndex;
-            pdfRenderer.render(owner, operations.Take(index + 1));
         }
     }
 }
