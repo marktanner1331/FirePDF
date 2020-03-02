@@ -31,7 +31,7 @@ namespace FirePDF.Tests
             string file = getPDFFolder() + "pb13332-cop-cats-091204.pdf";
             PDF pdf = new PDF(file);
 
-            Assert.AreEqual(19, pdf.getNumPages());
+            Assert.AreEqual(19, pdf.numPages());
         }
 
         [TestMethod()]

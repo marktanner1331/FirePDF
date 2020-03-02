@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirePDF", "FirePDF\FirePDF.csproj", "{39DD1D79-4922-47CE-9AEC-AFA41712582C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{D86EE5A9-D23E-47C9-BD01-C323EC0AD171}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirePDFTests", "FirePDFTests\FirePDFTests.csproj", "{E12A3A33-DF48-4795-A7B0-2E840A0BFCC1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graphical Debugger", "Graphical Debugger\Graphical Debugger.csproj", "{357F1C6A-A8F6-4209-92E2-2DCB6CAEF2ED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flattener", "Flattener\Flattener.csproj", "{72DF8316-5A70-4D1B-9E3E-68F5AF4B943D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirePDF", "FirePDF\FirePDF.csproj", "{1BFBBBDE-01AA-495B-BEF9-FB88A938AB68}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{09890453-DD06-4F3D-AF3E-D3BEBBC6C218}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{992A3A74-F55D-4523-A6BA-7D4BA6643DDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +21,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{39DD1D79-4922-47CE-9AEC-AFA41712582C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{39DD1D79-4922-47CE-9AEC-AFA41712582C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{39DD1D79-4922-47CE-9AEC-AFA41712582C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{39DD1D79-4922-47CE-9AEC-AFA41712582C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D86EE5A9-D23E-47C9-BD01-C323EC0AD171}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D86EE5A9-D23E-47C9-BD01-C323EC0AD171}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D86EE5A9-D23E-47C9-BD01-C323EC0AD171}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D86EE5A9-D23E-47C9-BD01-C323EC0AD171}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E12A3A33-DF48-4795-A7B0-2E840A0BFCC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E12A3A33-DF48-4795-A7B0-2E840A0BFCC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E12A3A33-DF48-4795-A7B0-2E840A0BFCC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +33,18 @@ Global
 		{72DF8316-5A70-4D1B-9E3E-68F5AF4B943D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72DF8316-5A70-4D1B-9E3E-68F5AF4B943D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72DF8316-5A70-4D1B-9E3E-68F5AF4B943D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BFBBBDE-01AA-495B-BEF9-FB88A938AB68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BFBBBDE-01AA-495B-BEF9-FB88A938AB68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BFBBBDE-01AA-495B-BEF9-FB88A938AB68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BFBBBDE-01AA-495B-BEF9-FB88A938AB68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09890453-DD06-4F3D-AF3E-D3BEBBC6C218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09890453-DD06-4F3D-AF3E-D3BEBBC6C218}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09890453-DD06-4F3D-AF3E-D3BEBBC6C218}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09890453-DD06-4F3D-AF3E-D3BEBBC6C218}.Release|Any CPU.Build.0 = Release|Any CPU
+		{992A3A74-F55D-4523-A6BA-7D4BA6643DDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{992A3A74-F55D-4523-A6BA-7D4BA6643DDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{992A3A74-F55D-4523-A6BA-7D4BA6643DDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{992A3A74-F55D-4523-A6BA-7D4BA6643DDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

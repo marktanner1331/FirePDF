@@ -39,7 +39,7 @@ namespace Graphical_Debugger
             {
                 return;
             }
-
+            
             Rasterizer renderer = new Rasterizer(graphics);
             StreamProcessor sp = new FilteredStreamProcessor(operationsMap, renderer);
             RecursiveStreamReader streamReader = new RecursiveStreamReader(sp);
