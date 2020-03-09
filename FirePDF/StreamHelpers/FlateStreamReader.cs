@@ -18,10 +18,12 @@ namespace FirePDF.StreamHelpers
         public static MemoryStream decompressStream(PDF pdf, Stream pdfStream, PDFDictionary streamDictionary)
         {
             //http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
-            pdfStream.Position += 2;
+            long startOfStream = pdfStream.Position + 2;
 
+            //hint: the .get() here might update the position of the stream (if its an indirect object)
             int length = streamDictionary.get<int>("Length") - 2;
 
+            pdfStream.Position = startOfStream;
             byte[] buffer = new byte[length];
             pdfStream.Read(buffer, 0, length);
 
@@ -37,7 +39,7 @@ namespace FirePDF.StreamHelpers
                 MemoryStream decompressed = new MemoryStream();
                 decompressionStream.CopyTo(decompressed);
 
-                if (streamDictionary.ContainsKey("DecodeParms") == false)
+                if (streamDictionary.containsKey("DecodeParms") == false)
                 {
                     decompressed.Seek(0, SeekOrigin.Begin);
                     return decompressed;
@@ -46,7 +48,7 @@ namespace FirePDF.StreamHelpers
                 PDFDictionary decodeParms = streamDictionary.get<PDFDictionary>("DecodeParms");
 
                 int predictor = 1;
-                if (decodeParms.ContainsKey("Predictor"))
+                if (decodeParms.containsKey("Predictor"))
                 {
                     predictor = decodeParms.get<int>("Predictor");
                 }
@@ -60,13 +62,13 @@ namespace FirePDF.StreamHelpers
                 int columns = decodeParms.get<int>("Columns");
 
                 int colors = 1;
-                if (decodeParms.ContainsKey("Colors"))
+                if (decodeParms.containsKey("Colors"))
                 {
                     colors = decodeParms.get<int>("Colors");
                 }
 
                 int bitsPerComponent = 8;
-                if (streamDictionary.ContainsKey("BitsPerComponent"))
+                if (streamDictionary.containsKey("BitsPerComponent"))
                 {
                     bitsPerComponent = streamDictionary.get<int>("BitsPerComponent");
                 }

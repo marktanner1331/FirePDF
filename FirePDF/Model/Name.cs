@@ -61,6 +61,10 @@ namespace FirePDF.Model
             {
                 return ((Name)obj).value.Equals(value);
             }
+            else if(obj is string)
+            {
+                return ((Name)(string)obj).value.Equals(value);
+            }
             else
             {
                 return base.Equals(obj);

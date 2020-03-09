@@ -38,7 +38,16 @@ namespace FirePDF.Model
 
             setObjectAsDirty(path);
         }
-        
+
+        /// <summary>
+        /// returns the resource names of the fonts e.g. [/R16, /R17]
+        /// </summary>
+        /// <returns></returns>
+        public List<Name> getFontResourceNames()
+        {
+            return underlyingDict.get<PDFDictionary>("Font").keys.ToList();
+        }
+
         /// <summary>
         /// returns all form xobjects found in the XObject dictionary
         /// does not return image xObjects
@@ -67,7 +76,7 @@ namespace FirePDF.Model
             return xObject is XObjectImage;
         }
 
-        internal Font getFont(Name name)
+        public Font getFont(Name name)
         {
             return (Font)getObjectAtPath("Font", name);
         }
@@ -84,6 +93,8 @@ namespace FirePDF.Model
         /// </summary>
         public object getObjectAtPath(params string[] path)
         {
+            //TODO make this a generic method like getObjectAtPath<Font>()?
+
             string joinedPath = string.Join("/", path);
             if(cache.ContainsKey(joinedPath))
             {
@@ -96,7 +107,7 @@ namespace FirePDF.Model
                 if (root is PDFDictionary)
                 {
                     PDFDictionary temp = (PDFDictionary)root;
-                    if (temp.ContainsKey(part))
+                    if (temp.containsKey(part))
                     {
                         root = temp.get<object>(part);
                     }
@@ -153,7 +164,7 @@ namespace FirePDF.Model
                 if (root is PDFDictionary)
                 {
                     PDFDictionary temp = (PDFDictionary)root;
-                    if (temp.ContainsKey(part))
+                    if (temp.containsKey(part))
                     {
                         root = temp.get<object>(part);
                     }
@@ -201,7 +212,7 @@ namespace FirePDF.Model
                 if (root is PDFDictionary)
                 {
                     PDFDictionary temp = (PDFDictionary)root;
-                    if (temp.ContainsKey(part))
+                    if (temp.containsKey(part))
                     {
                         root = temp.get<object>(part);
                     }

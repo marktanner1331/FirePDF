@@ -326,9 +326,17 @@ namespace FirePDF.Writing
             {
                 writeASCII((long)obj);
             }
-            else if (obj is string)
+            else if (obj is PDFString pdfString)
             {
-                writeDirectObject(obj as string);
+                if(pdfString.isHexString)
+                {
+                    writeDirectObject(pdfString.bytes);
+                }
+                else
+                {
+                    writeDirectObject((string)obj);
+                }
+                
             }
             else if (obj is null)
             {

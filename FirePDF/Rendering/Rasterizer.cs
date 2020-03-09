@@ -86,9 +86,6 @@ namespace FirePDF.Rendering
             refreshGraphicsState();
 
             FirePDF.Model.GraphicsState gs = getGraphicsState();
-            Model.Font font = gs.font;
-            string s = font.readUnicodeStringFromHexString(text);
-
             Matrix textRenderingMatrix = new Matrix(gs.fontSize * gs.horizontalScaling, 0, 0, gs.fontSize, 0, gs.textRise);
             textRenderingMatrix.Multiply(gs.textMatrix, MatrixOrder.Append);
             textRenderingMatrix.Multiply(gs.currentTransformationMatrix, MatrixOrder.Append);
@@ -102,7 +99,9 @@ namespace FirePDF.Rendering
 
             graphics.Transform = temp;
 
-            graphics.DrawString(s, new System.Drawing.Font(FontFamily.GenericSerif, 1), new SolidBrush(gs.nonStrokingColor), PointF.Empty);
+            string textString = gs.font.readUnicodeStringFromHexString(text);
+
+            graphics.DrawString(textString, new System.Drawing.Font(FontFamily.GenericSerif, 1), new SolidBrush(gs.nonStrokingColor), PointF.Empty);
             graphics.Transform = getGraphicsState().currentTransformationMatrix;
         }
     }

@@ -7,6 +7,12 @@ namespace FirePDF.Model
     //pdf spec 9.7.4
     public class CIDType0Font : CIDFont
     {
+        private Lazy<CMAP> _encoding;
+        public override CMAP encoding => _encoding.Value;
+
+        private Lazy<CMAP> _toUnicode;
+        public override CMAP toUnicode => _toUnicode.Value;
+
         private int defaultWidth
         {
             get => underlyingDict.get<int?>("DW") ?? 1000;
@@ -27,7 +33,7 @@ namespace FirePDF.Model
 
         private Dictionary<int, int> parseWidths()
         {
-            if (underlyingDict.ContainsKey("W"))
+            if (underlyingDict.containsKey("W"))
             {
                 PDFList w = underlyingDict.get<PDFList>("W");
                 Dictionary<int, int> widths = new Dictionary<int, int>();
@@ -93,6 +99,11 @@ namespace FirePDF.Model
         }
 
         public override string readUnicodeStringFromHexString(byte[] hexString)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void setToUnicodeCMAP(ObjectReference objectReference)
         {
             throw new NotImplementedException();
         }

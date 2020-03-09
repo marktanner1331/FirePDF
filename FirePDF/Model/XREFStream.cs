@@ -31,7 +31,7 @@ namespace FirePDF.Model
                 //An array containing a pair of integers for each subsection in this section.
                 //Default value: [0 Size].
                 List<int> index;
-                if (dict.ContainsKey("Index"))
+                if (dict.containsKey("Index"))
                 {
                     index = dict.get<PDFList>("Index").cast<int>();
                 }

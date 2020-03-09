@@ -64,7 +64,7 @@ namespace FirePDF.Model
             stream.Position = startOfStream;
             Bitmap image = PDFReader.decompressImageStream(pdf, stream, underlyingDict);
 
-            if(underlyingDict.ContainsKey("SMask"))
+            if(underlyingDict.containsKey("SMask"))
             {
                 XObjectImage mask = underlyingDict.get<XObjectImage>("SMask");
                 //DoApplyMask(image, mask);

@@ -11,18 +11,18 @@ using System.Threading.Tasks;
 namespace FirePDF.Model
 {
     //pdf spec 9.7
-    class Type0Font : Font
+    public class Type0Font : Font
     {
+        private Lazy<CMAP> _encoding;
+        public override CMAP encoding => _encoding.Value;
+
+        private Lazy<CMAP> _toUnicode;
+        public override CMAP toUnicode => _toUnicode.Value;
+
         private CIDFont descendantFont
         {
             get => (CIDFont)underlyingDict.get<PDFList>("DescendantFonts").get<Font>(0);
         }
-
-        private Lazy<CMAP> _encoding;
-        private CMAP encoding => _encoding.Value;
-
-        private Lazy<CMAP> _toUnicode;
-        private CMAP toUnicode => _toUnicode.Value;
 
         public Type0Font(PDFDictionary dictionary) : base(dictionary)
         {
@@ -41,11 +41,11 @@ namespace FirePDF.Model
 
             _toUnicode = new Lazy<CMAP>(() =>
             {
-                if (dictionary.ContainsKey("ToUnicode"))
+                if (dictionary.containsKey("ToUnicode"))
                 {
                     PDFStream stream = dictionary.get<PDFStream>("ToUnicode");
 
-                    if (stream.underlyingDict.ContainsKey("UseCMap"))
+                    if (stream.underlyingDict.containsKey("UseCMap"))
                     {
                         //in theory we just load the other cmap and merge it with this one
                         throw new NotImplementedException();
@@ -123,6 +123,11 @@ namespace FirePDF.Model
 
                 return sb.ToString();
             }
+        }
+
+        public override void setToUnicodeCMAP(ObjectReference objectReference)
+        {
+            underlyingDict.set("ToUnicode", objectReference);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace FirePDF.Model
             this.inner = new Dictionary<Name, object>();
         }
 
-        public bool ContainsKey(string key) => inner.ContainsKey(key);
+        public bool containsKey(Name key) => inner.ContainsKey(key);
 
         public IEnumerable<Name> keys => inner.Keys;
         

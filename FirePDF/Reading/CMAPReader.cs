@@ -37,7 +37,6 @@ namespace FirePDF.Reading
                         switch ((Name)token)
                         {
                             case "CMapName":
-                                ;
                                 cmap.name = (Name)readNextToken(stream, out _);
                                 break;
                             case "CMapType":
@@ -47,10 +46,10 @@ namespace FirePDF.Reading
                                 cmap.version = readNextToken(stream, out _).ToString();
                                 break;
                             case "Ordering":
-                                cmap.ordering = (string)readNextToken(stream, out _);
+                                cmap.ordering = (PDFString)readNextToken(stream, out _);
                                 break;
                             case "Registry":
-                                cmap.registry = (string)readNextToken(stream, out _);
+                                cmap.registry = (PDFString)readNextToken(stream, out _);
                                 break;
                             case "Supplement":
                                 cmap.supplement = (int)readNextToken(stream, out _);
@@ -67,7 +66,8 @@ namespace FirePDF.Reading
                                 readBeginBFChar((int)previousToken, stream, cmap);
                                 break;
                             case "beginbfrange":
-                                throw new NotImplementedException();
+                                readBeginBFRange((int)previousToken, stream, cmap);
+                                break;
                             case "begincidchar":
                                 throw new NotImplementedException();
                             case "begincodespacerange":
@@ -89,7 +89,7 @@ namespace FirePDF.Reading
 
             return cmap;
         }
-        
+
         public static CMAP readNamedCMAP(string cmapName)
         {
             string cmapPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/cmaps/" + cmapName;
@@ -101,6 +101,85 @@ namespace FirePDF.Reading
             using (Stream stream = File.OpenRead(cmapPath))
             {
                 return readCMAP(stream);
+            }
+        }
+
+        private static void readBeginBFRange(int numRows, Stream stream, CMAP cmap)
+        {
+            for (int j = 0; j < numRows; j++)
+            {
+                TokenType tokenType;
+                object token = readNextToken(stream, out tokenType);
+
+                if(tokenType == TokenType.Header)
+                {
+                    continue;
+                }
+
+                if (tokenType == TokenType.Operator)
+                {
+                    if ((string)token != "endbfrange")
+                    {
+                        throw new Exception("found operator inside bf range");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                PDFString startCode = (PDFString)token;
+                int start = ByteReader.readBigEndianInt(startCode.bytes);
+
+                PDFString endCode = (PDFString)readNextToken(stream, out _);
+                int end = ByteReader.readBigEndianInt(endCode.bytes);
+
+                token = readNextToken(stream, out _);
+
+                if(token is Name)
+                {
+                    cmap.addCharMapping(start, (Name)token);
+                    if(start != end)
+                    {
+                        //if its a name, we can't increment it
+                        throw new Exception();
+                    }
+                }
+                else if(token is PDFString pdfStr)
+                {
+                    string value;
+                    if (pdfStr.bytes.Length == 1)
+                    {
+                        value = Encoding.GetEncoding("ISO_8859_1").GetString(pdfStr.bytes);
+                    }
+                    else
+                    {
+                        value = Encoding.BigEndianUnicode.GetString(pdfStr.bytes);
+                    }
+
+                    if(start != end && value.Length > 1)
+                    {
+                        //we can't increment a value that has multiple characters
+                        throw new Exception();
+                    }
+
+                    while (true)
+                    {
+                        cmap.addCharMapping(start, value);
+                        
+                        if (start == end)
+                        {
+                            break;
+                        }
+
+                        start++;
+                        value = ((char)(value[0] + 1)).ToString(); ;
+                    }
+                }
+                else
+                {
+                    throw new Exception("unknown token type");
+                }
             }
         }
 
@@ -174,9 +253,9 @@ namespace FirePDF.Reading
                     }
                 }
 
-                int start = ByteReader.readBigEndianInt((byte[])token);
-                int codeLength = ((byte[])token).Length;
-                int end = ByteReader.readBigEndianInt((byte[])readNextToken(stream, out _));
+                int start = ByteReader.readBigEndianInt(((PDFString)token).bytes);
+                int codeLength = ((PDFString)token).bytes.Length;
+                int end = ByteReader.readBigEndianInt(((PDFString)readNextToken(stream, out _)).bytes);
 
                 cmap.addCodeSpaceRange(new CodeSpaceRange(start, end, codeLength));
             }
@@ -198,15 +277,15 @@ namespace FirePDF.Reading
                     break;
                 }
 
-                byte[] startCode = (byte[])token;
-                int start = ByteReader.readBigEndianInt(startCode);
+                PDFString startCode = (PDFString)token;
+                int start = ByteReader.readBigEndianInt(startCode.bytes);
 
-                byte[] endCode = (byte[])readNextToken(stream, out _);
-                int end = ByteReader.readBigEndianInt(endCode);
+                PDFString endCode = (PDFString)readNextToken(stream, out _);
+                int end = ByteReader.readBigEndianInt(endCode.bytes);
 
                 int mappedCode = (int)readNextToken(stream, out _);
 
-                if (startCode.Length <= 2 && endCode.Length <= 2)
+                if (startCode.bytes.Length <= 2 && endCode.bytes.Length <= 2)
                 {
                     //when the start equals the end it means that the range is being used to map a single code
                     if (end == start)

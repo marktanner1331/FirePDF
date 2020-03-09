@@ -134,8 +134,13 @@ namespace FirePDF.Model
 
             foreach(XREFRecord record in records)
             {
-                pdfWriter.writeASCII(record.offset.ToString("0000000000") + " " + record.generation.ToString("000000") + " n\r\n");
+                pdfWriter.writeASCII(record.offset.ToString("0000000000") + " " + record.generation.ToString("00000") + " n\r\n");
             }
+        }
+
+        public IEnumerable<XREFRecord> getAllXREFRecords()
+        {
+            return usedRecords.Values;
         }
 
         private void getRecordFromHash(long hash, out int objectNumber, out int generation)

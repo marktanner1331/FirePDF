@@ -10,7 +10,7 @@ using GraphicsState = FirePDF.Model.GraphicsState;
 
 namespace FirePDF.Processors
 {
-    class TextProcessor
+    public class TextProcessor
     {
         private readonly IRenderer renderer;
 
@@ -61,13 +61,46 @@ namespace FirePDF.Processors
                     }
                 case "Tf":
                     getGraphicsState().font = getResources().getFont(operation.getOperandAsName(0));
+                    if(operation.getOperandAsName(0) == "R16")
+                    {
+
+                    }
                     getGraphicsState().fontSize = operation.getOperandAsFloat(1);
                     break;
                 case "Tj":
-                    renderer.drawText(operation.operands[0] as byte[]);
+                    //TODO: im sure i have to update the text matrix, moving to the right
+                    if(operation.operands[0] is byte[] bytes)
+                    {
+                        renderer.drawText(bytes);
+                    }
+                    else
+                    {
+                        renderer.drawText((operation.operands[0] as PDFString).bytes);
+                    }
                     break;
                 case "TJ":
+                    {
+                        GraphicsState g = getGraphicsState();
 
+                        foreach(object operand in (PDFList)operation.operands[0])
+                        {
+                            if(operand is PDFString pdfString)
+                            {
+                                renderer.drawText(pdfString.bytes);
+                            }
+                            else if(operand is float || operand is int)
+                            {
+                                //TODO i really don't think the below is right
+                                //aparently a positive adjustment should move it left?
+                                Matrix temp = new Matrix(1, 0, 0, 1, (float)Convert.ToDouble(operand) / 1000, 0);
+                                g.textMatrix.Multiply(temp);
+                            }
+                            else
+                            {
+                                throw new Exception();
+                            }
+                        }
+                    }
                     break;
                 case "TL":
                     getGraphicsState().textLeading = operation.getOperandAsFloat(0);

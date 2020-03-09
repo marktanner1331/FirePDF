@@ -180,7 +180,7 @@ namespace FirePDF.Model
                 {
                     //we always want to copy resources as a seperate object
                     //so that we don't end up with two pages pointing to the same resources
-                    if(key == "Resources" && dict.ContainsKey("Type") && (dict.get<Name>("Type") == "Page" || dict.get<Name>("Type") == "XObject"))
+                    if(key == "Resources" && dict.containsKey("Type") && (dict.get<Name>("Type") == "Page" || dict.get<Name>("Type") == "XObject"))
                     {
                         newDict.Add("Resources", add(shallowClone(dict.get<PDFDictionary>("Resources"))));
                     }
@@ -230,12 +230,12 @@ namespace FirePDF.Model
                 {
                     //we always want to copy resources as a seperate object
                     //so that we don't end up with two pages pointing to the same resources
-                    if (key == "Resources" && dict.ContainsKey("Type") && (dict.get<Name>("Type") == "Page" || dict.get<Name>("Type") == "XObject"))
+                    if (key == "Resources" && dict.containsKey("Type") && (dict.get<Name>("Type") == "Page" || dict.get<Name>("Type") == "XObject"))
                     {
                         //by resolving the reference here bypass the external object cache
                         newDict.Add("Resources", add(deepClone(dict.get<PDFDictionary>("Resources"))));
                     }
-                    else if(key == "Parent" && dict.ContainsKey("Type") && dict.get<Name>("Type") == "Page")
+                    else if(key == "Parent" && dict.containsKey("Type") && dict.get<Name>("Type") == "Page")
                     {
                         continue;
                     }

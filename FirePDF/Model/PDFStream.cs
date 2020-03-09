@@ -24,11 +24,6 @@ namespace FirePDF.Model
 
         public Stream getCompressedStream()
         {
-            if (isDirty())
-            {
-                throw new NotImplementedException();
-            }
-
             Stream newStream = new ProxyStream(stream, startOfStream, underlyingDict.get<int>("Length"));
             newStream.Position = 0;
             return newStream;
@@ -42,7 +37,7 @@ namespace FirePDF.Model
 
         public static PDFStream fromDictionary(PDFDictionary dict, Stream stream, long startOfStream)
         {
-            if (dict.ContainsKey("Type") == false)
+            if (dict.containsKey("Type") == false)
             {
                 return new PDFStream(stream, dict, startOfStream);
             }

@@ -85,6 +85,17 @@ namespace FirePDF
             return store.get<T>(indirectReference);
         }
 
+        public ObjectReference addStream(FileInfo file)
+        {
+            using (Stream stream = File.OpenRead(file.FullName))
+            {
+                PDFDictionary streamDict = new PDFDictionary(pdf);
+                streamDict.set("Length", (int)stream.Length);
+
+                return store.addStream(stream, streamDict);
+            }
+        }
+
         public void save(string fullFilePath, SaveType saveType = SaveType.Fresh)
         {
             if(saveType == SaveType.Fresh)

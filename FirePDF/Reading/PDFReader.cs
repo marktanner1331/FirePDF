@@ -26,6 +26,11 @@ namespace FirePDF.Reading
         /// </summary>
         public static Stream decompressStream(PDF pdf, Stream stream, PDFDictionary streamDictionary)
         {
+            if(streamDictionary.containsKey("Filter") == false)
+            {
+                return new ProxyStream(stream, stream.Position, streamDictionary.get<int>("Length"));
+            }
+
             switch (streamDictionary.get<Name>("Filter"))
             {
                 case "FlateDecode":
@@ -218,7 +223,7 @@ namespace FirePDF.Reading
 
             PDFDictionary dict = (PDFDictionary)obj;
 
-            if (dict.ContainsKey("Subtype") && !dict.ContainsKey("Type"))
+            if (dict.containsKey("Subtype") && !dict.containsKey("Type"))
             {
                 switch (dict.get<Name>("Subtype"))
                 {
@@ -238,7 +243,7 @@ namespace FirePDF.Reading
                 }
             }
 
-            if (dict.ContainsKey("Length"))
+            if (dict.containsKey("Length"))
             {
                 bool isStream = skipOverStreamHeader(stream);
                 if (isStream)
@@ -247,7 +252,7 @@ namespace FirePDF.Reading
                 }
             }
 
-            if (dict.ContainsKey("Type"))
+            if (dict.containsKey("Type"))
             {
                 return IHaveUnderlyingDict.fromDictionary(dict);
             }
@@ -409,12 +414,13 @@ namespace FirePDF.Reading
         /// reads a string (wrapped in brackets) from the stream.
         /// the position of the stream should be at the '('
         /// </summary>
-        public static string readString(Stream stream)
+        public static PDFString readString(Stream stream)
         {
             //7.3.4.2
 
             //skip over the (
             stream.Position++;
+            long startOfString = stream.Position;
 
             int count = 1;
 
@@ -497,7 +503,16 @@ namespace FirePDF.Reading
                         count--;
                         if (count == 0)
                         {
-                            return sb.ToString();
+                            int stringLength = (int)(stream.Position - startOfString - 1);
+
+                            stream.Position = startOfString;
+                            byte[] bytes = new byte[stringLength];
+                            stream.Read(bytes, 0, stringLength);
+
+                            //skip over the end bracket
+                            stream.Position++;
+
+                            return new PDFString(bytes);
                         }
                         else
                         {
@@ -520,10 +535,11 @@ namespace FirePDF.Reading
             }
         }
 
-        private static byte[] readHexString(Stream stream)
+        private static PDFString readHexString(Stream stream)
         {
             //skip over the <
             stream.Position++;
+            long startOfString = stream.Position;
 
             StringBuilder sb = new StringBuilder();
             while (true)
@@ -532,7 +548,7 @@ namespace FirePDF.Reading
                 switch ((char)current)
                 {
                     case '>':
-                        return StringToByteArray(sb.ToString());
+                        return new PDFString(StringToByteArray(sb.ToString()), true);
                     default:
                         sb.Append((char)current);
                         break;

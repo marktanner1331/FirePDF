@@ -33,6 +33,7 @@ namespace FirePDF.Rendering
 
         public abstract void drawImage(XObjectImage image);
 
+        //TODO: convert this PDFString
         public abstract void drawText(byte[] text);
     }
 }
