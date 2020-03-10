@@ -282,6 +282,10 @@ namespace FirePDF.Writing
 
                 writeASCII("endstream");
             }
+            else if(obj is Font font)
+            {
+                font.prepareForWriting();
+            }
             else if (obj is IHaveUnderlyingDict)
             {
                 writeDirectObject((obj as IHaveUnderlyingDict).underlyingDict);
@@ -330,7 +334,7 @@ namespace FirePDF.Writing
             {
                 if(pdfString.isHexString)
                 {
-                    writeDirectObject(pdfString.bytes);
+                    writeDirectObject(pdfString.toByteArray());
                 }
                 else
                 {

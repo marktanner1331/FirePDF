@@ -23,7 +23,7 @@ namespace FirePDF
         internal long lastXrefOffset;
 
         public PDF(string fullFilePath) : this(File.OpenRead(fullFilePath)) { }
-        
+
         public PDF(Stream stream)
         {
             this.pdf = this;
@@ -59,7 +59,15 @@ namespace FirePDF
             this.catalog = new Catalog(this);
             this.underlyingDict.set("Root", store.add(catalog.underlyingDict));
         }
-        
+
+        /// <summary>
+        /// searches the pdf for all objects that are of the given type and returns them
+        /// </summary>
+        public List<T> getAll<T>()
+        {
+            return store.getAll<T>();
+        }
+
         /// <summary>
         /// Gets an object from the pdf and casts it to the given type.
         /// This method crashes if the object canoot be found

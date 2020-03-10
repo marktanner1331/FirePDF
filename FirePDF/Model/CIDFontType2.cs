@@ -6,10 +6,10 @@ namespace FirePDF.Model
     internal class CIDFontType2 : Font
     {
         private Lazy<CMAP> _encoding;
-        public override CMAP encoding => _encoding.Value;
+        public override CMAP encoding => _encoding?.Value;
 
         private Lazy<CMAP> _toUnicode;
-        public override CMAP toUnicode => _toUnicode.Value;
+        public override CMAP toUnicode => _toUnicode?.Value;
 
         public CIDFontType2(PDFDictionary dictionary) : base(dictionary)
         {

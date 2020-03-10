@@ -31,7 +31,7 @@ namespace FirePDF.Model
                  object encodingObj = underlyingDict.get<object>("Encoding");
                  if (encodingObj is Name)
                  {
-                     return CMAPReader.readNamedCMAP((Name)encodingObj);
+                     return new CMAP((Name)encodingObj);
                  }
                  else
                  {
@@ -51,7 +51,7 @@ namespace FirePDF.Model
                         throw new NotImplementedException();
                     }
 
-                    return CMAPReader.readCMAP(stream.getDecompressedStream());
+                    return new CMAP(stream.getDecompressedStream());
                 }
                 else
                 {

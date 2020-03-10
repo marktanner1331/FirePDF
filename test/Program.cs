@@ -22,6 +22,29 @@ namespace test
         {
             extractTextTest();
             //fixCMAP();
+
+            //string file = @"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\3.pdf";
+            ////foreach(string file in Directory.EnumerateFiles(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\"))
+            ////{
+            //using (PDF pdf = new PDF(file))
+            //{
+            //    List<Font> fonts = pdf.getAll<Font>();
+            //    fonts = fonts.Where(x => x.baseFont.ToString().Contains("News706BT") && x.encoding != null).ToList();
+            //    foreach (Font font in fonts)
+            //    {
+            //        if (font.toUnicode != null)
+            //        {
+            //            CMAP cmap = font.toUnicode;
+            //            if (cmap.codeToUnicode(0xc0) == "i")
+            //            {
+            //                cmap.addCharMapping(0xc0, "fi");
+            //            }
+            //        }
+            //    }
+
+            //    pdf.save(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09 fixed\13.pdf", SaveType.Fresh);
+            //}
+            //}
         }
 
         private static void extractTextTest()
@@ -40,14 +63,14 @@ namespace test
             string file = @"C:\Users\Mark Tanner\scratch\orig.pdf";
             string cmap = @"C:\Users\Mark Tanner\scratch\fixed cmap.txt";
 
-            CMAP temp = CMAPReader.readCMAP(File.OpenRead(cmap));
-            
+            CMAP temp = new CMAP(File.OpenRead(cmap), true);
+
             using (PDF pdf = new PDF(file))
             {
                 ObjectReference newCMAP = pdf.addStream(new FileInfo(cmap));
 
                 Page page = pdf.getPage(1);
-                
+
                 List<Name> fontNames = page.resources.getFontResourceNames();
                 foreach (Name fontName in fontNames)
                 {

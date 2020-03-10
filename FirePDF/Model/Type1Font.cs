@@ -21,11 +21,12 @@ namespace FirePDF.Model
                 object encodingObj = underlyingDict.get<object>("Encoding");
                 if (encodingObj is Name)
                 {
-                    return CMAPReader.readNamedCMAP((Name)encodingObj);
+                    return new CMAP((Name)encodingObj);
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    //TODO
+                    return null;
                 }
             });
             
@@ -41,7 +42,7 @@ namespace FirePDF.Model
                         throw new NotImplementedException();
                     }
 
-                    return CMAPReader.readCMAP(stream.getDecompressedStream());
+                    return new CMAP(stream.getDecompressedStream());
                 }
                 else
                 {
@@ -62,7 +63,7 @@ namespace FirePDF.Model
 
         public override string readUnicodeStringFromHexString(byte[] hexString)
         {
-            if (toUnicode == null)
+            if (toUnicode == null || encoding == null)
             {
                 return "";
             }

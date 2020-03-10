@@ -21,7 +21,7 @@ namespace FirePDF.Model
 
         }
 
-        public bool isDirty() => underlyingDict.isDirty();
+        public virtual bool isDirty() => underlyingDict.isDirty();
 
         public static IHaveUnderlyingDict fromDictionary(PDFDictionary dict)
         {

@@ -75,7 +75,7 @@ namespace FirePDF.Processors
                     }
                     else
                     {
-                        renderer.drawText((operation.operands[0] as PDFString).bytes);
+                        renderer.drawText((operation.operands[0] as PDFString).toByteArray());
                     }
                     break;
                 case "TJ":
@@ -86,7 +86,7 @@ namespace FirePDF.Processors
                         {
                             if(operand is PDFString pdfString)
                             {
-                                renderer.drawText(pdfString.bytes);
+                                renderer.drawText(pdfString.toByteArray());
                             }
                             else if(operand is float || operand is int)
                             {

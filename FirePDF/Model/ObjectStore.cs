@@ -49,6 +49,26 @@ namespace FirePDF.Model
         }
 
         /// <summary>
+        /// searches for all objects that are of the given type and returns them
+        /// </summary>
+        internal List<T> getAll<T>()
+        {
+            List<T> objects = new List<T>();
+
+            //hint: the newTable contains both the existing and new records
+            foreach (XREFTable.XREFRecord record in newTable.getAllXREFRecords())
+            {
+                object obj = get<object>(record.objectNumber, record.generation);
+                if (obj is T)
+                {
+                    objects.Add((T)obj);
+                }
+            }
+
+            return objects;
+        }
+
+        /// <summary>
         /// if the pdf is from an existing file then this method will copy the existing data over to a new stream
         /// </summary>
         /// <param name="outStream">the stream to copy the data to</param>

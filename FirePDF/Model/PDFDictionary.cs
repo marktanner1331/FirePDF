@@ -39,6 +39,11 @@ namespace FirePDF.Model
             inner[key] = value;
         }
 
+        public void removeEntry(Name key)
+        {
+            inner.Remove(key);
+        }
+
         public T get<T>(Name key, bool resolveReferences = true)
         {
             if (inner.ContainsKey(key))

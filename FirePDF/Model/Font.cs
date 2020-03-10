@@ -9,8 +9,23 @@ using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public abstract class Font :IHaveUnderlyingDict
+    public abstract class Font : IHaveUnderlyingDict
     {
+        public override bool isDirty()
+        {
+            if (encoding != null && encoding.isDirty)
+            {
+                return true;
+            }
+
+            if (toUnicode != null && toUnicode.isDirty)
+            {
+                return true;
+            }
+
+            return base.isDirty();
+        }
+
         public Name baseFont;
         public abstract CMAP encoding { get; }
 
@@ -24,7 +39,7 @@ namespace FirePDF.Model
         public static Font loadExistingFontFromPDF(PDFDictionary dictionary)
         {
             Name subType = dictionary.get<Name>("Subtype");
-            switch(subType)
+            switch (subType)
             {
                 case "Type0":
                     return new Type0Font(dictionary);
@@ -44,7 +59,7 @@ namespace FirePDF.Model
         }
 
         public abstract void setToUnicodeCMAP(ObjectReference objectReference);
-        
+
         /// <summary>
         /// converts a pdf hex string shown by the Tj or TJ operator into a unicode string
         /// this is not always possible, and this method can return an empty string in that case
@@ -61,5 +76,16 @@ namespace FirePDF.Model
         /// but not the current transformation matrix
         /// </summary>
         public abstract SizeF measureText(byte[] hexString, GraphicsState graphicsState);
+
+        internal void prepareForWriting()
+        {
+            if(encoding != null && encoding.isDirty)
+            {
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    encoding.writeToStream(stream);
+                }
+            }
+        }
     }
 }

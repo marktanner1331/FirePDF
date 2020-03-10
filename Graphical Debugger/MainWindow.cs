@@ -49,7 +49,7 @@ namespace Graphical_Debugger
             listBox.onCheckChanged += ListBox_onCheckChanged;
             listBox.Size = splitter.Panel1.ClientSize;
             
-            loadPDF(@"C:\Users\Mark Tanner\Documents\c#\FirePDF\FirePDFTests\pdfs\page 24 fixed.pdf");
+            loadPDF(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\3.pdf");
         }
 
         private void ListBox_onCheckChanged()

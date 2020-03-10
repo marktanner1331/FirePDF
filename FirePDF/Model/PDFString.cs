@@ -7,9 +7,15 @@ namespace FirePDF.Model
 {
     public class PDFString
     {
-        public readonly byte[] bytes;
+        private readonly byte[] bytes;
         private readonly string value;
         public readonly bool isHexString;
+
+        /// <summary>
+        /// returns the number of bytes used to store this string
+        /// for example, the length of <00FF> is 2
+        /// </summary>
+        public int length => bytes.Length;
 
         public PDFString(byte[] bytes)
         {
@@ -32,14 +38,26 @@ namespace FirePDF.Model
             bytes = Encoding.ASCII.GetBytes(value);
         }
 
-        public static implicit operator string(PDFString value)
+        public byte[] toByteArray()
         {
-            return value.value;
+            return bytes;
         }
 
-        public static implicit operator PDFString(string value)
+        /// <summary>
+        /// returns an int stored in this string
+        /// e.g. if the string is <00FF> then 255 will be returned
+        /// </summary>
+        public int toBigEndianInt()
         {
-            return new PDFString(value);
+            int code = 0;
+
+            for (int i = 0; i < bytes.Length; ++i)
+            {
+                code <<= 8;
+                code |= (bytes[i] & 0xFF);
+            }
+
+            return code;
         }
 
         public static bool operator ==(PDFString a, PDFString b)
@@ -67,6 +85,11 @@ namespace FirePDF.Model
             return value;
         }
 
+        public string toString(Encoding encoding)
+        {
+            return encoding.GetString(bytes);
+        }
+
         public override int GetHashCode()
         {
             return value.GetHashCode();
@@ -80,7 +103,7 @@ namespace FirePDF.Model
             }
             else if (obj is string)
             {
-                return ((PDFString)(string)obj).value.Equals(value);
+                return ((string)obj).Equals(value);
             }
             else
             {

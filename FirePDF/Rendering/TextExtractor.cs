@@ -25,14 +25,11 @@ namespace FirePDF.Rendering
         public override void drawText(byte[] text)
         {
             Name baseFont = getGraphicsState().font.baseFont;
-            if (baseFont == "HGEBGL+News706BT-RomanC")
+            if (baseFont.ToString().Contains("News706BT-RomanC") && getGraphicsState().font.encoding != null)
             {
                 string unicode = getGraphicsState().font.readUnicodeStringFromHexString(text);
                 extractedText.Add(unicode);
-                if (unicode.Contains("therapist"))
-                {
-                    unicode = getGraphicsState().font.readUnicodeStringFromHexString(text);
-                }
+                
             }
         }
 
