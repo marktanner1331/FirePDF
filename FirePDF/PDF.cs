@@ -18,6 +18,8 @@ namespace FirePDF
         public readonly float version;
         internal long lastXrefOffset;
 
+        public Pdf(FileInfo fullFilePath) : this(fullFilePath.OpenRead()) { }
+
         public Pdf(string fullFilePath) : this(File.OpenRead(fullFilePath)) { }
 
         public Pdf(Stream stream)
