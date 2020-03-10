@@ -1,5 +1,6 @@
 ﻿using FirePDF.Model;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FirePDF.StreamPartFunctions
 {
@@ -47,7 +48,7 @@ namespace FirePDF.StreamPartFunctions
         
         public override string ToString()
         {
-            return string.Join("\n", operations);
+            return string.Join("\n", operations.Select(x => x.ToString()).ToArray());
         }
     }
 }

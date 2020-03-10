@@ -25,7 +25,7 @@ namespace FirePDF.Model
         {
             if(operands.Count > 0)
             {
-                return string.Join(" ", operands.Select(OperandToString)) + " " + operatorName;
+                return string.Join(" ", operands.Select(OperandToString).ToArray()) + " " + operatorName;
             }
             else
             {
@@ -55,9 +55,9 @@ namespace FirePDF.Model
                 case byte[] bytes:
                     return BitConverter.ToString(bytes).Replace("-", "");
                 case IEnumerable<object> objects:
-                    return "[" + string.Join(" ", objects).Select(x => OperandToString(x)) + "]";
+                    return "[" + string.Join(" ", objects.Select(x => x.ToString()).ToArray()).Select(x => OperandToString(x)) + "]";
                 case Name name:
-                    return string.Join("", ((string)name).Select(x => x < 32 || x > 128 ? @"\u" + (int)x : x.ToString()));
+                    return string.Join("", ((string)name).Select(x => x < 32 || x > 128 ? @"\u" + (int)x : x.ToString()).ToArray());
                 default:
                     return Convert.ToString(operand);
             }
