@@ -411,7 +411,7 @@ namespace FirePDF.Model
         /// <summary>
         /// reads a big endian int from the start of the buffer, consuming 'length' bytes
         /// </summary>
-        private static int ReadBigEndianInt(IReadOnlyList<byte> buffer, int length)
+        private static int ReadBigEndianInt(byte[] buffer, int length)
         {
             int code = 0;
             

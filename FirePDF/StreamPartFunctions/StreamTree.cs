@@ -9,7 +9,7 @@ namespace FirePDF.StreamPartFunctions
     {
         public readonly Node<StreamPart> root;
 
-        public StreamTree(IReadOnlyList<Operation> operations)
+        public StreamTree(Operation[] operations)
         {
             root = new Node<StreamPart>();
             BuildStackTree(operations, root, 0);
@@ -20,11 +20,11 @@ namespace FirePDF.StreamPartFunctions
             return root.GetAllLeafNodes();
         }
 
-        private static int BuildStackTree(IReadOnlyList<Operation> operations, Node<StreamPart> root, int i)
+        private static int BuildStackTree(Operation[] operations, Node<StreamPart> root, int i)
         {
             StreamPart part = new StreamPart();
 
-            for (; i < operations.Count; i++)
+            for (; i < operations.Length; i++)
             {
                 Operation operation = operations[i];
                 switch (operation.operatorName)
@@ -162,12 +162,12 @@ namespace FirePDF.StreamPartFunctions
             {
                 if (root.Value.tags.Any())
                 {
-                    s += indent + "//tags: " + string.Join(", ", root.Value.tags) + "\n";
+                    s += indent + "//tags: " + string.Join(", ", root.Value.tags.ToArray()) + "\n";
                 }
 
                 if (root.Value.variables.Any())
                 {
-                    s += indent + "//variables: " + string.Join(", ", root.Value.variables.Select(x => x.Key + "=" + x.Value)) + "\n";
+                    s += indent + "//variables: " + string.Join(", ", root.Value.variables.Select(x => x.Key + "=" + x.Value).ToArray()) + "\n";
                 }
 
                 foreach (Operation operation in root.Value.operations)

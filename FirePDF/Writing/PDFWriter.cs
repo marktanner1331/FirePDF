@@ -172,7 +172,7 @@ namespace FirePDF.Writing
             return map;
         }
 
-        private static HashSet<ObjectReference> RemapReferences(IEnumerable<ObjectReference> references, IReadOnlyDictionary<ObjectReference, ObjectReference> map)
+        private static HashSet<ObjectReference> RemapReferences(IEnumerable<ObjectReference> references, Dictionary<ObjectReference, ObjectReference> map)
         {
             HashSet<ObjectReference> newReferences = new HashSet<ObjectReference>();
             foreach(ObjectReference reference in references)

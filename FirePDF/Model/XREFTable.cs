@@ -124,7 +124,7 @@ namespace FirePDF.Model
             return usedRecords.ContainsKey(indirectReference.GetHashCode());
         }
 
-        private static void SerializeSubSection(PdfWriter pdfWriter, IReadOnlyCollection<XrefRecord> records)
+        private static void SerializeSubSection(PdfWriter pdfWriter, List<XrefRecord> records)
         {
             pdfWriter.WriteAscii(records.First().objectNumber + " " + records.Count);
             pdfWriter.WriteNewLine();

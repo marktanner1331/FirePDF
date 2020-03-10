@@ -7,34 +7,34 @@ namespace FirePDF.StreamHelpers
     {
         public static void Encode(Stream source, Stream destination)
         {
-            using (StreamWriter writer = new StreamWriter(destination, Encoding.ASCII, 4096, true))
+            //not disposing the writer on purpose so the stream stays open
+            StreamWriter writer = new StreamWriter(destination);
+
+            byte[] buffer = new byte[4096];
+            while (true)
             {
-                byte[] buffer = new byte[4096];
-                while (true)
+                int bytesRead = source.Read(buffer, 0, buffer.Length);
+
+                foreach (byte b in buffer)
                 {
-                    int bytesRead = source.Read(buffer, 0, buffer.Length);
-
-                    foreach(byte b in buffer)
+                    switch (b)
                     {
-                        switch(b)
-                        {
-                            //case 0x0d:
-                            //case 0x0a:
-                            //case 0x20:
-                            //    writer.Write((char)b);
-                            //    break;
-                            default:
-                                writer.Write(b.ToString("x2"));
-                                break;
-                        }
+                        //case 0x0d:
+                        //case 0x0a:
+                        //case 0x20:
+                        //    writer.Write((char)b);
+                        //    break;
+                        default:
+                            writer.Write(b.ToString("x2"));
+                            break;
                     }
+                }
 
-                    if (bytesRead == 0)
-                    {
-                        writer.Write(">");
-                        destination.Flush();
-                        return;
-                    }
+                if (bytesRead == 0)
+                {
+                    writer.Write(">");
+                    destination.Flush();
+                    return;
                 }
             }
         }
