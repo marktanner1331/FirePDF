@@ -285,6 +285,7 @@ namespace FirePDF.Writing
             else if(obj is Font font)
             {
                 font.prepareForWriting();
+                writeDirectObject((obj as IHaveUnderlyingDict).underlyingDict);
             }
             else if (obj is IHaveUnderlyingDict)
             {

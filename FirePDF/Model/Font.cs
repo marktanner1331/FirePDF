@@ -11,29 +11,39 @@ namespace FirePDF.Model
 {
     public abstract class Font : IHaveUnderlyingDict
     {
+        private Lazy<CMAP> _encoding;
+        public CMAP encoding => _encoding.Value;
+
+        private Lazy<CMAP> _toUnicode;
+        public CMAP toUnicode => _toUnicode.Value;
+
+        public Name baseFont;
+
+        protected Font(PDFDictionary dictionary) : base(dictionary)
+        {
+            baseFont = dictionary.get<Name>("BaseFont");
+            _encoding = new Lazy<CMAP>(loadEncoding);
+            _toUnicode = new Lazy<CMAP>(loadToUnicode);
+        }
+
+        protected abstract CMAP loadEncoding();
+
+        protected abstract CMAP loadToUnicode();
+
+
         public override bool isDirty()
         {
-            if (encoding != null && encoding.isDirty)
+            if (_encoding.IsValueCreated && encoding != null && encoding.isDirty)
             {
                 return true;
             }
 
-            if (toUnicode != null && toUnicode.isDirty)
+            if (_toUnicode.IsValueCreated && encoding != null && toUnicode.isDirty)
             {
                 return true;
             }
 
             return base.isDirty();
-        }
-
-        public Name baseFont;
-        public abstract CMAP encoding { get; }
-
-        public abstract CMAP toUnicode { get; }
-
-        protected Font(PDFDictionary dictionary) : base(dictionary)
-        {
-            baseFont = dictionary.get<Name>("BaseFont");
         }
 
         public static Font loadExistingFontFromPDF(PDFDictionary dictionary)
@@ -79,7 +89,7 @@ namespace FirePDF.Model
 
         internal void prepareForWriting()
         {
-            if(encoding != null && encoding.isDirty)
+            if(_encoding.IsValueCreated && encoding != null && encoding.isDirty)
             {
                 using (MemoryStream stream = new MemoryStream())
                 {

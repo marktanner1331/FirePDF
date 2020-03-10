@@ -35,9 +35,6 @@ namespace FirePDF.Model
         private int minCodeLength = 4;
         private int maxCodeLength = 0;
 
-        private List<string> header;
-        private List<string> footer;
-
         private List<CodeSpaceRange> codeSpaceRanges;
 
         //some codes are mapped to CID's individually and are stored here
@@ -57,17 +54,19 @@ namespace FirePDF.Model
             codeToUnicodeMap = new Dictionary<int, string>();
 
             //TODO fll these in with default values
+            //Maybe best to just load a default empty cmap with all the header and footer stuff sorted?
             throw new NotImplementedException();
-            header = new List<string>();
-            footer = new List<string>();
             isDirty = false;
         }
 
         /// <summary>
         /// reads a cmap from the given stream at its current position
+        /// comments can come after the 'end' keyword, so this class will try to read to the end of the stream
         /// </summary>
         public CMAP(Stream stream, bool closeStream = false)
         {
+            long startOfStream = stream.Position;
+
             codeSpaceRanges = new List<CodeSpaceRange>();
             cidMap = new Dictionary<int, int>();
             cidRanges = new List<CIDRange>();
@@ -128,15 +127,18 @@ namespace FirePDF.Model
                                 readBeginCIDRangeFromStream((int)previousToken, stream);
                                 break;
                             case "endcmap":
-                                return;
+                                goto endOfLoop;
                             case "usecmap":
                                 throw new NotImplementedException();
                         }
+
                         break;
                 }
 
                 previousToken = token;
             }
+
+            endOfLoop:
 
             isDirty = false;
             if(closeStream)

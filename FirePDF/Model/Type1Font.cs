@@ -8,47 +8,9 @@ namespace FirePDF.Model
 {
     class Type1Font : Font
     {
-        private Lazy<CMAP> _encoding;
-        public override CMAP encoding => _encoding.Value;
-
-        private Lazy<CMAP> _toUnicode;
-        public override CMAP toUnicode => _toUnicode.Value;
-
         public Type1Font(PDFDictionary dictionary) : base(dictionary)
         {
-            _encoding = new Lazy<CMAP>(() =>
-            {
-                object encodingObj = underlyingDict.get<object>("Encoding");
-                if (encodingObj is Name)
-                {
-                    return new CMAP((Name)encodingObj);
-                }
-                else
-                {
-                    //TODO
-                    return null;
-                }
-            });
-            
-            _toUnicode = new Lazy<CMAP>(() =>
-            {
-                if (dictionary.containsKey("ToUnicode"))
-                {
-                    PDFStream stream = dictionary.get<PDFStream>("ToUnicode");
 
-                    if (stream.underlyingDict.containsKey("UseCMap"))
-                    {
-                        //in theory we just load the other cmap and merge it with this one
-                        throw new NotImplementedException();
-                    }
-
-                    return new CMAP(stream.getDecompressedStream());
-                }
-                else
-                {
-                    return null;
-                }
-            });
         }
 
         public override FontDescriptor getFontDescriptor()
@@ -86,6 +48,40 @@ namespace FirePDF.Model
         public override void setToUnicodeCMAP(ObjectReference objectReference)
         {
             throw new NotImplementedException();
+        }
+
+        protected override CMAP loadEncoding()
+        {
+            object encodingObj = underlyingDict.get<object>("Encoding");
+            if (encodingObj is Name)
+            {
+                return new CMAP((Name)encodingObj);
+            }
+            else
+            {
+                //TODO
+                return null;
+            }
+        }
+
+        protected override CMAP loadToUnicode()
+        {
+            if (underlyingDict.containsKey("ToUnicode"))
+            {
+                PDFStream stream = underlyingDict.get<PDFStream>("ToUnicode");
+
+                if (stream.underlyingDict.containsKey("UseCMap"))
+                {
+                    //in theory we just load the other cmap and merge it with this one
+                    throw new NotImplementedException();
+                }
+
+                return new CMAP(stream.getDecompressedStream());
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

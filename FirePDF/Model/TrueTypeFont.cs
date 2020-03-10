@@ -8,48 +8,43 @@ namespace FirePDF.Model
 {
     internal class TrueTypeFont : Font
     {
-        private Lazy<CMAP> _encoding;
-        public override CMAP encoding => _encoding.Value;
-
-        private Lazy<CMAP> _toUnicode;
-        public override CMAP toUnicode => _toUnicode.Value;
-
         public TrueTypeFont(PDFDictionary dictionary) : base(dictionary)
         {
-            _encoding = new Lazy<CMAP>(() =>
+            
+        }
+
+        protected override CMAP loadEncoding()
+        {
+            object encodingObj = underlyingDict.get<object>("Encoding");
+            if (encodingObj is Name)
             {
-                object encodingObj = underlyingDict.get<object>("Encoding");
-                if (encodingObj is Name)
-                {
-                    return new CMAP((Name)encodingObj);
-                }
-                else
-                {
-                    //TODO
-                    //encoding stored in the font
-                    return null;
-                }
-            });
-
-            _toUnicode = new Lazy<CMAP>(() =>
+                return new CMAP((Name)encodingObj);
+            }
+            else
             {
-                if (dictionary.containsKey("ToUnicode"))
-                {
-                    PDFStream stream = dictionary.get<PDFStream>("ToUnicode");
+                //TODO
+                return null;
+            }
+        }
 
-                    if (stream.underlyingDict.containsKey("UseCMap"))
-                    {
-                        //in theory we just load the other cmap and merge it with this one
-                        throw new NotImplementedException();
-                    }
+        protected override CMAP loadToUnicode()
+        {
+            if (underlyingDict.containsKey("ToUnicode"))
+            {
+                PDFStream stream = underlyingDict.get<PDFStream>("ToUnicode");
 
-                    return new CMAP(stream.getDecompressedStream());
-                }
-                else
+                if (stream.underlyingDict.containsKey("UseCMap"))
                 {
-                    return null;
+                    //in theory we just load the other cmap and merge it with this one
+                    throw new NotImplementedException();
                 }
-            });
+
+                return new CMAP(stream.getDecompressedStream());
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public override FontDescriptor getFontDescriptor()

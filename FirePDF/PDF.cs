@@ -18,7 +18,7 @@ namespace FirePDF
 
         //todo change this to a dictionary accessor
         internal Catalog catalog;
-        
+
         public readonly float version;
         internal long lastXrefOffset;
 
@@ -35,7 +35,7 @@ namespace FirePDF
             ObjectReference root;
             XREFTable table;
             PDFReader.readXREFTables(this, stream, out table, out root);
-            
+
             this.store = new ObjectStore(this, table, stream);
             this.underlyingDict = new PDFDictionary(this);
 
@@ -93,20 +93,53 @@ namespace FirePDF
             return store.get<T>(indirectReference);
         }
 
+        public ObjectReference addStream(string data)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            using (StreamWriter writer = new StreamWriter(ms))
+            {
+                writer.Write(data);
+                writer.Flush();
+                ms.Seek(0, SeekOrigin.Begin);
+                return addStream(ms);
+            }
+        }
+
+        public ObjectReference addStream(byte[] data)
+        {
+            using (MemoryStream ms = new MemoryStream(data))
+            {
+                ms.Seek(0, SeekOrigin.Begin);
+                return addStream(ms);
+            }
+        }
+
         public ObjectReference addStream(FileInfo file)
         {
             using (Stream stream = File.OpenRead(file.FullName))
             {
-                PDFDictionary streamDict = new PDFDictionary(pdf);
-                streamDict.set("Length", (int)stream.Length);
-
-                return store.addStream(stream, streamDict);
+                return addStream(stream);
             }
+        }
+
+        public ObjectReference addStream(Stream stream)
+        {
+            //TODO have one global newStream, backed by a file maybe?
+            //instead of lots of little memory streams hanging around
+
+            MemoryStream ms = new MemoryStream();
+            stream.CopyTo(ms);
+            ms.Seek(0, SeekOrigin.Begin);
+
+            PDFDictionary streamDict = new PDFDictionary(pdf);
+            streamDict.set("Length", (int)ms.Length);
+
+            return store.addStream(ms, streamDict);
         }
 
         public void save(string fullFilePath, SaveType saveType = SaveType.Fresh)
         {
-            if(saveType == SaveType.Fresh)
+            if (saveType == SaveType.Fresh)
             {
                 PDFWriter writer = new PDFWriter(File.Create(fullFilePath), false);
                 writer.writeNewPDF(this);

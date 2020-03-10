@@ -20,30 +20,47 @@ namespace test
     {
         static void Main(string[] args)
         {
-            extractTextTest();
+            //extractTextTest();
             //fixCMAP();
 
-            //string file = @"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\3.pdf";
-            ////foreach(string file in Directory.EnumerateFiles(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\"))
-            ////{
-            //using (PDF pdf = new PDF(file))
+            string file = @"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\3.pdf";
+            //foreach(string file in Directory.EnumerateFiles(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\"))
             //{
-            //    List<Font> fonts = pdf.getAll<Font>();
-            //    fonts = fonts.Where(x => x.baseFont.ToString().Contains("News706BT") && x.encoding != null).ToList();
-            //    foreach (Font font in fonts)
-            //    {
-            //        if (font.toUnicode != null)
-            //        {
-            //            CMAP cmap = font.toUnicode;
-            //            if (cmap.codeToUnicode(0xc0) == "i")
-            //            {
-            //                cmap.addCharMapping(0xc0, "fi");
-            //            }
-            //        }
-            //    }
+            using (PDF pdf = new PDF(file))
+            {
+                List<Font> fonts = pdf.getAll<Font>();
+                fonts = fonts.Where(x => x.baseFont.ToString().Contains("News706BT") && x.encoding != null).ToList();
+                foreach (Font font in fonts)
+                {
+                    if (font.toUnicode != null)
+                    {
+                        CMAP cmap = font.toUnicode;
+                        if (cmap.codeToUnicode(0xc0) == "i" || cmap.codeToUnicode(0xc1) == "l")
+                        {
+                            PDFStream cmapData = font.underlyingDict.get<PDFStream>("ToUnicode");
+                            using (Stream stream = cmapData.getDecompressedStream())
+                            using (StreamReader streamReader = new StreamReader(stream))
+                            {
+                                string cmapString = streamReader.ReadToEnd();
 
-            //    pdf.save(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09 fixed\13.pdf", SaveType.Fresh);
-            //}
+                                int oldLength = cmapString.Length;
+                                cmapString = cmapString.Replace("<00c0><00c0><0069>", "<00c0><00c0><00660069>");
+                                cmapString = cmapString.Replace("<00c1><00c1><006c>", "<00c1><00c1><0066006c>");
+                                if(oldLength == cmapString.Length)
+                                {
+                                    //no change to cmap, so no point saving it
+                                    continue;
+                                }
+
+                                ObjectReference newCmapRef = pdf.addStream(cmapString);
+                                font.underlyingDict.set("ToUnicode", newCmapRef);
+                            }
+                        }
+                    }
+                }
+
+                pdf.save(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09 fixed\3.pdf", SaveType.Fresh);
+            }
             //}
         }
 

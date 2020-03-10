@@ -7,12 +7,6 @@ namespace FirePDF.Model
     //pdf spec 9.7.4
     public class CIDType0Font : CIDFont
     {
-        private Lazy<CMAP> _encoding;
-        public override CMAP encoding => _encoding.Value;
-
-        private Lazy<CMAP> _toUnicode;
-        public override CMAP toUnicode => _toUnicode.Value;
-
         private int defaultWidth
         {
             get => underlyingDict.get<int?>("DW") ?? 1000;
@@ -24,6 +18,40 @@ namespace FirePDF.Model
         private FontDescriptor fontDescriptor
         {
             get => underlyingDict.get<FontDescriptor>("FontDescriptor");
+        }
+
+        protected override CMAP loadEncoding()
+        {
+            object encodingObj = underlyingDict.get<object>("Encoding");
+            if (encodingObj is Name)
+            {
+                return new CMAP((Name)encodingObj);
+            }
+            else
+            {
+                //TODO
+                return null;
+            }
+        }
+
+        protected override CMAP loadToUnicode()
+        {
+            if (underlyingDict.containsKey("ToUnicode"))
+            {
+                PDFStream stream = underlyingDict.get<PDFStream>("ToUnicode");
+
+                if (stream.underlyingDict.containsKey("UseCMap"))
+                {
+                    //in theory we just load the other cmap and merge it with this one
+                    throw new NotImplementedException();
+                }
+
+                return new CMAP(stream.getDecompressedStream());
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public CIDType0Font(PDFDictionary dictionary) : base(dictionary)
