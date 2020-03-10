@@ -1,55 +1,50 @@
-﻿using FirePDF.Reading;
-using FirePDF.Writing;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using FirePDF.Writing;
 
 namespace FirePDF.Model
 {
-    public class Trailer : IHaveUnderlyingDict
+    public class Trailer : HaveUnderlyingDict
     {
-        public int? size
+        public int? Size
         {
-            get => underlyingDict.get<int?>("Size");
-            set => underlyingDict.set("Size", value);
+            get => UnderlyingDict.Get<int?>("Size");
+            set => UnderlyingDict.Set("Size", value);
         }
 
-        public ObjectReference root
+        public ObjectReference Root
         {
-            get => underlyingDict.get<ObjectReference>("Root");
-            set => underlyingDict.set("Root", value);
+            get => UnderlyingDict.Get<ObjectReference>("Root");
+            set => UnderlyingDict.Set("Root", value);
         }
 
-        public int? prev
+        public int? Prev
         {
-            get => underlyingDict.get<int?>("Prev");
-            set => underlyingDict.set("Prev", value);
+            get => UnderlyingDict.Get<int?>("Prev");
+            set => UnderlyingDict.Set("Prev", value);
         }
         
         public int? XRefStm
         {
-            get => underlyingDict.get<int?>("XRefStm");
-            set => underlyingDict.set("XRefStm", value);
+            get => UnderlyingDict.Get<int?>("XRefStm");
+            set => UnderlyingDict.Set("XRefStm", value);
         }
 
-        public Trailer(PDF pdf) : base(new PDFDictionary(pdf))
+        public Trailer(Pdf pdf) : base(new PdfDictionary(pdf))
         {
 
         }
 
-        public Trailer(PDFDictionary underylingDict) : base(underylingDict)
+        public Trailer(PdfDictionary underlyingDict) : base(underlyingDict)
         {
             
         }
 
-        public void serialize(PDFWriter writer)
+        public void Serialize(PdfWriter writer)
         {
-            writer.writeASCII("trailer");
-            writer.writeNewLine();
+            writer.WriteAscii("trailer");
+            writer.WriteNewLine();
             
-            writer.writeDirectObject(underlyingDict);
-            writer.writeNewLine();
+            writer.WriteDirectObject(UnderlyingDict);
+            writer.WriteNewLine();
         }
 
     }

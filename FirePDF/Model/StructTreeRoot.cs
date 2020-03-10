@@ -1,8 +1,8 @@
 ﻿namespace FirePDF.Model
 {
-    internal class StructTreeRoot : IHaveUnderlyingDict
+    internal class StructTreeRoot : HaveUnderlyingDict
     {
-        public StructTreeRoot(PDFDictionary underlyingDict) : base(underlyingDict)
+        public StructTreeRoot(PdfDictionary underlyingDict) : base(underlyingDict)
         {
         }
     }

@@ -1,44 +1,39 @@
-﻿using FirePDF.Reading;
-using FirePDF.Writing;
+﻿using FirePDF.Writing;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class Catalog : IHaveUnderlyingDict, IEnumerable<Page>
+    public class Catalog : HaveUnderlyingDict, IEnumerable<Page>
     {
         internal PageTreeNode pagesRoot;
         
-        public Catalog(PDFDictionary underlyingDict) : base(underlyingDict)
+        public Catalog(PdfDictionary underlyingDict) : base(underlyingDict)
         {
-            pagesRoot = underlyingDict.get<PageTreeNode>("Pages");
+            pagesRoot = underlyingDict.Get<PageTreeNode>("Pages");
         }
 
-        public Catalog(PDF pdf) : base(new PDFDictionary(pdf))
+        public Catalog(Pdf pdf) : base(new PdfDictionary(pdf))
         {
             pagesRoot = new PageTreeNode(pdf);
 
-            underlyingDict.set("Type", (Name)"Catalog");
+            UnderlyingDict.Set("Type", (Name)"Catalog");
             //we really want a new object here, so we aren't going to check the cache to see if it already exists
-            underlyingDict.set("Pages", pdf.store.add(pagesRoot));
+            UnderlyingDict.Set("Pages", pdf.store.Add(pagesRoot));
         }
 
         /// <summary>
-        /// returns the number of pages in the pdf
+        /// returns the number of pages in the Pdf
         /// </summary>
-        public int numPages()
+        public int NumPages()
         {
-            return pagesRoot.getNumPages();
+            return pagesRoot.GetNumPages();
         }
 
-        public Page getPage(int oneBasedPageNumber)
+        public Page GetPage(int oneBasedPageNumber)
         {
-            return pagesRoot.getPage(oneBasedPageNumber);
+            return pagesRoot.GetPage(oneBasedPageNumber);
         }
 
         public IEnumerator<Page> GetEnumerator()
@@ -61,13 +56,7 @@ namespace FirePDF.Model
                 this.catalog = catalog;
             }
 
-            public Page Current
-            {
-                get
-                {
-                    return current == 0 ? null : catalog.getPage(current);
-                }
-            }
+            public Page Current => current == 0 ? null : catalog.GetPage(current);
 
             object IEnumerator.Current => Current;
 
@@ -79,7 +68,7 @@ namespace FirePDF.Model
             public bool MoveNext()
             {
                 current++;
-                return current <= catalog.numPages();
+                return current <= catalog.NumPages();
             }
 
             public void Reset()
@@ -88,17 +77,16 @@ namespace FirePDF.Model
             }
         }
 
-        internal ObjectReference serialize(PDFWriter pdfWriter)
+        internal ObjectReference Serialize(PdfWriter pdfWriter)
         {
             throw new Exception("not handling saving yet");
-            return null;
             //underlyingDict["Pages"] = pagesRoot.serialize(pdfWriter);
             //return pdfWriter.writeIndirectObjectUsingNextFreeNumber(underlyingDict);
         }
 
-        internal void insertPage(Page newPage, ObjectReference objRef, int oneBasedPageNumber)
+        internal void InsertPage(Page newPage, ObjectReference objRef, int oneBasedPageNumber)
         {
-            pagesRoot.insertPage(newPage, objRef, oneBasedPageNumber);
+            pagesRoot.InsertPage(newPage, objRef, oneBasedPageNumber);
         }
     }
 }

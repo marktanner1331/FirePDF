@@ -1,24 +1,20 @@
 ﻿using FirePDF.Model;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.StreamHelpers
 {
     public class RawStreamReader
     {
-        public static Bitmap convertImageBufferToImage(byte[] buffer, PDFDictionary streamDictionary)
+        public static Bitmap ConvertImageBufferToImage(byte[] buffer, PdfDictionary streamDictionary)
         {
-            int width = streamDictionary.get<int>("Width");
-            int height = streamDictionary.get<int>("Height");
+            int width = streamDictionary.Get<int>("Width");
+            int height = streamDictionary.Get<int>("Height");
             
-            switch (streamDictionary.get<Name>("ColorSpace"))
+            switch (streamDictionary.Get<Name>("ColorSpace"))
             {
                 default:
                     throw new NotImplementedException();
@@ -26,14 +22,14 @@ namespace FirePDF.StreamHelpers
         }
 
         /// <summary>
-        /// decompresses a stream from the pdf stream at the current position and returns it
+        /// decompresses a stream from the Pdf stream at the current position and returns it
         /// as the stream isn't compressed, this method has the effect of just copying the bytes to a new stream
         /// </summary>
-        public static Stream decompressStream(Stream pdfStream, PDFDictionary streamDictionary)
+        public static Stream DecompressStream(Stream pdfStream, PdfDictionary streamDictionary)
         {
             MemoryStream temp = new MemoryStream();
 
-            long length = streamDictionary.get<int>("Length");
+            long length = streamDictionary.Get<int>("Length");
 
             byte[] buffer = new byte[4096];
             while (length > 0)
@@ -54,12 +50,12 @@ namespace FirePDF.StreamHelpers
         /// <summary>
         /// takes a buffer containing RGB values and converts it into a System.Drawing.Image
         /// </summary>
-        private static Bitmap convertRGBArrayToImage(byte[] buffer, int width, int height)
+        private static Bitmap ConvertRgbArrayToImage(byte[] buffer, int width, int height)
         {
             Bitmap b = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            Rectangle BoundsRect = new Rectangle(0, 0, width, height);
-            BitmapData bmpData = b.LockBits(BoundsRect,
+            Rectangle boundsRect = new Rectangle(0, 0, width, height);
+            BitmapData bmpData = b.LockBits(boundsRect,
                                             ImageLockMode.WriteOnly,
                                             b.PixelFormat);
 

@@ -2,51 +2,48 @@
 using FirePDF.StreamPartFunctions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Graphical_Debugger
 {
-    class OperationListBox : TreeView
+    internal class OperationListBox : TreeView
     {
-        public event Action onCheckChanged;
+        public event Action OnCheckChanged;
 
         public OperationListBox()
         {
-            this.CheckBoxes = true;
-            this.AfterCheck += treeView1_AfterCheck;
+            CheckBoxes = true;
+            AfterCheck += treeView1_AfterCheck;
         }
 
-        public void setOperations(List<Operation> operations)
+        public void SetOperations(List<Operation> operations)
         {
             StreamTree tree = new StreamTree(operations);
-            this.Controls.Clear();
-            this.Nodes.Clear();
+            Controls.Clear();
+            Nodes.Clear();
             OperationTreeNode root = new OperationTreeNode(tree.root);
-            this.Nodes.Add(root);
+            Nodes.Add(root);
         }
         
         private void treeView1_AfterCheck(object sender, TreeViewEventArgs e)
         {
-            this.AfterCheck -= treeView1_AfterCheck;
-            selectChildren(e.Node);
-            this.AfterCheck += treeView1_AfterCheck;
+            AfterCheck -= treeView1_AfterCheck;
+            SelectChildren(e.Node);
+            AfterCheck += treeView1_AfterCheck;
 
-            onCheckChanged?.Invoke();
+            OnCheckChanged?.Invoke();
         }
 
-        public List<bool> getCheckedMap() => ((OperationTreeNode)this.Nodes[0]).getCheckedMap();
+        public List<bool> GetCheckedMap() => ((OperationTreeNode)Nodes[0]).GetCheckedMap();
 
-        public List<Operation> getCheckedOperations() => ((OperationTreeNode)this.Nodes[0]).getOperations();
+        public List<Operation> GetCheckedOperations() => ((OperationTreeNode)Nodes[0]).GetOperations();
 
-        private void selectChildren(TreeNode node)
+        private static void SelectChildren(TreeNode node)
         {
             foreach (TreeNode child in node.Nodes)
             {
                 child.Checked = node.Checked;
-                selectChildren(child);
+                SelectChildren(child);
             }
         }
     }

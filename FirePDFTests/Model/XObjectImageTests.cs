@@ -1,36 +1,34 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FirePDF.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Reflection;
+using FirePDF;
+using FirePDF.Model;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FirePDF.Model.Tests
+namespace FirePDFTests.Model
 {
     [TestClass()]
     public class XObjectImageTests
     {
-        private string getPDFFolder()
+        private static string GetPdfFolder()
         {
             return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
         }
 
         [TestMethod()]
-        public void getImageTest()
+        public void GetImageTest()
         {
-            string file = getPDFFolder() + "page 24 fixed.pdf";
-            PDF pdf = new PDF(file);
+            string file = GetPdfFolder() + "page 24 fixed.Pdf";
+            Pdf pdf = new Pdf(file);
 
-            Page page = pdf.getPage(1);
+            Page page = pdf.GetPage(1);
 
-            List<Name> forms = page.resources.listXObjectForms().ToList();
-            XObjectForm form = page.resources.getXObjectForm(forms.First());
+            List<Name> forms = page.Resources.ListXObjectForms().ToList();
+            XObjectForm form = page.Resources.GetXObjectForm(forms.First());
 
-            XObjectImage xObjectImage = form.resources.getXObjectImage("img0");
-            Image image = xObjectImage.getImage();
+            XObjectImage xObjectImage = form.Resources.GetXObjectImage("img0");
+            Image image = xObjectImage.GetImage();
         }
     }
 }

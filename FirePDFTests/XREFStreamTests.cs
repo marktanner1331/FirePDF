@@ -1,28 +1,23 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FirePDF;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
+using FirePDF;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FirePDF.Tests
+namespace FirePDFTests
 {
     [TestClass()]
-    public class XREFStreamTests
+    public class XrefStreamTests
     {
-        private string getPDFFolder()
+        private static string GetPdfFolder()
         {
             return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
         }
 
         [TestMethod()]
-        public void test1()
+        public void Test1()
         {
-            string file = getPDFFolder() + "09a9da81-1261-49b3-a9f0-2e76b476f992.pdf";
-            PDF pdf = new PDF(file);
+            string file = GetPdfFolder() + "09a9da81-1261-49b3-a9f0-2e76b476f992.Pdf";
+            Pdf pdf = new Pdf(file);
 
         }
     }

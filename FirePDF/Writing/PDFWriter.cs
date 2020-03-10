@@ -1,38 +1,38 @@
 ﻿using FirePDF.Model;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Writing
 {
-    public class PDFWriter : IDisposable
+    public class PdfWriter : IDisposable
     {
         private readonly Stream stream;
         private readonly byte[] buffer;
         private int bufferIndex;
         private readonly bool leaveOpen;
 
-        private readonly XREFTable newTable;
+        private readonly XrefTable newTable;
 
-        private PDF pdf;
-        private Dictionary<ObjectReference, ObjectReference> indirectReferenceRemap;
+        private Pdf pdf;
+        private readonly Dictionary<ObjectReference, ObjectReference> indirectReferenceRemap;
 
-        public PDFWriter(Stream stream, bool leaveOpen)
+        public PdfWriter(Stream stream, bool leaveOpen)
         {
             this.stream = stream;
             this.leaveOpen = leaveOpen;
 
-            this.buffer = new byte[1024];
-            this.bufferIndex = 0;
+            buffer = new byte[1024];
+            bufferIndex = 0;
 
             indirectReferenceRemap = new Dictionary<ObjectReference, ObjectReference>();
-            newTable = new XREFTable();
+            newTable = new XrefTable();
         }
 
-        public void flush()
+        public void Flush()
         {
             if (bufferIndex > 0)
             {
@@ -41,30 +41,30 @@ namespace FirePDF.Writing
             }
         }
 
-        public void writeHeader(double version)
+        public void WriteHeader(double version)
         {
-            writeHeader((float)version);
+            WriteHeader((float)version);
         }
 
-        public void writeHeader(float version)
+        public void WriteHeader(float version)
         {
-            writeASCII("%PDF-");
-            writeASCII(version);
-            writeByte(0x0a);
-            writeBytes(new byte[] { 0x25, 0xe2, 0xe3, 0xcf, 0xd3 });
-            writeNewLine();
+            WriteAscii("%Pdf-");
+            WriteAscii(version);
+            WriteByte(0x0a);
+            WriteBytes(new byte[] { 0x25, 0xe2, 0xe3, 0xcf, 0xd3 });
+            WriteNewLine();
         }
 
-        public void writeNewPDF(PDF pdf)
+        public void WriteNewPdf(Pdf pdf)
         {
             this.pdf = pdf;
-            writeHeader(pdf.version);
+            WriteHeader(pdf.version);
 
-            ObjectReference trailerRef = pdf.store.add(pdf.underlyingDict);
+            ObjectReference trailerRef = pdf.store.Add(pdf.UnderlyingDict);
             
-            HashSet<ObjectReference> allObjects = exploreRecursively(trailerRef);
+            HashSet<ObjectReference> allObjects = ExploreRecursively(trailerRef);
             
-            Dictionary<ObjectReference, ObjectReference> map = remapDirtyObjects(allObjects);
+            Dictionary<ObjectReference, ObjectReference> map = RemapDirtyObjects(allObjects);
             
             if (map.ContainsKey(trailerRef))
             {
@@ -73,31 +73,31 @@ namespace FirePDF.Writing
 
             allObjects.Remove(trailerRef);
 
-            allObjects = remapReferences(allObjects, map);
-            writeIndirectObjects(allObjects);
+            allObjects = RemapReferences(allObjects, map);
+            WriteIndirectObjects(allObjects);
 
-            flush();
+            Flush();
             stream.Flush();
             
             long xrefOffset = stream.Position;
-            newTable.serialize(this);
+            newTable.Serialize(this);
 
-            Trailer trailer = new Trailer(pdf.get<PDFDictionary>(trailerRef));
-            trailer.serialize(this);
+            Trailer trailer = new Trailer(pdf.Get<PdfDictionary>(trailerRef));
+            trailer.Serialize(this);
 
-            writeASCII("startxref");
-            writeNewLine();
+            WriteAscii("startxref");
+            WriteNewLine();
 
-            writeASCII(xrefOffset);
-            writeNewLine();
+            WriteAscii(xrefOffset);
+            WriteNewLine();
 
-            writeASCII("%%EOF");
+            WriteAscii("%%EOF");
 
-            flush();
+            Flush();
             stream.Flush();
         }
 
-        private HashSet<ObjectReference> exploreRecursively(ObjectReference root)
+        private static HashSet<ObjectReference> ExploreRecursively(ObjectReference root)
         {
             HashSet<ObjectReference> discoveredObjects = new HashSet<ObjectReference>();
 
@@ -109,7 +109,7 @@ namespace FirePDF.Writing
                 ObjectReference objRef = queue.Dequeue();
                 discoveredObjects.Add(objRef);
 
-                object obj = objRef.get<object>();
+                object obj = objRef.Get<object>();
                 if (obj is IHaveChildren)
                 {
                     foreach (ObjectReference subRef in (obj as IHaveChildren).GetObjectReferences())
@@ -126,7 +126,7 @@ namespace FirePDF.Writing
             return discoveredObjects;
         }
 
-        private Dictionary<ObjectReference, ObjectReference> remapDirtyObjects(HashSet<ObjectReference> objectReferences)
+        private Dictionary<ObjectReference, ObjectReference> RemapDirtyObjects(HashSet<ObjectReference> objectReferences)
         {
             Dictionary<ObjectReference, ObjectReference> map = new Dictionary<ObjectReference, ObjectReference>();
             
@@ -138,30 +138,30 @@ namespace FirePDF.Writing
                 {
                     ObjectReference reference = map.ContainsKey(temp) ? map[temp] : temp;
 
-                    object obj = reference.get<object>();
+                    object obj = reference.Get<object>();
                     if (obj is IHaveChildren == false)
                     {
                         continue;
                     }
 
-                    (obj as IHaveChildren).swapReferences(x => map.ContainsKey(x) ? map[x] : x);
+                    (obj as IHaveChildren).SwapReferences(x => map.ContainsKey(x) ? map[x] : x);
                 }
 
                 foreach (ObjectReference temp in objectReferences)
                 {
                     ObjectReference reference = map.ContainsKey(temp) ? map[temp] : temp;
 
-                    object obj = reference.get<object>();
+                    object obj = reference.Get<object>();
                     if (obj is IHaveChildren == false)
                     {
                         continue;
                     }
 
-                    if (pdf.store.isExistingObject(reference))
+                    if (pdf.store.IsExistingObject(reference))
                     {
-                        if ((obj as IHaveChildren).isDirty())
+                        if ((obj as IHaveChildren).IsDirty())
                         {
-                            ObjectReference newObjRef = pdf.store.add(obj);
+                            ObjectReference newObjRef = pdf.store.Add(obj);
                             map[reference] = newObjRef;
                             hasChanged = true;
                         }
@@ -172,7 +172,7 @@ namespace FirePDF.Writing
             return map;
         }
 
-        private HashSet<ObjectReference> remapReferences(HashSet<ObjectReference> references, Dictionary<ObjectReference, ObjectReference> map)
+        private static HashSet<ObjectReference> RemapReferences(IEnumerable<ObjectReference> references, IReadOnlyDictionary<ObjectReference, ObjectReference> map)
         {
             HashSet<ObjectReference> newReferences = new HashSet<ObjectReference>();
             foreach(ObjectReference reference in references)
@@ -190,23 +190,23 @@ namespace FirePDF.Writing
             return newReferences;
         }
 
-        private void writeIndirectObjects(IEnumerable<ObjectReference> objectReferences)
+        private void WriteIndirectObjects(IEnumerable<ObjectReference> objectReferences)
         {
             foreach(ObjectReference objectRef in objectReferences.OrderBy(x => x.objectNumber))
             {
-                object value = objectRef.get<object>();
-                writeIndirectObject(objectRef.objectNumber, objectRef.generation, value);
+                object value = objectRef.Get<object>();
+                WriteIndirectObject(objectRef.objectNumber, objectRef.generation, value);
             }
         }
         
-        public void writeUpdatedPDF(PDF pdf)
+        public void WriteUpdatedPdf(Pdf pdf)
         {
             this.pdf = pdf;
            
-            ObjectReference trailerRef = pdf.store.add(pdf.underlyingDict);
+            ObjectReference trailerRef = pdf.store.Add(pdf.UnderlyingDict);
 
-            HashSet<ObjectReference> allObjects = exploreRecursively(trailerRef);
-            Dictionary<ObjectReference, ObjectReference> map = remapDirtyObjects(allObjects);
+            HashSet<ObjectReference> allObjects = ExploreRecursively(trailerRef);
+            Dictionary<ObjectReference, ObjectReference> map = RemapDirtyObjects(allObjects);
 
             if (map.ContainsKey(trailerRef))
             {
@@ -215,9 +215,9 @@ namespace FirePDF.Writing
 
             allObjects.Remove(trailerRef);
 
-            allObjects = remapReferences(allObjects, map);
+            allObjects = RemapReferences(allObjects, map);
 
-            int existingObjects = allObjects.RemoveWhere(x => pdf.store.isExistingObject(x));
+            int existingObjects = allObjects.RemoveWhere(x => pdf.store.IsExistingObject(x));
 
             if(allObjects.Count == 0)
             {
@@ -226,30 +226,30 @@ namespace FirePDF.Writing
                 return;
             }
 
-            writeIndirectObjects(allObjects);
+            WriteIndirectObjects(allObjects);
 
             long xrefOffset = stream.Position + bufferIndex;
-            newTable.serialize(this);
+            newTable.Serialize(this);
 
-            Trailer trailer = new Trailer(pdf.get<PDFDictionary>(trailerRef));
-            trailer.prev = (int)pdf.lastXrefOffset;
-            trailer.serialize(this);
+            Trailer trailer = new Trailer(pdf.Get<PdfDictionary>(trailerRef));
+            trailer.Prev = (int)pdf.lastXrefOffset;
+            trailer.Serialize(this);
 
-            writeASCII("startxref");
-            writeNewLine();
+            WriteAscii("startxref");
+            WriteNewLine();
 
-            writeASCII(xrefOffset);
-            writeNewLine();
+            WriteAscii(xrefOffset);
+            WriteNewLine();
 
-            writeASCII("%%EOF");
+            WriteAscii("%%EOF");
 
-            flush();
+            Flush();
             stream.Flush();
         }
         
-        public void writeIndirectObject(int objectNumber, int generation, object obj)
+        public void WriteIndirectObject(int objectNumber, int generation, object obj)
         {
-            newTable.addRecord(new XREFTable.XREFRecord
+            newTable.AddRecord(new XrefTable.XrefRecord
             {
                 isCompressed = false,
                 objectNumber = objectNumber,
@@ -257,51 +257,51 @@ namespace FirePDF.Writing
                 offset = stream.Position + bufferIndex
             });
 
-            writeASCII(objectNumber + " " + generation + " obj");
-            writeNewLine();
-            writeDirectObject(obj);
-            writeNewLine();
-            writeASCII("endobj");
-            writeNewLine();
+            WriteAscii(objectNumber + " " + generation + " obj");
+            WriteNewLine();
+            WriteDirectObject(obj);
+            WriteNewLine();
+            WriteAscii("endobj");
+            WriteNewLine();
         }
 
-        public void writeDirectObject(object obj)
+        public void WriteDirectObject(object obj)
         {
-            if (obj is PDFDictionary)
+            if (obj is PdfDictionary)
             {
-                writeDirectObject(obj as PDFDictionary);
+                WriteDirectObject(obj as PdfDictionary);
             }
-            else if (obj is PDFStream)
+            else if (obj is PdfStream)
             {
-                PDFStream streamObj = obj as PDFStream;
-                writeDirectObject(streamObj.underlyingDict);
-                writeNewLine();
-                writeASCII("stream");
-                writeNewLine();
-                writeStream(streamObj.getCompressedStream());
+                PdfStream streamObj = obj as PdfStream;
+                WriteDirectObject(streamObj.UnderlyingDict);
+                WriteNewLine();
+                WriteAscii("stream");
+                WriteNewLine();
+                WriteStream(streamObj.GetCompressedStream());
 
-                writeASCII("endstream");
+                WriteAscii("endstream");
             }
             else if(obj is Font font)
             {
-                font.prepareForWriting();
-                writeDirectObject((obj as IHaveUnderlyingDict).underlyingDict);
+                font.PrepareForWriting();
+                WriteDirectObject((obj as HaveUnderlyingDict).UnderlyingDict);
             }
-            else if (obj is IHaveUnderlyingDict)
+            else if (obj is HaveUnderlyingDict)
             {
-                writeDirectObject((obj as IHaveUnderlyingDict).underlyingDict);
+                WriteDirectObject((obj as HaveUnderlyingDict).UnderlyingDict);
             }
-            else if (obj is PDFList)
+            else if (obj is PdfList)
             {
-                writeDirectObject(obj as PDFList);
+                WriteDirectObject(obj as PdfList);
             }
             else if (obj is Name)
             {
-                writeDirectObject(obj as Name);
+                WriteDirectObject(obj as Name);
             }
             else if (obj is ObjectReference)
             {
-                writeDirectObject(obj as ObjectReference);
+                WriteDirectObject(obj as ObjectReference);
             }
             else if (obj is XObjectForm)
             {
@@ -309,43 +309,43 @@ namespace FirePDF.Writing
             }
             else if (obj is byte[])
             {
-                writeDirectObject(obj as byte[]);
+                WriteDirectObject(obj as byte[]);
             }
             else if (obj is bool)
             {
-                writeASCII((bool)obj);
+                WriteAscii((bool)obj);
             }
             else if (obj is float)
             {
-                writeASCII((float)obj);
+                WriteAscii((float)obj);
             }
             else if (obj is int)
             {
-                writeASCII((int)obj);
+                WriteAscii((int)obj);
             }
             else if (obj is double)
             {
-                writeASCII((double)obj);
+                WriteAscii((double)obj);
             }
             else if (obj is long)
             {
-                writeASCII((long)obj);
+                WriteAscii((long)obj);
             }
-            else if (obj is PDFString pdfString)
+            else if (obj is PdfString pdfString)
             {
                 if(pdfString.isHexString)
                 {
-                    writeDirectObject(pdfString.toByteArray());
+                    WriteDirectObject(pdfString.ToByteArray());
                 }
                 else
                 {
-                    writeDirectObject((string)obj);
+                    WriteDirectObject((string)obj);
                 }
                 
             }
             else if (obj is null)
             {
-                writeASCII("null");
+                WriteAscii("null");
             }
             else
             {
@@ -353,17 +353,17 @@ namespace FirePDF.Writing
             }
         }
 
-        public void writeDirectObject(byte[] hexString)
+        public void WriteDirectObject(byte[] hexString)
         {
             StringBuilder hex = new StringBuilder(hexString.Length * 2);
 
             foreach (byte b in hexString)
                 hex.AppendFormat("{0:x2}", b);
 
-            writeASCII(hex.ToString());
+            WriteAscii(hex.ToString());
         }
 
-        public void writeDirectObject(string s)
+        public void WriteDirectObject(string s)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("(");
@@ -389,27 +389,27 @@ namespace FirePDF.Writing
 
             sb.Append(")");
 
-            writeASCII(sb.ToString());
+            WriteAscii(sb.ToString());
         }
 
-        public void writeDirectObject(ObjectReference objectReference)
+        public void WriteDirectObject(ObjectReference objectReference)
         {
             if (indirectReferenceRemap.ContainsKey(objectReference))
             {
                 throw new Exception("should never happen");
             }
 
-            writeASCII(objectReference.objectNumber + " " + objectReference.generation + " R");
+            WriteAscii(objectReference.objectNumber + " " + objectReference.generation + " R");
         }
 
-        public void writeDirectObject(Name name)
+        public void WriteDirectObject(Name name)
         {
-            writeASCII("/" + name);
+            WriteAscii("/" + name);
         }
 
-        public void writeDirectObject(PDFList array)
+        public void WriteDirectObject(PdfList array)
         {
-            writeASCII("[");
+            WriteAscii("[");
             bool isFirst = true;
 
             foreach (object element in array)
@@ -420,86 +420,86 @@ namespace FirePDF.Writing
                 }
                 else
                 {
-                    writeASCII(" ");
+                    WriteAscii(" ");
                 }
 
-                writeDirectObject(element);
+                WriteDirectObject(element);
             }
-            writeASCII("]");
+            WriteAscii("]");
         }
 
-        public void writeDirectObject(PDFDictionary dict)
+        public void WriteDirectObject(PdfDictionary dict)
         {
-            writeASCII("<<");
-            foreach (var pair in dict)
+            WriteAscii("<<");
+            foreach (KeyValuePair<Name, object> pair in dict)
             {
-                if (pair.Value is Name || pair.Value is PDFList || pair.Value is PDFDictionary)
+                if (pair.Value is Name || pair.Value is PdfList || pair.Value is PdfDictionary)
                 {
                     //we don't need a space for certain value types
-                    writeASCII("/" + pair.Key);
+                    WriteAscii("/" + pair.Key);
                 }
                 else
                 {
-                    writeASCII("/" + pair.Key + " ");
+                    WriteAscii("/" + pair.Key + " ");
                 }
 
-                writeDirectObject(pair.Value);
+                WriteDirectObject(pair.Value);
             }
-            writeASCII(">>");
+            WriteAscii(">>");
         }
 
-        public void writeNewLine()
+        public void WriteNewLine()
         {
             if (buffer.Length - bufferIndex < 3)
             {
-                flush();
+                Flush();
             }
 
             buffer[bufferIndex++] = 0x0d;
             buffer[bufferIndex++] = 0x0a;
         }
 
-        public void writeASCII(bool b)
+        public void WriteAscii(bool b)
         {
-            writeASCII(b ? "true" : "false");
+            WriteAscii(b ? "true" : "false");
         }
 
-        public void writeASCII(float f)
+        public void WriteAscii(float f)
         {
-            writeASCII(f.ToString());
+            WriteAscii(f.ToString(CultureInfo.InvariantCulture));
         }
 
-        public void writeASCII(double d)
+        public void WriteAscii(double d)
         {
-            writeASCII(d.ToString());
+            WriteAscii(d.ToString(CultureInfo.InvariantCulture));
         }
 
-        public void writeASCII(long l)
+        public void WriteAscii(long l)
         {
-            writeASCII(l.ToString());
+            WriteAscii(l.ToString());
         }
 
-        public void writeASCII(int i)
+        public void WriteAscii(int i)
         {
-            writeASCII(i.ToString());
+            WriteAscii(i.ToString());
         }
 
-        public void writeASCII(string s)
+        public void WriteAscii(string s)
         {
-            writeBytes(Encoding.ASCII.GetBytes(s));
+            WriteBytes(Encoding.ASCII.GetBytes(s));
         }
 
-        private void writeByte(byte b)
+        private void WriteByte(byte b)
         {
             if (buffer.Length - bufferIndex < 2)
             {
-                flush();
+                Flush();
             }
 
             buffer[bufferIndex++] = b;
         }
 
-        public void writeBytes(byte[] bytes)
+        public void WriteBytes(byte[] bytes)
         {
             if (buffer.Length - bufferIndex > bytes.Length)
             {
@@ -508,27 +508,27 @@ namespace FirePDF.Writing
             }
             else if (buffer.Length > bytes.Length)
             {
-                flush();
+                Flush();
                 Array.Copy(bytes, 0, buffer, bufferIndex, bytes.Length);
                 bufferIndex = bytes.Length;
             }
             else
             {
-                flush();
+                Flush();
                 stream.Write(bytes, 0, bytes.Length);
             }
         }
 
-        public void writeStream(Stream stream)
+        public void WriteStream(Stream stream)
         {
-            flush();
+            Flush();
 
             stream.CopyTo(this.stream);
         }
 
         public void Dispose()
         {
-            flush();
+            Flush();
             if (leaveOpen == false)
             {
                 stream.Dispose();

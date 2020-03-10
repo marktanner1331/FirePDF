@@ -1,28 +1,26 @@
 ﻿using FirePDF;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Samples
 {
     public class SplitPages
     {
-        public void main()
+        public void Main()
         {
-            string inputFile = @"";
-            string outputFolder = @"";
+            const string inputFile = @"";
+            const string outputFolder = @"";
 
-            using (PDF pdf = new PDF(inputFile))
+            using (Pdf pdf = new Pdf(inputFile))
             {
                 int i = 1;
                 foreach (Page page in pdf)
                 {
-                    Console.WriteLine($"Running for page {i} of {pdf.numPages()}");
+                    Console.WriteLine($"Running for page {i} of {pdf.NumPages()}");
 
-                    using (PDF newPDF = new PDF())
+                    using (Pdf newPdf = new Pdf())
                     {
-                        newPDF.addPage(page);
-                        newPDF.save(outputFolder + i + ".pdf");
+                        newPdf.AddPage(page);
+                        newPdf.Save(outputFolder + i + ".Pdf");
                     }
 
                     i++;

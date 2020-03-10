@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
 namespace FirePDF.Model
 {
-    public class FontDescriptor : IHaveUnderlyingDict
+    public class FontDescriptor : HaveUnderlyingDict
     {
         public readonly RectangleF bbox;
 
-        public FontDescriptor(PDFDictionary dictionary) : base(dictionary)
+        public FontDescriptor(PdfDictionary dictionary) : base(dictionary)
         {
-            bbox = dictionary.get<PDFList>("FontBBox").asRectangle();
+            bbox = dictionary.Get<PdfList>("FontBBox").AsRectangle();
         }
     }
 }

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.StreamHelpers
 {
-    public static class ASCIIHexDecodeWriter
+    public static class AsciiHexDecodeWriter
     {
-        public static void encode(Stream source, Stream destination)
+        public static void Encode(Stream source, Stream destination)
         {
             using (StreamWriter writer = new StreamWriter(destination, Encoding.ASCII, 4096, true))
             {

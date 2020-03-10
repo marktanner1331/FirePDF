@@ -1,115 +1,110 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FirePDF;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 using FirePDF.Reading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FirePDF.Tests
+namespace FirePDFTests
 {
     [TestClass()]
-    public class PDFObjectReaderTests
+    public class PdfObjectReaderTests
     {
         [TestMethod()]
-        public void readStringTest()
+        public void ReadStringTest()
         {
-            string test = "(hello world)";
-            string expected = "hello world";
-            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            const string test = "(hello world)";
+            const string expected = "hello world";
+            string actual = PdfReader.ReadString(new MemoryStream(Encoding.ASCII.GetBytes(test))).ToString();
 
             Assert.AreEqual(expected, actual);
         }
 
         [TestMethod()]
-        public void readStringTest2()
+        public void ReadStringTest2()
         {
-            string test = "(hello (world))";
-            string expected = "hello (world)";
-            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            const string test = "(hello (world))";
+            const string expected = "hello (world)";
+            string actual = PdfReader.ReadString(new MemoryStream(Encoding.ASCII.GetBytes(test))).ToString();
 
             Assert.AreEqual(expected, actual);
         }
 
         [TestMethod()]
-        public void readStringTest3()
+        public void ReadStringTest3()
         {
-            string test = @"(hello world\r)";
-            string expected = "hello world\r";
-            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            const string test = @"(hello world\r)";
+            const string expected = "hello world\r";
+            string actual = PdfReader.ReadString(new MemoryStream(Encoding.ASCII.GetBytes(test))).ToString();
 
             Assert.AreEqual(expected, actual);
         }
 
         [TestMethod()]
-        public void readStringTest4()
+        public void ReadStringTest4()
         {
-            string test = "(hello world\r)";
-            string expected = "hello world\n";
-            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            const string test = "(hello world\r)";
+            const string expected = "hello world\n";
+            string actual = PdfReader.ReadString(new MemoryStream(Encoding.ASCII.GetBytes(test))).ToString();
 
             Assert.AreEqual(expected, actual);
         }
 
         [TestMethod()]
-        public void readStringTest5()
+        public void ReadStringTest5()
         {
-            string test = "(hello world\n)";
-            string expected = "hello world\n";
-            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            const string test = "(hello world\n)";
+            const string expected = "hello world\n";
+            string actual = PdfReader.ReadString(new MemoryStream(Encoding.ASCII.GetBytes(test))).ToString();
 
             Assert.AreEqual(expected, actual);
         }
 
         [TestMethod()]
-        public void readStringTest6()
+        public void ReadStringTest6()
         {
-            string test = "(hello world\r\n)";
-            string expected = "hello world\n";
-            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            const string test = "(hello world\r\n)";
+            const string expected = "hello world\n";
+            string actual = PdfReader.ReadString(new MemoryStream(Encoding.ASCII.GetBytes(test))).ToString();
 
             Assert.AreEqual(expected, actual);
         }
 
         [TestMethod()]
-        public void readStringTest7()
+        public void ReadStringTest7()
         {
-            string test = @"(hello world\()";
-            string expected = "hello world(";
-            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            const string test = @"(hello world\()";
+            const string expected = "hello world(";
+            string actual = PdfReader.ReadString(new MemoryStream(Encoding.ASCII.GetBytes(test))).ToString();
 
             Assert.AreEqual(expected, actual);
         }
 
         [TestMethod()]
-        public void readStringTest8()
+        public void ReadStringTest8()
         {
-            string test = @"(hello world\012)";
-            string expected = "hello world\n";
-            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            const string test = @"(hello world\012)";
+            const string expected = "hello world\n";
+            string actual = PdfReader.ReadString(new MemoryStream(Encoding.ASCII.GetBytes(test))).ToString();
 
             Assert.AreEqual(expected, actual);
         }
 
 
         [TestMethod()]
-        public void readStringTest9()
+        public void ReadStringTest9()
         {
-            string test = @"(hello world\12)";
-            string expected = "hello world\n";
-            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            const string test = @"(hello world\12)";
+            const string expected = "hello world\n";
+            string actual = PdfReader.ReadString(new MemoryStream(Encoding.ASCII.GetBytes(test))).ToString();
 
             Assert.AreEqual(expected, actual);
         }
 
         [TestMethod()]
-        public void readStringTest10()
+        public void ReadStringTest10()
         {
-            string test = @"(hello world\0123)";
-            string expected = "hello world\n3";
-            string actual = PDFReader.readString(new MemoryStream(Encoding.ASCII.GetBytes(test)));
+            const string test = @"(hello world\0123)";
+            const string expected = "hello world\n3";
+            string actual = PdfReader.ReadString(new MemoryStream(Encoding.ASCII.GetBytes(test))).ToString();
 
             Assert.AreEqual(expected, actual);
         }

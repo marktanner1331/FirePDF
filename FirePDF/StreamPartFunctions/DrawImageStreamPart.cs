@@ -2,12 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.StreamPartFunctions
 {
-    class DrawImageStreamPart : StreamPart
+    public class DrawImageStreamPart : StreamPart
     {
         public DrawImageStreamPart(List<Operation> operations) : base(operations)
         {
@@ -17,7 +15,7 @@ namespace FirePDF.StreamPartFunctions
         /// <summary>
         /// increases the width and height of the image by 1 pixel
         /// </summary>
-        public void increaseSizeByOnePixel()
+        public void IncreaseSizeByOnePixel()
         {
             Operation cm = operations.First();
             if(cm.operatorName != "cm")
@@ -25,8 +23,8 @@ namespace FirePDF.StreamPartFunctions
                 throw new Exception("expected cm");
             }
 
-            cm.operands[0] = cm.getOperandAsFloat(0);
-            cm.operands[3] = cm.getOperandAsFloat(3);
+            cm.operands[0] = cm.GetOperandAsFloat(0);
+            cm.operands[3] = cm.GetOperandAsFloat(3);
         }
     }
 }

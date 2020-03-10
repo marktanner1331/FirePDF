@@ -1,13 +1,7 @@
 ﻿using FirePDF.Model;
-using FirePDF.Rendering;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Processors
 {
@@ -17,18 +11,18 @@ namespace FirePDF.Processors
     public class LineProcessor
     {
         private PointF? currentPoint;
-        public GraphicsPath currentPath { get; private set; }
+        public GraphicsPath CurrentPath { get; }
         
         public LineProcessor()
         {
-            this.currentPath = new GraphicsPath();
+            CurrentPath = new GraphicsPath();
         }
 
         /// <summary>
         /// returns true for all operators that append paths to the current path
         /// but returns false for painting commands that reset the current path (including 'n')
         /// </summary>
-        public static bool isPathDrawingCommand(string operatorName)
+        public static bool IsPathDrawingCommand(string operatorName)
         {
             switch (operatorName)
             {
@@ -45,22 +39,22 @@ namespace FirePDF.Processors
             }
         }
 
-        public bool processOperation(Operation operation)
+        public bool ProcessOperation(Operation operation)
         {
             switch (operation.operatorName)
             {
                 case "c":
                     {
-                        PointF[] points = operation.getOperandsAsPointFs();
+                        PointF[] points = operation.GetOperandsAsPointFs();
                         
                         if (currentPoint == null)
                         {
-                            logWarning("curveTo (" + points[2].X + "," + points[2].Y + ") without initial MoveTo");
+                            LogWarning("curveTo (" + points[2].X + "," + points[2].Y + ") without initial MoveTo");
                             currentPoint = points[2];
                         }
                         else
                         {
-                            currentPath.AddBezier(currentPoint.Value, points[0], points[1], points[2]);
+                            CurrentPath.AddBezier(currentPoint.Value, points[0], points[1], points[2]);
                             currentPoint = points[2];
                         }
                     }
@@ -68,40 +62,40 @@ namespace FirePDF.Processors
                 case "h":
                     if (currentPoint == null)
                     {
-                        logWarning("ClosePath without initial MoveTo");
+                        LogWarning("ClosePath without initial MoveTo");
                     }
                     else
                     {
-                        currentPath.CloseFigure();
+                        CurrentPath.CloseFigure();
                     }
                     break;
                 case "l":
                     {
-                        PointF[] points = operation.getOperandsAsPointFs();
+                        PointF[] points = operation.GetOperandsAsPointFs();
 
                         if (currentPoint == null)
                         {
-                            logWarning("lineTo (" + points[0].X + "," + points[0].Y + ") without initial MoveTo");
+                            LogWarning("lineTo (" + points[0].X + "," + points[0].Y + ") without initial MoveTo");
                             currentPoint = points[0];
                         }
                         else
                         {
-                            currentPath.AddLine(currentPoint.Value, points[0]);
+                            CurrentPath.AddLine(currentPoint.Value, points[0]);
                             currentPoint = points[0];
                         }
                     }
                     break;
                 case "m":
                     {
-                        PointF[] points = operation.getOperandsAsPointFs();
+                        PointF[] points = operation.GetOperandsAsPointFs();
                         currentPoint = points[0];
 
-                        currentPath.CloseFigure();
+                        CurrentPath.CloseFigure();
                     }
                     break;
                 case "re":
                     {
-                        PointF[] points = operation.getOperandsAsPointFs();
+                        PointF[] points = operation.GetOperandsAsPointFs();
 
                         PointF bottomLeft = points[0];
                         PointF topRight = points[1];
@@ -112,45 +106,45 @@ namespace FirePDF.Processors
                         
                         // to ensure that the path is created in the right direction, we have to create
                         // it by combining single lines instead of creating a simple rectangle
-                        currentPath.AddLine(bottomLeft, new PointF(topRight.X, bottomLeft.Y));
-                        currentPath.AddLine(new PointF(topRight.X, bottomLeft.Y), topRight);
-                        currentPath.AddLine(topRight, new PointF(bottomLeft.X, topRight.Y));
+                        CurrentPath.AddLine(bottomLeft, new PointF(topRight.X, bottomLeft.Y));
+                        CurrentPath.AddLine(new PointF(topRight.X, bottomLeft.Y), topRight);
+                        CurrentPath.AddLine(topRight, new PointF(bottomLeft.X, topRight.Y));
 
                         // close the subpath instead of adding the last line so that a possible set line
                         // cap style isn't taken into account at the "beginning" of the rectangle
-                        currentPath.CloseFigure();
+                        CurrentPath.CloseFigure();
 
                         currentPoint = bottomLeft;
                         break;
                     }
                 case "v":
                     {
-                        PointF[] points = operation.getOperandsAsPointFs();
+                        PointF[] points = operation.GetOperandsAsPointFs();
                         
                         if (currentPoint == null)
                         {
-                            logWarning("curveTo (" + points[1].X + "," + points[1].Y + ") without initial MoveTo");
+                            LogWarning("curveTo (" + points[1].X + "," + points[1].Y + ") without initial MoveTo");
                             currentPoint = points[1];
                         }
                         else
                         {
-                            currentPath.AddBezier(currentPoint.Value, currentPoint.Value, points[0], points[1]);
+                            CurrentPath.AddBezier(currentPoint.Value, currentPoint.Value, points[0], points[1]);
                             currentPoint = points[1];
                         }
                         break;
                     }
                 case "y":
                     {
-                        PointF[] points = operation.getOperandsAsPointFs();
+                        PointF[] points = operation.GetOperandsAsPointFs();
                         
                         if (currentPoint == null)
                         {
-                            logWarning("curveTo (" + points[1].X + "," + points[1].Y + ") without initial MoveTo");
+                            LogWarning("curveTo (" + points[1].X + "," + points[1].Y + ") without initial MoveTo");
                             currentPoint = points[1];
                         }
                         else
                         {
-                            currentPath.AddBezier(currentPoint.Value, points[0], points[1], points[1]);
+                            CurrentPath.AddBezier(currentPoint.Value, points[0], points[1], points[1]);
                             currentPoint = points[1];
                         }
                         break;
@@ -165,7 +159,7 @@ namespace FirePDF.Processors
                 case "n":
                 case "s":
                 case "S":
-                    currentPath.Reset();
+                    CurrentPath.Reset();
                     break;
                 default:
                     return false;
@@ -174,7 +168,7 @@ namespace FirePDF.Processors
             return true;
         }
 
-        private void logWarning(string warning)
+        private static void LogWarning(string warning)
         {
             Debug.WriteLine(warning);
         }

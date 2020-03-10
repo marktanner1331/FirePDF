@@ -4,28 +4,25 @@ using System.Drawing;
 
 namespace FirePDF.Model
 {
-    //pdf spec 9.7.4
-    public class CIDType0Font : CIDFont
+    //Pdf spec 9.7.4
+    public class CidType0Font : CidFont
     {
-        private int defaultWidth
+        private int DefaultWidth
         {
-            get => underlyingDict.get<int?>("DW") ?? 1000;
-            set => underlyingDict.set("DW", value);
+            get => UnderlyingDict.Get<int?>("DW") ?? 1000;
+            set => UnderlyingDict.Set("DW", value);
         }
 
-        private Lazy<Dictionary<int, int>> widths;
+        private readonly Lazy<Dictionary<int, int>> widths;
 
-        private FontDescriptor fontDescriptor
-        {
-            get => underlyingDict.get<FontDescriptor>("FontDescriptor");
-        }
+        private FontDescriptor FontDescriptor => UnderlyingDict.Get<FontDescriptor>("FontDescriptor");
 
-        protected override CMAP loadEncoding()
+        protected override Cmap LoadEncoding()
         {
-            object encodingObj = underlyingDict.get<object>("Encoding");
-            if (encodingObj is Name)
+            object encodingObj = UnderlyingDict.Get<object>("Encoding");
+            if (encodingObj is Name name)
             {
-                return new CMAP((Name)encodingObj);
+                return new Cmap(name);
             }
             else
             {
@@ -34,19 +31,19 @@ namespace FirePDF.Model
             }
         }
 
-        protected override CMAP loadToUnicode()
+        protected override Cmap LoadToUnicode()
         {
-            if (underlyingDict.containsKey("ToUnicode"))
+            if (UnderlyingDict.ContainsKey("ToUnicode"))
             {
-                PDFStream stream = underlyingDict.get<PDFStream>("ToUnicode");
+                PdfStream stream = UnderlyingDict.Get<PdfStream>("ToUnicode");
 
-                if (stream.underlyingDict.containsKey("UseCMap"))
+                if (stream.UnderlyingDict.ContainsKey("UseCMap"))
                 {
                     //in theory we just load the other cmap and merge it with this one
                     throw new NotImplementedException();
                 }
 
-                return new CMAP(stream.getDecompressedStream());
+                return new Cmap(stream.GetDecompressedStream());
             }
             else
             {
@@ -54,37 +51,35 @@ namespace FirePDF.Model
             }
         }
 
-        public CIDType0Font(PDFDictionary dictionary) : base(dictionary)
+        public CidType0Font(PdfDictionary dictionary) : base(dictionary)
         {
-            widths = new Lazy<Dictionary<int, int>>(parseWidths);
+            widths = new Lazy<Dictionary<int, int>>(ParseWidths);
         }
 
-        private Dictionary<int, int> parseWidths()
+        private Dictionary<int, int> ParseWidths()
         {
-            if (underlyingDict.containsKey("W"))
+            if (UnderlyingDict.ContainsKey("W"))
             {
-                PDFList w = underlyingDict.get<PDFList>("W");
+                PdfList w = UnderlyingDict.Get<PdfList>("W");
                 Dictionary<int, int> widths = new Dictionary<int, int>();
 
                 int counter = 0;
-                while (counter < w.count)
+                while (counter < w.Count)
                 {
-                    int first = w.get<int>(counter++);
-                    object secondObj = w.get<object>(counter++);
+                    int first = w.Get<int>(counter++);
+                    object secondObj = w.Get<object>(counter++);
 
-                    if (secondObj is PDFList)
+                    if (secondObj is PdfList values)
                     {
-                        PDFList values = (PDFList)secondObj;
-
-                        for (int i = 0; i < values.count; i++)
+                        for (int i = 0; i < values.Count; i++)
                         {
-                            widths[first + i] = values.get<int>(i);
+                            widths[first + i] = values.Get<int>(i);
                         }
                     }
                     else
                     {
                         int second = (int)secondObj;
-                        int width = w.get<int>(counter++);
+                        int width = w.Get<int>(counter++);
 
                         for (int i = first; i <= second; i++)
                         {
@@ -101,15 +96,15 @@ namespace FirePDF.Model
             }
         }
 
-        public override FontDescriptor getFontDescriptor()
+        public override FontDescriptor GetFontDescriptor()
         {
-            return fontDescriptor;
+            return FontDescriptor;
         }
 
         /// <summary>
         /// returns the intended width of the cid expressed in user space (before scaling by the text rendering matrix)
         /// </summary>
-        public override float getWidthForCID(int cid)
+        public override float GetWidthForCid(int cid)
         {
             if (widths.Value.ContainsKey(cid))
             {
@@ -117,21 +112,21 @@ namespace FirePDF.Model
             }
             else
             {
-                return defaultWidth / 1000f;
+                return DefaultWidth / 1000f;
             }
         }
 
-        public override SizeF measureText(byte[] hexString, GraphicsState graphicsState)
+        public override SizeF MeasureText(byte[] hexString, GraphicsState graphicsState)
         {
             throw new NotImplementedException();
         }
 
-        public override string readUnicodeStringFromHexString(byte[] hexString)
+        public override string ReadUnicodeStringFromHexString(byte[] hexString)
         {
             throw new NotImplementedException();
         }
 
-        public override void setToUnicodeCMAP(ObjectReference objectReference)
+        public override void SetToUnicodeCmap(ObjectReference objectReference)
         {
             throw new NotImplementedException();
         }

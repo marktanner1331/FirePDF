@@ -1,56 +1,54 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FirePDF.Writing;
-using System;
-using System.Collections.Generic;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 using System.Reflection;
+using System.Text;
+using FirePDF;
 using FirePDF.Model;
+using FirePDF.Writing;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FirePDF.Writing.Tests
+namespace FirePDFTests.Writing
 {
     [TestClass()]
-    public class PDFWriterTests
+    public class PdfWriterTests
     {
-        private string getPDFFolder()
+        private static string GetPdfFolder()
         {
-            return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
+            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
         }
 
         [TestMethod()]
-        public void writeHeaderTest()
+        public void WriteHeaderTest()
         {
             using (MemoryStream ms = new MemoryStream())
             {
-                using (PDFWriter writer = new PDFWriter(ms, true))
+                using (PdfWriter writer = new PdfWriter(ms, true))
                 {
-                    writer.writeHeader(1.4);
+                    writer.WriteHeader(1.4);
                 }
 
                 ms.Position = 0;
                 string contents = Encoding.ASCII.GetString(ms.ToArray());
-                Assert.AreEqual("%PDF-1.4\n%????\r\n", contents);
+                Assert.AreEqual("%Pdf-1.4\n%????\r\n", contents);
             }
         }
 
         [TestMethod()]
-        public void writeResourcesTest()
+        public void WriteResourcesTest()
         {
-            string file = getPDFFolder() + "page 24 fixed.pdf";
-            PDF pdf = new PDF(file);
-            Page page = pdf.getPage(1);
+            string file = GetPdfFolder() + "page 24 fixed.Pdf";
+            Pdf pdf = new Pdf(file);
+            Page page = pdf.GetPage(1);
 
             using (MemoryStream ms = new MemoryStream())
             {
-                using (PDFWriter writer = new PDFWriter(ms, true))
+                using (PdfWriter writer = new PdfWriter(ms, true))
                 {
-                    string formName = page.resources.listXObjectForms().First();
-                    XObjectForm form = page.resources.getXObjectForm(formName);
+                    string formName = page.Resources.ListXObjectForms().First();
+                    XObjectForm form = page.Resources.GetXObjectForm(formName);
 
-                    page.resources.overwriteXObject(form, formName);
-                    writer.writeUpdatedPDF(pdf);
+                    page.Resources.OverwriteXObject(form, formName);
+                    writer.WriteUpdatedPdf(pdf);
                 }
                 
                 ms.Position = 0;

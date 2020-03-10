@@ -1,27 +1,24 @@
 ﻿using FirePDF;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Samples
 {
     public class CombinePages
     {
-        public void main()
+        public void Main()
         {
-            string inputFolder = @"";
-            string outputFile = @"f";
+            const string inputFolder = @"";
+            const string outputFile = @"f";
 
-            using (PDF newPDF = new PDF())
+            using (Pdf newPdf = new Pdf())
             {
-                foreach (string file in Directory.GetFiles(inputFolder, "*.pdf"))
+                foreach (string file in Directory.GetFiles(inputFolder, "*.Pdf"))
                 {
-                    using (PDF inputPDF = new PDF(file))
+                    using (Pdf inputPdf = new Pdf(file))
                     {
-                        foreach (Page page in inputPDF)
+                        foreach (Page page in inputPdf)
                         {
-                            newPDF.addPage(page);
+                            newPdf.AddPage(page);
                         }
                     }
                 }
@@ -31,7 +28,7 @@ namespace Samples
                     File.Delete(outputFile);
                 }
 
-                newPDF.save(outputFile);
+                newPdf.Save(outputFile);
             }
         }
     }

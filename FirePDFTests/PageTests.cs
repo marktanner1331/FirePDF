@@ -1,63 +1,59 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FirePDF;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Drawing;
-using FirePDF.Reading;
+using System.Linq;
+using System.Reflection;
+using FirePDF;
 using FirePDF.Model;
+using FirePDF.Reading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FirePDF.Tests
+namespace FirePDFTests
 {
     [TestClass()]
     public class PageTests
     {
-        private string getPDFFolder()
+        private static string GetPdfFolder()
         {
-            return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
+            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
         }
 
         [TestMethod()]
-        public void getImagesTest()
+        public void GetImagesTest()
         {
-            string file = getPDFFolder() + "pb13332-cop-cats-091204.pdf";
-            PDF pdf = new PDF(file);
+            string file = GetPdfFolder() + "pb13332-cop-cats-091204.Pdf";
+            Pdf pdf = new Pdf(file);
 
-            Page page = pdf.getPage(1);
-            Assert.AreEqual(1, page.resources.listXObjectImages().Count());
+            Page page = pdf.GetPage(1);
+            Assert.AreEqual(1, page.Resources.ListXObjectImages().Count());
         }
 
         [TestMethod()]
-        public void readFormTest()
+        public void ReadFormTest()
         {
-            string file = getPDFFolder() + "page 24 fixed.pdf";
-            PDF pdf = new PDF(file);
+            string file = GetPdfFolder() + "page 24 fixed.Pdf";
+            Pdf pdf = new Pdf(file);
 
-            Page page = pdf.getPage(1);
+            Page page = pdf.GetPage(1);
 
-            List<Name> forms = page.resources.listXObjectForms().ToList();
-            XObjectForm form = page.resources.getXObjectForm(forms.First());
+            List<Name> forms = page.Resources.ListXObjectForms().ToList();
+            XObjectForm form = page.Resources.GetXObjectForm(forms.First());
 
-            Stream s = form.getStream();
-            List<Operation> operations = ContentStreamReader.readOperationsFromStream(pdf, s);
+            Stream s = form.GetStream();
+            List<Operation> operations = ContentStreamReader.ReadOperationsFromStream(pdf, s);
 
             Assert.AreEqual(601, operations.Count);
         }
 
         [TestMethod()]
-        public void getContentStreamTest()
+        public void GetContentStreamTest()
         {
-            string file = getPDFFolder() + "pb13332-cop-cats-091204.pdf";
-            PDF pdf = new PDF(file);
+            string file = GetPdfFolder() + "pb13332-cop-cats-091204.Pdf";
+            Pdf pdf = new Pdf(file);
 
-            Page page = pdf.getPage(1);
-            Stream s = page.getStream();
+            Page page = pdf.GetPage(1);
+            Stream s = page.GetStream();
 
-            using (System.IO.StreamReader streamReader = new System.IO.StreamReader(s))
+            using (StreamReader streamReader = new StreamReader(s))
             {
                 string str = streamReader.ReadToEnd();
             }

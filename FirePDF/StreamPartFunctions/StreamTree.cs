@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.StreamPartFunctions
 {
@@ -11,18 +9,18 @@ namespace FirePDF.StreamPartFunctions
     {
         public readonly Node<StreamPart> root;
 
-        public StreamTree(List<Operation> operations)
+        public StreamTree(IReadOnlyList<Operation> operations)
         {
             root = new Node<StreamPart>();
-            buildStackTree(operations, root, 0);
+            BuildStackTree(operations, root, 0);
         }
 
-        public List<StreamPart> getAllLeafNodes()
+        public List<StreamPart> GetAllLeafNodes()
         {
-            return root.getAllLeafNodes();
+            return root.GetAllLeafNodes();
         }
 
-        private static int buildStackTree(List<Operation> operations, Node<StreamPart> root, int i)
+        private static int BuildStackTree(IReadOnlyList<Operation> operations, Node<StreamPart> root, int i)
         {
             StreamPart part = new StreamPart();
 
@@ -34,32 +32,32 @@ namespace FirePDF.StreamPartFunctions
                     case "q":
                         if (part.operations.Count > 0)
                         {
-                            root.addChildNode(part);
+                            root.AddChildNode(part);
                             part = new StreamPart();
                         }
 
                         Node<StreamPart> stackRoot = new Node<StreamPart>();
-                        i = buildStackTree(operations, stackRoot, i + 1);
-                        stackRoot.convertNodeFromLeafToBranch();
+                        i = BuildStackTree(operations, stackRoot, i + 1);
+                        stackRoot.ConvertNodeFromLeafToBranch();
 
-                        root.addChildNode(stackRoot);
+                        root.AddChildNode(stackRoot);
                         break;
                     case "Q":
                         if (part.operations.Count > 0)
                         {
-                            root.addChildNode(part);
+                            root.AddChildNode(part);
                         }
 
                         return i;
                     default:
-                        part.addOperation(operation);
+                        part.AddOperation(operation);
                         break;
                 }
             }
 
             if (part.operations.Count > 0)
             {
-                root.addChildNode(part);
+                root.AddChildNode(part);
             }
 
             return i;
@@ -69,74 +67,74 @@ namespace FirePDF.StreamPartFunctions
         /// the swapper is called for each leaf in the tree
         /// each leaf is replaced by the returned value
         /// </summary>
-        public void swapParts(Func<StreamPart, StreamPart> swapper)
+        public void SwapParts(Func<StreamPart, StreamPart> swapper)
         {
-            root.swapLeaves(swapper);
+            root.SwapLeaves(swapper);
         }
 
-        public void removeLeafNodes(Func<StreamPart, bool> test)
+        public void RemoveLeafNodes(Func<StreamPart, bool> test)
         {
-            root.removeLeaves(test);
+            root.RemoveLeaves(test);
         }
 
-        public List<Operation> convertToOperations()
+        public List<Operation> ConvertToOperations()
         {
             List<Operation> operations = new List<Operation>();
-            convertTreeToOperations(root, operations);
+            ConvertTreeToOperations(root, operations);
 
             return operations;
         }
 
-        private void convertTreeToOperations(Node<StreamPart> root, List<Operation> operations)
+        private static void ConvertTreeToOperations(Node<StreamPart> root, List<Operation> operations)
         {
-            if (root.value != null)
+            if (root.Value != null)
             {
-                operations.AddRange(root.value.operations);
+                operations.AddRange(root.Value.operations);
             }
             else
             {
-                foreach (Node<StreamPart> part in root.getChildren())
+                foreach (Node<StreamPart> part in root.GetChildren())
                 {
-                    if (part.value == null)
+                    if (part.Value == null)
                     {
                         operations.Add(new Operation("q", new List<object>()));
-                        convertTreeToOperations(part, operations);
+                        ConvertTreeToOperations(part, operations);
                         operations.Add(new Operation("Q", new List<object>()));
                     }
                     else
                     {
-                        convertTreeToOperations(part, operations);
+                        ConvertTreeToOperations(part, operations);
                     }
                 }
             }
         }
 
-        public List<StreamPart> getTreeAsContiguousStreamParts()
+        public List<StreamPart> GetTreeAsContiguousStreamParts()
         {
             List<StreamPart> parts = new List<StreamPart>();
-            getTreeAsContiguousStreamParts(parts, root);
+            GetTreeAsContiguousStreamParts(parts, root);
 
             return parts;
         }
 
-        private void getTreeAsContiguousStreamParts(List<StreamPart> streamParts, Node<StreamPart> root)
+        private static void GetTreeAsContiguousStreamParts(ICollection<StreamPart> streamParts, Node<StreamPart> root)
         {
-            if (root.value != null)
+            if (root.Value != null)
             {
-                streamParts.Add(root.value);
+                streamParts.Add(root.Value);
             }
             else
             {
-                foreach (Node<StreamPart> part in root.getChildren())
+                foreach (Node<StreamPart> part in root.GetChildren())
                 {
-                    if (part.value == null)
+                    if (part.Value == null)
                     {
                         streamParts.Add(new StreamPart(new List<Operation>
                         {
                             new Operation("q", new List<object>())
                         }));
 
-                        getTreeAsContiguousStreamParts(streamParts, part);
+                        GetTreeAsContiguousStreamParts(streamParts, part);
 
                         streamParts.Add(new StreamPart(new List<Operation>
                         {
@@ -145,34 +143,34 @@ namespace FirePDF.StreamPartFunctions
                     }
                     else
                     {
-                        streamParts.Add(part.value);
+                        streamParts.Add(part.Value);
                     }
                 }
             }
         }
 
-        public String toVerboseString()
+        public string ToVerboseString()
         {
-            return toVerboseString(root, "");
+            return ToVerboseString(root, "");
         }
 
-        private String toVerboseString(Node<StreamPart> root, String indent)
+        private static string ToVerboseString(Node<StreamPart> root, string indent)
         {
-            String s = "";
+            string s = "";
 
-            if (root.value != null)
+            if (root.Value != null)
             {
-                if (root.value.tags.Any())
+                if (root.Value.tags.Any())
                 {
-                    s += indent + "//tags: " + string.Join(", ", root.value.tags) + "\n";
+                    s += indent + "//tags: " + string.Join(", ", root.Value.tags) + "\n";
                 }
 
-                if (root.value.variables.Any())
+                if (root.Value.variables.Any())
                 {
-                    s += indent + "//variables: " + string.Join(", ", root.value.variables.Select(x => x.Key + "=" + x.Value)) + "\n";
+                    s += indent + "//variables: " + string.Join(", ", root.Value.variables.Select(x => x.Key + "=" + x.Value)) + "\n";
                 }
 
-                foreach (Operation operation in root.value.operations)
+                foreach (Operation operation in root.Value.operations)
                 {
                     s += indent + operation.ToString() + "\n";
                 }
@@ -181,17 +179,17 @@ namespace FirePDF.StreamPartFunctions
             }
 
             indent += "    ";
-            foreach (Node<StreamPart> node in root.getChildren())
+            foreach (Node<StreamPart> node in root.GetChildren())
             {
-                if (node.value == null)
+                if (node.Value == null)
                 {
                     s += indent + "q\n";
-                    s += toVerboseString(node, indent);
+                    s += ToVerboseString(node, indent);
                     s += indent + "Q\n";
                 }
                 else
                 {
-                    s += toVerboseString(node, indent);
+                    s += ToVerboseString(node, indent);
                 }
             }
 

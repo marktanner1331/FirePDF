@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using FirePDF.Model;
 using FirePDF.Reading;
 
@@ -20,27 +16,27 @@ namespace FirePDF.Processors
             operations = new List<Operation>();
         }
 
-        public void didStartReadingStream(IStreamOwner streamOwner)
+        public void DidStartReadingStream(IStreamOwner streamOwner)
         {
             
         }
 
-        public void processOperation(Operation operation)
+        public void ProcessOperation(Operation operation)
         {
             operations.Add(operation);
         }
 
-        public void willFinishReadingPage()
+        public void WillFinishReadingPage()
         {
             
         }
 
-        public void willFinishReadingStream()
+        public void WillFinishReadingStream()
         {
             
         }
 
-        public void willStartReadingPage(RecursiveStreamReader parser)
+        public void WillStartReadingPage(RecursiveStreamReader parser)
         {
             operations.Clear();
         }

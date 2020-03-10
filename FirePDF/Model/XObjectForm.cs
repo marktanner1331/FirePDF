@@ -1,42 +1,33 @@
-﻿using FirePDF.Model;
-using FirePDF.Reading;
-using FirePDF.StreamHelpers;
-using FirePDF.Writing;
+﻿using FirePDF.Writing;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class XObjectForm : PDFStream, IStreamOwner
+    public class XObjectForm : PdfStream, IStreamOwner
     {
-        public PDF pdf => base.pdf;
         //private Stream stream;
 
-        public PDFResources resources { get; private set; }
-        public RectangleF boundingBox { get; private set; }
+        public PdfResources Resources { get; }
+        public RectangleF BoundingBox { get; }
 
         //private bool isStreamDirty = false;
-        //public bool isDirty => isStreamDirty || resources.isDirty;
+        //public bool IsDirty => isStreamDirty || resources.IsDirty;
         
         /// <summary>
-        /// initializing a form xobject with the owning pdf, its dictionary, and the offset to the start of the stream relative to the start of the pdf
+        /// initializing a form xObject with the owning Pdf, its dictionary, and the offset to the start of the stream relative to the start of the Pdf
         /// </summary>
-        public XObjectForm(Stream stream, PDFDictionary dict, long startOfStream) : base(stream, dict, startOfStream)
+        public XObjectForm(Stream stream, PdfDictionary dict, long startOfStream) : base(stream, dict, startOfStream)
         {
-            this.resources = new PDFResources(this, underlyingDict.get<PDFDictionary>("Resources"));
-            this.boundingBox = underlyingDict.get<PDFList>("BBox").asRectangle();
+            Resources = new PdfResources(this, UnderlyingDict.Get<PdfDictionary>("Resources"));
+            BoundingBox = UnderlyingDict.Get<PdfList>("BBox").AsRectangle();
         }
 
-        public ObjectReference serialize(PDFWriter writer)
+        public ObjectReference Serialize(PdfWriter writer)
         {
             throw new Exception("not doing serialization yet");
-            return null;
-            //if (resources.isDirty)
+            //if (resources.IsDirty)
             //{
             //    foreach (string dirtyObjectPath in resources.dirtyObjects)
             //    {
@@ -54,14 +45,14 @@ namespace FirePDF.Model
             
             //if(stream == null)
             //{
-            //    stream = pdf.stream;
+            //    stream = Pdf.stream;
             //}
 
             //stream.Position = startOfStream;
             //return writer.writeIndirectObjectUsingNextFreeNumber(underlyingDict, stream);
         }
 
-        public void writeContentStream(Stream s)
+        public void WriteContentStream(Stream s)
         {
             throw new Exception("not handling saving yet");
 
@@ -79,6 +70,6 @@ namespace FirePDF.Model
             //isStreamDirty = true;
         }
 
-        public Stream getStream() => getDecompressedStream();
+        public Stream GetStream() => GetDecompressedStream();
     }
 }

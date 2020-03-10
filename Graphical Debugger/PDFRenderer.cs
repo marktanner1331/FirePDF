@@ -5,25 +5,21 @@ using FirePDF.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Graphical_Debugger
 {
-    class PDFRenderer : Control
+    internal class PdfRenderer : Control
     {
         private IStreamOwner streamOwner;
         private List<bool> operationsMap;
 
-        public PDFRenderer()
+        public PdfRenderer()
         {
             
         }
 
-        public void render(IStreamOwner streamOwner, List<bool> operationsMap)
+        public void Render(IStreamOwner streamOwner, List<bool> operationsMap)
         {
             this.streamOwner = streamOwner;
             this.operationsMap = operationsMap;
@@ -31,7 +27,7 @@ namespace Graphical_Debugger
             Invalidate();
         }
 
-        private void renderGraphics(Graphics graphics)
+        private void RenderGraphics(Graphics graphics)
         {
             graphics.Clear(Color.White);
 
@@ -44,11 +40,11 @@ namespace Graphical_Debugger
             StreamProcessor sp = new FilteredStreamProcessor(operationsMap, renderer);
             RecursiveStreamReader streamReader = new RecursiveStreamReader(sp);
 
-            float xScale = ClientSize.Width / streamOwner.boundingBox.Width;
-            float yScale = ClientSize.Height / streamOwner.boundingBox.Height;
+            float xScale = ClientSize.Width / streamOwner.BoundingBox.Width;
+            float yScale = ClientSize.Height / streamOwner.BoundingBox.Height;
             float scale = Math.Min(xScale, yScale);
 
-            RectangleF box = streamOwner.boundingBox;
+            RectangleF box = streamOwner.BoundingBox;
             box.X *= scale;
             box.Y *= scale;
             box.Width *= scale;
@@ -56,7 +52,7 @@ namespace Graphical_Debugger
             graphics.FillRectangle(Brushes.White, box);
             renderer.dpi = (int)(72 * scale);
             
-            streamReader.readStreamRecursively(streamOwner);
+            streamReader.ReadStreamRecursively(streamOwner);
         }
 
         protected override void OnClientSizeChanged(EventArgs e)
@@ -68,7 +64,7 @@ namespace Graphical_Debugger
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            renderGraphics(e.Graphics);
+            RenderGraphics(e.Graphics);
         }
     }
 }

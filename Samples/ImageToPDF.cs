@@ -1,14 +1,8 @@
-﻿using FirePDF;
-using FirePDF.Model;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Samples
+﻿namespace Samples
 {
-    public class ImageToPDF
+    public class ImageToPdf
     {
-        public void main()
+        public void Main()
         {
             
         }

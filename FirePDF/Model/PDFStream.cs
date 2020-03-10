@@ -1,53 +1,49 @@
 ﻿using FirePDF.Reading;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
     /// <summary>
-    /// represents any pdf object that includes a stream, including forms and images
+    /// represents any Pdf object that includes a stream, including forms and images
     /// </summary>
-    public class PDFStream : IHaveUnderlyingDict
+    public class PdfStream : HaveUnderlyingDict
     {
         protected Stream stream;
         protected long startOfStream;
 
-        public PDFStream(Stream stream, PDFDictionary underlyingDictionary, long startOfStream) : base(underlyingDictionary)
+        public PdfStream(Stream stream, PdfDictionary underlyingDictionary, long startOfStream) : base(underlyingDictionary)
         {
             this.stream = stream;
             this.startOfStream = startOfStream;
         }
 
-        public Stream getCompressedStream()
+        public Stream GetCompressedStream()
         {
-            Stream newStream = new ProxyStream(stream, startOfStream, underlyingDict.get<int>("Length"));
+            Stream newStream = new ProxyStream(stream, startOfStream, UnderlyingDict.Get<int>("Length"));
             newStream.Position = 0;
             return newStream;
         }
 
-        public Stream getDecompressedStream()
+        public Stream GetDecompressedStream()
         {
             stream.Position = startOfStream;
-            return PDFReader.decompressStream(pdf, stream, underlyingDict);
+            return PdfReader.DecompressStream(Pdf, stream, UnderlyingDict);
         }
 
-        public static PDFStream fromDictionary(PDFDictionary dict, Stream stream, long startOfStream)
+        public static PdfStream FromDictionary(PdfDictionary dict, Stream stream, long startOfStream)
         {
-            if (dict.containsKey("Type") == false)
+            if (dict.ContainsKey("Type") == false)
             {
-                return new PDFStream(stream, dict, startOfStream);
+                return new PdfStream(stream, dict, startOfStream);
             }
 
-            switch (dict.get<Name>("Type"))
+            switch (dict.Get<Name>("Type"))
             {
                 case "ObjStm":
-                    return new PDFObjectStream(stream, dict, startOfStream);
+                    return new PdfObjectStream(stream, dict, startOfStream);
                 case "XObject":
-                    switch (dict.get<Name>("Subtype"))
+                    switch (dict.Get<Name>("Subtype"))
                     {
                         case "Form":
                             return new XObjectForm(stream, dict, startOfStream);
@@ -57,16 +53,16 @@ namespace FirePDF.Model
                             throw new NotImplementedException();
                     }
                 case "Font":
-                    switch (dict.get<Name>("Subtype"))
+                    switch (dict.Get<Name>("Subtype"))
                     {
                         case "CIDFontType0C":
                         case "Type1C":
-                            return new PDFStream(stream, dict, startOfStream);
+                            return new PdfStream(stream, dict, startOfStream);
                         default:
                             throw new NotImplementedException();
                     }
                 case "Metadata":
-                    return new PDFMetaDataStream(stream, dict, startOfStream);
+                    return new PdfMetaDataStream(stream, dict, startOfStream);
                 default:
                     throw new NotImplementedException();
             }

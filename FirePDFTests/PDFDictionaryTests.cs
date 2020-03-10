@@ -1,29 +1,24 @@
 ﻿using FirePDF.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDFTests
 {
     [TestClass]
-    public class PDFDictionaryTests
+    public class PdfDictionaryTests
     {
         [TestMethod]
-        public void testMissingKey1()
+        public void TestMissingKey1()
         {
-            PDFDictionary dict = new PDFDictionary(null);
-            var k = dict.get<int?>("hi");
+            PdfDictionary dict = new PdfDictionary(null);
+            int? k = dict.Get<int?>("hi");
             Assert.IsNull(k);
         }
 
         [TestMethod]
-        public void testMissingKey2()
+        public void TestMissingKey2()
         {
-            PDFDictionary dict = new PDFDictionary(null);
-            var k = dict.get<int>("hi");
+            PdfDictionary dict = new PdfDictionary(null);
+            int k = dict.Get<int>("hi");
             Assert.AreEqual(0, k);
         }
     }

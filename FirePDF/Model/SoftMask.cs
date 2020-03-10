@@ -1,43 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    class SoftMask
+    public class SoftMask
     {
         private readonly Stream stream;
-        private readonly PDFDictionary underlyingDict;
+        private readonly PdfDictionary underlyingDict;
         private readonly int maskWidth;
         private readonly int maskHeight;
 
-        public SoftMask(XObjectImage image) : this(image.getDecompressedStream(), image.underlyingDict)
+        public SoftMask(PdfStream image, int maskWidth, int maskHeight) : this(image.GetDecompressedStream(), image.UnderlyingDict, maskWidth, maskHeight)
         {
         }
 
-        public SoftMask(Stream stream, PDFDictionary underlyingDict)
+        public SoftMask(Stream stream, PdfDictionary underlyingDict, int maskWidth, int maskHeight)
         {
             this.stream = stream;
             this.underlyingDict = underlyingDict;
-
+            this.maskWidth = maskWidth;
+            this.maskHeight = maskHeight;
         }
 
-        public Bitmap applyMaskToImage(Bitmap image)
+        public Bitmap ApplyMaskToImage(Bitmap image)
         {
             BinaryReader br = new BinaryReader(stream);
             byte[] bytes = br.ReadBytes((int)stream.Length);
 
             Bitmap output = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
             output.MakeTransparent();
-            var rect = new Rectangle(0, 0, image.Width, image.Height);
+            Rectangle rect = new Rectangle(0, 0, image.Width, image.Height);
 
-            var bitsImage = image.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-            var bitsOutput = output.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            BitmapData bitsImage = image.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+            BitmapData bitsOutput = output.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
 
             unsafe
             {

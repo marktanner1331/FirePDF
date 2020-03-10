@@ -1,51 +1,46 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FirePDF.Model;
 
 namespace FirePDF.Rendering
 {
-    public class Rasterizer : IRenderer
+    public class Rasterizer : Renderer
     {
-        private Graphics graphics;
+        private readonly Graphics graphics;
 
         public Rasterizer(Graphics graphics)
         {
             this.graphics = graphics;
         }
 
-        public override void willStartRenderingPage(RectangleF boundingBox, Func<Model.GraphicsState> getGraphicsState)
+        public override void WillStartRenderingPage(RectangleF boundingBox, Func<Model.GraphicsState> getGraphicsState)
         {
-            base.willStartRenderingPage(boundingBox, getGraphicsState);
+            base.WillStartRenderingPage(boundingBox, getGraphicsState);
 
             float scale = dpi / 72f;
 
             Model.GraphicsState graphicsState = getGraphicsState();
-            graphicsState.currentTransformationMatrix.Translate(0, scale * boundingBox.Height);
-            graphicsState.currentTransformationMatrix.Scale(scale, -scale);
+            graphicsState.CurrentTransformationMatrix.Translate(0, scale * boundingBox.Height);
+            graphicsState.CurrentTransformationMatrix.Scale(scale, -scale);
         }
         
         /// <summary>
         /// refreshes the state of the graphicsContext from the graphics state returned by getGraphicsState
         /// </summary>
-        private void refreshGraphicsState()
+        private void RefreshGraphicsState()
         {
             Model.GraphicsState gs = getGraphicsState();
 
             graphics.Transform = new Matrix();
             graphics.SetClip(gs.clippingPath, CombineMode.Replace);
             
-            graphics.Transform = gs.currentTransformationMatrix;
+            graphics.Transform = gs.CurrentTransformationMatrix;
         }
 
-        public override void drawImage(XObjectImage image)
+        public override void DrawImage(XObjectImage image)
         {
-            refreshGraphicsState();
+            RefreshGraphicsState();
 
             Matrix temp = graphics.Transform.Clone();
             
@@ -53,27 +48,27 @@ namespace FirePDF.Rendering
             temp.Translate(0, -1);
             
             graphics.Transform = temp;
-            graphics.DrawImage(image.getImage(), 0, 0, 1, 1);
-            graphics.Transform = getGraphicsState().currentTransformationMatrix;
+            graphics.DrawImage(image.GetImage(), 0, 0, 1, 1);
+            graphics.Transform = getGraphicsState().CurrentTransformationMatrix;
         }
 
-        public override void fillAndStrokePath(GraphicsPath path)
+        public override void FillAndStrokePath(GraphicsPath path)
         {
-            fillPath(path);
-            strokePath(path);
+            FillPath(path);
+            StrokePath(path);
         }
 
-        public override void fillPath(GraphicsPath path)
+        public override void FillPath(GraphicsPath path)
         {
-            refreshGraphicsState();
+            RefreshGraphicsState();
 
             Brush b = new SolidBrush(getGraphicsState().nonStrokingColor);
             graphics.FillPath(b, path);
         }
 
-        public override void strokePath(GraphicsPath path)
+        public override void StrokePath(GraphicsPath path)
         {
-            refreshGraphicsState();
+            RefreshGraphicsState();
 
             Model.GraphicsState gs = getGraphicsState();
 
@@ -81,14 +76,14 @@ namespace FirePDF.Rendering
             graphics.DrawPath(p, path);
         }
 
-        public override void drawText(byte[] text)
+        public override void DrawText(byte[] text)
         {
-            refreshGraphicsState();
+            RefreshGraphicsState();
 
-            FirePDF.Model.GraphicsState gs = getGraphicsState();
+            Model.GraphicsState gs = getGraphicsState();
             Matrix textRenderingMatrix = new Matrix(gs.fontSize * gs.horizontalScaling, 0, 0, gs.fontSize, 0, gs.textRise);
             textRenderingMatrix.Multiply(gs.textMatrix, MatrixOrder.Append);
-            textRenderingMatrix.Multiply(gs.currentTransformationMatrix, MatrixOrder.Append);
+            textRenderingMatrix.Multiply(gs.CurrentTransformationMatrix, MatrixOrder.Append);
 
             graphics.Transform = textRenderingMatrix;
 
@@ -99,10 +94,10 @@ namespace FirePDF.Rendering
 
             graphics.Transform = temp;
 
-            string textString = gs.font.readUnicodeStringFromHexString(text);
+            string textString = gs.font.ReadUnicodeStringFromHexString(text);
 
             graphics.DrawString(textString, new System.Drawing.Font(FontFamily.GenericSerif, 1), new SolidBrush(gs.nonStrokingColor), PointF.Empty);
-            graphics.Transform = getGraphicsState().currentTransformationMatrix;
+            graphics.Transform = getGraphicsState().CurrentTransformationMatrix;
         }
     }
 }

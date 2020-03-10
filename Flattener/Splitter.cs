@@ -5,13 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Flattener
 {
-    class Splitter : IRenderer
+    public class Splitter : Renderer
     {
         //concept is layers
         //that alternate by type
@@ -19,7 +16,7 @@ namespace Flattener
         //we can add it to a layer if nothing in the layers above it intersect it
         //  for both raster and vector
 
-        private List<Layer> layers;
+        private readonly List<Layer> layers;
 
         public Splitter()
         {
@@ -29,15 +26,15 @@ namespace Flattener
             //as its probably the first thing that will be added to the page
             //but a vector layer would work just as well
             //if this layer ends up not getting used then its fine as it will be cleaned up before exporting
-            layers.Add(new Layer(Layer.LayerType.vector));
+            layers.Add(new Layer(Layer.LayerType.Vector));
         }
 
-        public void exportAsSinglePage()
+        public void ExportAsSinglePage()
         {
-            PDF pdf = new PDF();
+            Pdf pdf = new Pdf();
         }
 
-        private void addElementToLayers(Layer.LayerType layerType, Layer.LayerElement element)
+        private void AddElementToLayers(Layer.LayerType layerType, Layer.LayerElement element)
         {
             int targetLayerIndex = 0;
 
@@ -46,7 +43,7 @@ namespace Flattener
             for (int i = layers.Count - 1; i > 0; i--)
             {
                 Layer layer = layers[i];
-                if (layer.doesIntersect(element.boundingBox))
+                if (layer.DoesIntersect(element.boundingBox))
                 {
                     //if we intersect then we can't put on a lower layer
                     targetLayerIndex = i;
@@ -68,14 +65,14 @@ namespace Flattener
             }
 
             //finally, now that we have found the correct layer, we can add the element to it
-            layers[targetLayerIndex].addElement(element);
+            layers[targetLayerIndex].AddElement(element);
         }
 
-        public override void drawImage(XObjectImage image)
+        public override void DrawImage(XObjectImage image)
         {
             FirePDF.Model.GraphicsState gs = getGraphicsState();
 
-            Matrix temp = gs.currentTransformationMatrix;
+            Matrix temp = gs.CurrentTransformationMatrix;
 
             //i still don't understand how the negative vertical space works
             //im also not sure it matters in this case
@@ -98,7 +95,7 @@ namespace Flattener
 
             RectangleF bounds = new RectangleF(left, top, right - left, bottom - top);
 
-            addElementToLayers(Layer.LayerType.raster, new Layer.LayerElement
+            AddElementToLayers(Layer.LayerType.Raster, new Layer.LayerElement
             {
                 boundingBox = bounds,
                 element = image,
@@ -107,13 +104,13 @@ namespace Flattener
             });
         }
 
-        public override void drawText(byte[] text)
+        public override void DrawText(byte[] text)
         {
             FirePDF.Model.GraphicsState gs = getGraphicsState();
             FirePDF.Model.Font font = gs.font;
-            Matrix temp = gs.currentTransformationMatrix;
+            Matrix temp = gs.CurrentTransformationMatrix;
 
-            SizeF size = font.measureText(text, gs);
+            SizeF size = font.MeasureText(text, gs);
             
             PointF[] points = new PointF[] {
                 new PointF(gs.textMatrix.Elements[4], gs.textMatrix.Elements[5]),
@@ -128,7 +125,7 @@ namespace Flattener
             float top = Math.Min(points[0].Y, points[1].Y);
             float bottom = Math.Max(points[0].Y, points[1].Y);
 
-            addElementToLayers(Layer.LayerType.vector, new Layer.LayerElement
+            AddElementToLayers(Layer.LayerType.Vector, new Layer.LayerElement
             {
                 boundingBox = new RectangleF(left, top, right - left, bottom - top),
                 element = text,
@@ -137,39 +134,39 @@ namespace Flattener
             });
         }
         
-        public override void fillAndStrokePath(GraphicsPath path)
+        public override void FillAndStrokePath(GraphicsPath path)
         {
             FirePDF.Model.GraphicsState gs = getGraphicsState();
 
-            addElementToLayers(Layer.LayerType.vector, new Layer.LayerElement
+            AddElementToLayers(Layer.LayerType.Vector, new Layer.LayerElement
             {
-                boundingBox = path.GetBounds(gs.currentTransformationMatrix),
+                boundingBox = path.GetBounds(gs.CurrentTransformationMatrix),
                 element = path,
                 graphicsState = gs,
                 type = Layer.LayerElement.ElementType.FillAndStrokePath
             });
         }
 
-        public override void fillPath(GraphicsPath path)
+        public override void FillPath(GraphicsPath path)
         {
             FirePDF.Model.GraphicsState gs = getGraphicsState();
 
-            addElementToLayers(Layer.LayerType.vector, new Layer.LayerElement
+            AddElementToLayers(Layer.LayerType.Vector, new Layer.LayerElement
             {
-                boundingBox = path.GetBounds(gs.currentTransformationMatrix),
+                boundingBox = path.GetBounds(gs.CurrentTransformationMatrix),
                 element = path,
                 graphicsState = gs,
                 type = Layer.LayerElement.ElementType.FillPath
             });
         }
 
-        public override void strokePath(GraphicsPath path)
+        public override void StrokePath(GraphicsPath path)
         {
             FirePDF.Model.GraphicsState gs = getGraphicsState();
 
-            addElementToLayers(Layer.LayerType.vector, new Layer.LayerElement
+            AddElementToLayers(Layer.LayerType.Vector, new Layer.LayerElement
             {
-                boundingBox = path.GetBounds(gs.currentTransformationMatrix),
+                boundingBox = path.GetBounds(gs.CurrentTransformationMatrix),
                 element = path,
                 graphicsState = gs,
                 type = Layer.LayerElement.ElementType.StrokePath

@@ -1,19 +1,12 @@
-﻿using FirePDF.Reading;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirePDF.Model
+﻿namespace FirePDF.Model
 {
-    public class ObjectReference : IHavePDF
+    public class ObjectReference : HavePdf
     {
         public readonly int objectNumber;
         public readonly int generation;
-        public int hash => GetHashCode();
+        public int Hash => GetHashCode();
         
-        public ObjectReference(PDF pdf, int objectNumber, int generation) : base(pdf)
+        public ObjectReference(Pdf pdf, int objectNumber, int generation) : base(pdf)
         {
             this.objectNumber = objectNumber;
             this.generation = generation;
@@ -26,11 +19,9 @@ namespace FirePDF.Model
 
         public override bool Equals(object obj)
         {
-            if(obj is ObjectReference)
+            if(obj is ObjectReference objRef)
             {
-                ObjectReference objRef = obj as ObjectReference;
-
-                return pdf == objRef.pdf
+                return Pdf == objRef.Pdf
                     && objectNumber == objRef.objectNumber
                     && generation == objRef.generation;
             }
@@ -40,9 +31,9 @@ namespace FirePDF.Model
             }
         }
 
-        public T get<T>()
+        public T Get<T>()
         {
-            return (T)pdf.get<T>(this);
+            return (T)Pdf.Get<T>(this);
         }
 
         public override string ToString()

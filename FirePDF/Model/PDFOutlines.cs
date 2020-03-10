@@ -1,8 +1,8 @@
 ﻿namespace FirePDF.Model
 {
-    internal class PDFOutlines : IHaveUnderlyingDict
+    internal class PdfOutlines : HaveUnderlyingDict
     {
-        public PDFOutlines(PDFDictionary underlyingDict) : base(underlyingDict)
+        public PdfOutlines(PdfDictionary underlyingDict) : base(underlyingDict)
         {
         }
     }

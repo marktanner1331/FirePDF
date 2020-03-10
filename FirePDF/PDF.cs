@@ -5,14 +5,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace FirePDF
 {
-    public class PDF : IHaveUnderlyingDict, IDisposable, IEnumerable<Page>
+    public class Pdf : HaveUnderlyingDict, IDisposable, IEnumerable<Page>
     {
         internal ObjectStore store;
 
@@ -22,78 +18,78 @@ namespace FirePDF
         public readonly float version;
         internal long lastXrefOffset;
 
-        public PDF(string fullFilePath) : this(File.OpenRead(fullFilePath)) { }
+        public Pdf(string fullFilePath) : this(File.OpenRead(fullFilePath)) { }
 
-        public PDF(Stream stream)
+        public Pdf(Stream stream)
         {
-            this.pdf = this;
-            this.version = PDFReader.readVersion(stream);
+            Pdf = this;
+            version = PdfReader.ReadVersion(stream);
 
-            lastXrefOffset = PDFReader.findLastXREFOffset(stream);
+            lastXrefOffset = PdfReader.FindLastXrefOffset(stream);
             stream.Position = lastXrefOffset;
 
             ObjectReference root;
-            XREFTable table;
-            PDFReader.readXREFTables(this, stream, out table, out root);
+            XrefTable table;
+            PdfReader.ReadXrefTables(this, stream, out table, out root);
 
-            this.store = new ObjectStore(this, table, stream);
-            this.underlyingDict = new PDFDictionary(this);
+            store = new ObjectStore(this, table, stream);
+            UnderlyingDict = new PdfDictionary(this);
 
             //do this better
             //need to preserve the trailer in readPDF
-            this.underlyingDict.set("Root", root);
+            UnderlyingDict.Set("Root", root);
 
-            this.catalog = root.get<Catalog>();
+            catalog = root.Get<Catalog>();
         }
 
-        public PDF()
+        public Pdf()
         {
-            this.pdf = this;
+            Pdf = this;
 
             //need to initialize this with the underlying dict from the new Catalog()
-            this.underlyingDict = new PDFDictionary(this);
+            UnderlyingDict = new PdfDictionary(this);
 
-            this.store = new ObjectStore(this);
-            this.version = 1.4f;
+            store = new ObjectStore(this);
+            version = 1.4f;
 
-            this.catalog = new Catalog(this);
-            this.underlyingDict.set("Root", store.add(catalog.underlyingDict));
+            catalog = new Catalog(this);
+            UnderlyingDict.Set("Root", store.Add(catalog.UnderlyingDict));
         }
 
         /// <summary>
-        /// searches the pdf for all objects that are of the given type and returns them
+        /// searches the Pdf for all objects that are of the given type and returns them
         /// </summary>
-        public List<T> getAll<T>()
+        public List<T> GetAll<T>()
         {
-            return store.getAll<T>();
+            return store.GetAll<T>();
         }
 
         /// <summary>
-        /// Gets an object from the pdf and casts it to the given type.
-        /// This method crashes if the object canoot be found
+        /// Gets an object from the Pdf and casts it to the given type.
+        /// This method crashes if the object cannot be found
         /// </summary>
         /// <typeparam name="T">The type to cast the object to, to leave it uncasted, pass through 'object' as the type</typeparam>
         /// <param name="objectNumber">The number of the object reference</param>
         /// <param name="generation">the generation of the object reference</param>
         /// <returns>The object, casted to the given type</returns>
-        public T get<T>(int objectNumber, int generation)
+        public T Get<T>(int objectNumber, int generation)
         {
-            return store.get<T>(objectNumber, generation);
+            return store.Get<T>(objectNumber, generation);
         }
 
         /// <summary>
-        /// Gets an object from the pdf and casts it to the given type.
-        /// This method crashes if the object canoot be found
+        /// Gets an object from the Pdf and casts it to the given type.
+        /// This method crashes if the object cannot be found
         /// </summary>
         /// <typeparam name="T">The type to cast the object to, to leave it uncasted, pass through 'object' as the type</typeparam>
         /// <param name="indirectReference"></param>
         /// <returns>The object, casted to the given type</returns>
-        public T get<T>(ObjectReference indirectReference)
+        public T Get<T>(ObjectReference indirectReference)
         {
-            return store.get<T>(indirectReference);
+            return store.Get<T>(indirectReference);
         }
 
-        public ObjectReference addStream(string data)
+        public ObjectReference AddStream(string data)
         {
             using (MemoryStream ms = new MemoryStream())
             using (StreamWriter writer = new StreamWriter(ms))
@@ -101,28 +97,28 @@ namespace FirePDF
                 writer.Write(data);
                 writer.Flush();
                 ms.Seek(0, SeekOrigin.Begin);
-                return addStream(ms);
+                return AddStream(ms);
             }
         }
 
-        public ObjectReference addStream(byte[] data)
+        public ObjectReference AddStream(byte[] data)
         {
             using (MemoryStream ms = new MemoryStream(data))
             {
                 ms.Seek(0, SeekOrigin.Begin);
-                return addStream(ms);
+                return AddStream(ms);
             }
         }
 
-        public ObjectReference addStream(FileInfo file)
+        public ObjectReference AddStream(FileInfo file)
         {
             using (Stream stream = File.OpenRead(file.FullName))
             {
-                return addStream(stream);
+                return AddStream(stream);
             }
         }
 
-        public ObjectReference addStream(Stream stream)
+        public ObjectReference AddStream(Stream stream)
         {
             //TODO have one global newStream, backed by a file maybe?
             //instead of lots of little memory streams hanging around
@@ -131,74 +127,74 @@ namespace FirePDF
             stream.CopyTo(ms);
             ms.Seek(0, SeekOrigin.Begin);
 
-            PDFDictionary streamDict = new PDFDictionary(pdf);
-            streamDict.set("Length", (int)ms.Length);
+            PdfDictionary streamDict = new PdfDictionary(Pdf);
+            streamDict.Set("Length", (int)ms.Length);
 
-            return store.addStream(ms, streamDict);
+            return store.AddStream(ms, streamDict);
         }
 
-        public void save(string fullFilePath, SaveType saveType = SaveType.Fresh)
+        public void Save(string fullFilePath, SaveType saveType = SaveType.Fresh)
         {
             if (saveType == SaveType.Fresh)
             {
-                PDFWriter writer = new PDFWriter(File.Create(fullFilePath), false);
-                writer.writeNewPDF(this);
+                PdfWriter writer = new PdfWriter(File.Create(fullFilePath), false);
+                writer.WriteNewPdf(this);
             }
             else
             {
                 using (Stream stream = File.Create(fullFilePath))
                 {
-                    PDFWriter writer = new PDFWriter(stream, false);
-                    store.copyExistingStream(stream);
-                    writer.writeUpdatedPDF(this);
+                    PdfWriter writer = new PdfWriter(stream, false);
+                    store.CopyExistingStream(stream);
+                    writer.WriteUpdatedPdf(this);
                 }
             }
         }
 
-        public Page addPage(Page page)
+        public Page AddPage(Page page)
         {
-            return insertPage(page, catalog.numPages() + 1);
+            return InsertPage(page, catalog.NumPages() + 1);
         }
 
-        public Page insertPage(Page page, int oneBasedPageNumber)
+        public Page InsertPage(Page page, int oneBasedPageNumber)
         {
-            if (page.pdf != this)
+            if (page.Pdf != this)
             {
-                ObjectReference objRef = store.add(page);
-                Page newPage = objRef.get<Page>();
-                catalog.insertPage(newPage, objRef, oneBasedPageNumber);
+                ObjectReference objRef = store.Add(page);
+                Page newPage = objRef.Get<Page>();
+                catalog.InsertPage(newPage, objRef, oneBasedPageNumber);
                 return newPage;
             }
             else
             {
-                if (page.isOrphan)
+                if (page.IsOrphan)
                 {
-                    ObjectReference objRef = store.add(page);
-                    catalog.insertPage(page, objRef, oneBasedPageNumber);
-                    page.isOrphan = false;
+                    ObjectReference objRef = store.Add(page);
+                    catalog.InsertPage(page, objRef, oneBasedPageNumber);
+                    page.IsOrphan = false;
                     return page;
                 }
                 else
                 {
-                    ObjectReference objRef = store.add(page);
-                    Page newPage = objRef.get<Page>();
-                    catalog.insertPage(newPage, objRef, oneBasedPageNumber);
+                    ObjectReference objRef = store.Add(page);
+                    Page newPage = objRef.Get<Page>();
+                    catalog.InsertPage(newPage, objRef, oneBasedPageNumber);
                     return newPage;
                 }
             }
         }
 
-        public Page getPage(int oneBasedPageNumber)
+        public Page GetPage(int oneBasedPageNumber)
         {
-            return catalog.getPage(oneBasedPageNumber);
+            return catalog.GetPage(oneBasedPageNumber);
         }
 
         /// <summary>
-        /// returns the number of pages in the pdf
+        /// returns the number of pages in the Pdf
         /// </summary>
-        public int numPages()
+        public int NumPages()
         {
-            return catalog.numPages();
+            return catalog.NumPages();
         }
 
         public IEnumerator<Page> GetEnumerator() => catalog.GetEnumerator();

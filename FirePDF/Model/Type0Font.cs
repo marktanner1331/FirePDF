@@ -1,34 +1,26 @@
-﻿using FirePDF.Reading;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    //pdf spec 9.7
+    //Pdf spec 9.7
     public class Type0Font : Font
     {
-        private CIDFont descendantFont
-        {
-            get => (CIDFont)underlyingDict.get<PDFList>("DescendantFonts").get<Font>(0);
-        }
+        private CidFont DescendantFont => (CidFont)UnderlyingDict.Get<PdfList>("DescendantFonts").Get<Font>(0);
 
-        public Type0Font(PDFDictionary dictionary) : base(dictionary)
+        public Type0Font(PdfDictionary dictionary) : base(dictionary)
         {
             
         }
 
-        protected override CMAP loadEncoding()
+        protected override Cmap LoadEncoding()
         {
-            object encodingObj = underlyingDict.get<object>("Encoding");
+            object encodingObj = UnderlyingDict.Get<object>("Encoding");
             if (encodingObj is Name)
             {
-                return new CMAP((Name)encodingObj);
+                return new Cmap((Name)encodingObj);
             }
             else
             {
@@ -37,19 +29,19 @@ namespace FirePDF.Model
             }
         }
 
-        protected override CMAP loadToUnicode()
+        protected override Cmap LoadToUnicode()
         {
-            if (underlyingDict.containsKey("ToUnicode"))
+            if (UnderlyingDict.ContainsKey("ToUnicode"))
             {
-                PDFStream stream = underlyingDict.get<PDFStream>("ToUnicode");
+                PdfStream stream = UnderlyingDict.Get<PdfStream>("ToUnicode");
 
-                if (stream.underlyingDict.containsKey("UseCMap"))
+                if (stream.UnderlyingDict.ContainsKey("UseCMap"))
                 {
                     //in theory we just load the other cmap and merge it with this one
                     throw new NotImplementedException();
                 }
 
-                return new CMAP(stream.getDecompressedStream());
+                return new Cmap(stream.GetDecompressedStream());
             }
             else
             {
@@ -57,14 +49,14 @@ namespace FirePDF.Model
             }
         }
 
-        public override FontDescriptor getFontDescriptor()
+        public override FontDescriptor GetFontDescriptor()
         {
-            return descendantFont.getFontDescriptor();
+            return DescendantFont.GetFontDescriptor();
         }
 
-        public override SizeF measureText(byte[] hexString, GraphicsState gs)
+        public override SizeF MeasureText(byte[] hexString, GraphicsState gs)
         {
-            FontDescriptor fontDescriptor = getFontDescriptor();
+            FontDescriptor fontDescriptor = GetFontDescriptor();
 
             //bbox is in glyph space, but we are expressing everything in user space here
             float height = fontDescriptor.bbox.Height / 1000 * gs.fontSize;
@@ -75,12 +67,12 @@ namespace FirePDF.Model
             {
                 while (stream.Position != stream.Length)
                 {
-                    int code = encoding.readCodeFromStream(stream);
-                    int cid = encoding.codeToCID(code);
+                    int code = Encoding.ReadCodeFromStream(stream);
+                    int cid = Encoding.CodeToCid(code);
 
                     //hint: the char spacing and word spacing are scaled by the horizontal scaling but not the font size
                     
-                    float width = descendantFont.getWidthForCID(cid);
+                    float width = DescendantFont.GetWidthForCid(cid);
                     size.Width += width * gs.fontSize;
 
                     size.Width += gs.characterSpacing;
@@ -100,9 +92,9 @@ namespace FirePDF.Model
             return size;
         }
 
-        public override string readUnicodeStringFromHexString(byte[] hexString)
+        public override string ReadUnicodeStringFromHexString(byte[] hexString)
         {
-            if (toUnicode == null)
+            if (ToUnicode == null)
             {
                 return "";
             }
@@ -112,8 +104,8 @@ namespace FirePDF.Model
                 StringBuilder sb = new StringBuilder();
                 while (stream.Position != stream.Length)
                 {
-                    int code = encoding.readCodeFromStream(stream);
-                    string str = toUnicode.codeToUnicode(code);
+                    int code = Encoding.ReadCodeFromStream(stream);
+                    string str = ToUnicode.CodeToUnicode(code);
 
                     sb.Append(str);
                 }
@@ -122,9 +114,9 @@ namespace FirePDF.Model
             }
         }
 
-        public override void setToUnicodeCMAP(ObjectReference objectReference)
+        public override void SetToUnicodeCmap(ObjectReference objectReference)
         {
-            underlyingDict.set("ToUnicode", objectReference);
+            UnderlyingDict.Set("ToUnicode", objectReference);
         }
     }
 }

@@ -1,26 +1,21 @@
 ﻿using FirePDF;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDFTests
 {
     [TestClass()]
-    public class NewPDFTests
+    public class NewPdfTests
     {
-        private string getPDFFolder()
+        private static string GetPdfFolder()
         {
-            return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
+            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
         }
 
-        private string getOutputPDFFolder()
+        private static string GetOutputPdfFolder()
         {
-            string folder = getPDFFolder() + "output/";
+            string folder = GetPdfFolder() + "output/";
             if(Directory.Exists(folder) == false)
             {
                 Directory.CreateDirectory(folder);
@@ -30,37 +25,37 @@ namespace FirePDFTests
         }
 
         [TestMethod()]
-        public void createPDFTest1()
+        public void CreatePdfTest1()
         {
-            PDF pdf = new PDF();
+            Pdf pdf = new Pdf();
             Page page = new Page(pdf, new System.Drawing.Size(300, 824));
-            pdf.addPage(page);
+            pdf.AddPage(page);
 
-            string temp = getOutputPDFFolder() + "createPDFTest1.pdf";
+            string temp = GetOutputPdfFolder() + "createPDFTest1.Pdf";
             if(File.Exists(temp))
             {
                 File.Delete(temp);
             }
 
-            pdf.save(temp);
+            pdf.Save(temp);
         }
 
         [TestMethod()]
-        public void createPDFTest2()
+        public void CreatePdfTest2()
         {
-            PDF pdf = new PDF(getPDFFolder() + "09a9da81-1261-49b3-a9f0-2e76b476f992.pdf");
-            Page page1 = pdf.getPage(1);
+            Pdf pdf = new Pdf(GetPdfFolder() + "09a9da81-1261-49b3-a9f0-2e76b476f992.Pdf");
+            Page page1 = pdf.GetPage(1);
 
-            Page newPage = new Page(pdf, page1.boundingBox.Size.ToSize());
-            pdf.addPage(newPage);
+            Page newPage = new Page(pdf, page1.BoundingBox.Size.ToSize());
+            pdf.AddPage(newPage);
 
-            string temp = getOutputPDFFolder() + "createPDFTest2.pdf";
+            string temp = GetOutputPdfFolder() + "createPDFTest2.Pdf";
             if (File.Exists(temp))
             {
                 File.Delete(temp);
             }
 
-            pdf.save(temp);
+            pdf.Save(temp);
         }
     }
 }

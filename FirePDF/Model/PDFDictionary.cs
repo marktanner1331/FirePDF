@@ -1,59 +1,56 @@
-﻿using FirePDF.Reading;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
     //TODO: merge some of these interfaces
-    public class PDFDictionary : IHavePDF, IHaveChildren, IEnumerable<KeyValuePair<Name, object>>
+    public class PdfDictionary : HavePdf, IHaveChildren, IEnumerable<KeyValuePair<Name, object>>
     {
-        private Dictionary<Name, object> inner;
-        private bool _isDirty = false;
+        private readonly Dictionary<Name, object> inner;
+        private bool isDirty = false;
 
-        public PDFDictionary(PDF pdf, Dictionary<Name, object> inner) : base(pdf)
+        public PdfDictionary(Pdf pdf, Dictionary<Name, object> inner) : base(pdf)
         {
             this.inner = inner;
         }
 
-        public PDFDictionary(PDF pdf) : base(pdf)
+        public PdfDictionary(Pdf pdf) : base(pdf)
         {
-            this.inner = new Dictionary<Name, object>();
+            inner = new Dictionary<Name, object>();
         }
 
-        public bool containsKey(Name key) => inner.ContainsKey(key);
+        public bool ContainsKey(Name key) => inner.ContainsKey(key);
 
-        public IEnumerable<Name> keys => inner.Keys;
+        public IEnumerable<Name> Keys => inner.Keys;
         
-        public void set(Name key, object value)
+        public void Set(Name key, object value)
         {
             inner[key] = value;
-            _isDirty = true;
+            isDirty = true;
         }
         
-        internal void setWithoutDirtying(Name key, object value)
+        internal void SetWithoutDirtying(Name key, object value)
         {
             inner[key] = value;
         }
 
-        public void removeEntry(Name key)
+        public void RemoveEntry(Name key)
         {
             inner.Remove(key);
         }
 
-        public T get<T>(Name key, bool resolveReferences = true)
+        public T Get<T>(Name key, bool resolveReferences = true)
         {
             if (inner.ContainsKey(key))
             {
                 object value = inner[key];
 
                 //if we get an object reference, and we don't want an object reference, then resolve it
-                if(value is ObjectReference && resolveReferences && typeof(T) != typeof(ObjectReference))
+                if(value is ObjectReference reference && resolveReferences && typeof(T) != typeof(ObjectReference))
                 {
-                    return pdf.store.get<T>(value as ObjectReference);
+                    return Pdf.store.Get<T>(reference);
                 }
 
                 return (T)value;
@@ -86,24 +83,28 @@ namespace FirePDF.Model
             }
         }
 
-        public bool isDirty() => _isDirty || inner.Values.Where(x => x is IHaveChildren).Any(x => ((IHaveChildren)x).isDirty());
+        public bool IsDirty() => isDirty || inner.Values.Where(x => x is IHaveChildren).Any(x => ((IHaveChildren)x).IsDirty());
         
-        public void swapReferences(Func<ObjectReference, ObjectReference> callback)
+        public void SwapReferences(Func<ObjectReference, ObjectReference> callback)
         {
             foreach(Name key in inner.Keys.ToList())
             {
-                if(inner[key] is ObjectReference)
+                switch (inner[key])
                 {
-                    ObjectReference newReference = callback((ObjectReference)inner[key]);
-                    if(inner[key] != newReference)
+                    case ObjectReference reference:
                     {
-                        inner[key] = newReference;
-                        _isDirty = true;
+                        ObjectReference newReference = callback(reference);
+                        if(reference.Equals(newReference))
+                        {
+                            inner[key] = newReference;
+                            isDirty = true;
+                        }
+
+                        break;
                     }
-                }
-                else if(inner[key] is IHaveChildren)
-                {
-                    (inner[key] as IHaveChildren).swapReferences(callback);
+                    case IHaveChildren children:
+                        children.SwapReferences(callback);
+                        break;
                 }
             }
         }

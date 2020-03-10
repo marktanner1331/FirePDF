@@ -1,16 +1,10 @@
 ﻿using FirePDF.Reading;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class XObjectImage : PDFStream
+    public class XObjectImage : PdfStream
     {
         /// <summary>
         /// the natural width of the image
@@ -23,12 +17,12 @@ namespace FirePDF.Model
         public readonly int height;
 
         /// <summary>
-        /// initializing an xobject image with the owning pdf, its dictionary, and the offset to the start of the stream relative to the start of the pdf
+        /// initializing an xObject image with the owning Pdf, its dictionary, and the offset to the start of the stream relative to the start of the Pdf
         /// </summary>
-        public XObjectImage(Stream stream, PDFDictionary dict, long startOfStream) : base(stream, dict, startOfStream)
+        public XObjectImage(Stream stream, PdfDictionary dict, long startOfStream) : base(stream, dict, startOfStream)
         {
-            width = dict.get<int>("Width");
-            height = dict.get<int>("Height");
+            width = dict.Get<int>("Width");
+            height = dict.Get<int>("Height");
         }
 
         /// <summary>
@@ -36,22 +30,22 @@ namespace FirePDF.Model
         /// </summary>
         /// <param name="owner"></param>
         /// <param name="fullPathToImage">the full path to the external image file</param>
-        public static XObjectImage fromFile(PDF owner, string fullPathToImage)
+        public static XObjectImage FromFile(Pdf owner, string fullPathToImage)
         {
             Image image = Image.FromFile(fullPathToImage);
-            PDFDictionary dictionary = new PDFDictionary(owner);
-            dictionary.set("Width", image.Width);
-            dictionary.set("Height", image.Height);
-            dictionary.set("Type", (Name)"XObject");
-            dictionary.set("Subtype", (Name)"Image");
-            dictionary.set("Filter", (Name)"DCTDecode");
+            PdfDictionary dictionary = new PdfDictionary(owner);
+            dictionary.Set("Width", image.Width);
+            dictionary.Set("Height", image.Height);
+            dictionary.Set("Type", (Name)"XObject");
+            dictionary.Set("Subtype", (Name)"Image");
+            dictionary.Set("Filter", (Name)"DCTDecode");
 
             using (FileStream stream = File.OpenRead(fullPathToImage))
             {
-                dictionary.set("Length", stream.Length);
+                dictionary.Set("Length", stream.Length);
 
-                ObjectReference objectRef = owner.store.addStream(stream, dictionary);
-                return objectRef.get<XObjectImage>();
+                ObjectReference objectRef = owner.store.AddStream(stream, dictionary);
+                return objectRef.Get<XObjectImage>();
             }
         }
 
@@ -59,14 +53,14 @@ namespace FirePDF.Model
         /// returns the image as a System.Drawing.Bitmap
         /// </summary>
         /// <returns>the image</returns>
-        public Bitmap getImage()
+        public Bitmap GetImage()
         {
             stream.Position = startOfStream;
-            Bitmap image = PDFReader.decompressImageStream(pdf, stream, underlyingDict);
+            Bitmap image = PdfReader.DecompressImageStream(Pdf, stream, UnderlyingDict);
 
-            if(underlyingDict.containsKey("SMask"))
+            if(UnderlyingDict.ContainsKey("SMask"))
             {
-                XObjectImage mask = underlyingDict.get<XObjectImage>("SMask");
+                XObjectImage mask = UnderlyingDict.Get<XObjectImage>("SMask");
                 //DoApplyMask(image, mask);
             }
 

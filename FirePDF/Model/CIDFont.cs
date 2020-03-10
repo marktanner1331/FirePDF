@@ -1,8 +1,8 @@
 ﻿namespace FirePDF.Model
 {
-    public abstract class CIDFont : Font
+    public abstract class CidFont : Font
     {
-        public CIDFont(PDFDictionary dictionary) : base(dictionary)
+        protected CidFont(PdfDictionary dictionary) : base(dictionary)
         {
 
         }
@@ -10,6 +10,6 @@
         /// <summary>
         /// returns the width of the given cid in user space
         /// </summary>
-        public abstract float getWidthForCID(int cid);
+        public abstract float GetWidthForCid(int cid);
     }
 }

@@ -1,36 +1,33 @@
 ﻿using FirePDF.Model;
 using FirePDF.StreamPartFunctions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Graphical_Debugger
 {
-    class OperationTreeNode : TreeNode
+    internal class OperationTreeNode : TreeNode
     {
-        private Operation operation;
+        private readonly Operation operation;
 
         public OperationTreeNode(Node<StreamPart> root)
         {
-            this.Text = root.getAllLeafNodes().Sum(x => x.operations.Count) + " operations";
+            Text = root.GetAllLeafNodes().Sum(x => x.operations.Count) + " operations";
 
-            if (root.value != null)
+            if (root.Value != null)
             {
-                foreach (Operation operation in root.value.operations)
+                foreach (Operation operation in root.Value.operations)
                 {
                     Nodes.Add(new OperationTreeNode(operation));
                 }
             }
             else
             {
-                foreach (Node<StreamPart> node in root.getChildren())
+                foreach (Node<StreamPart> node in root.GetChildren())
                 {
                     OperationTreeNode subNode = new OperationTreeNode(node);
 
-                    if (node.value == null)
+                    if (node.Value == null)
                     {
                         subNode.Nodes.Insert(0, new OperationTreeNode(new Operation("q", new List<object>())));
                         subNode.Nodes.Add(new OperationTreeNode(new Operation("Q", new List<object>())));
@@ -44,7 +41,7 @@ namespace Graphical_Debugger
         /// <summary>
         /// returns the operations as a list of booleans depending on whether they are checked or not
         /// </summary>
-        public List<bool> getCheckedMap()
+        public List<bool> GetCheckedMap()
         {
             if (operation != null)
             {
@@ -55,11 +52,11 @@ namespace Graphical_Debugger
             }
             else
             {
-                return Nodes.Cast<OperationTreeNode>().SelectMany(x => x.getCheckedMap()).ToList();
+                return Nodes.Cast<OperationTreeNode>().SelectMany(x => x.GetCheckedMap()).ToList();
             }
         }
 
-        public List<Operation> getOperations()
+        public List<Operation> GetOperations()
         {
             if (operation != null)
             {
@@ -77,13 +74,13 @@ namespace Graphical_Debugger
             }
             else
             {
-                return Nodes.Cast<OperationTreeNode>().SelectMany(x => x.getOperations()).ToList();
+                return Nodes.Cast<OperationTreeNode>().SelectMany(x => x.GetOperations()).ToList();
             }
         }
 
         public OperationTreeNode(Operation operation)
         {
-            base.Text = operation.ToString();
+            Text = operation.ToString();
             this.operation = operation;
         }
     }

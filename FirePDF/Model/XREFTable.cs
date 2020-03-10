@@ -2,18 +2,15 @@
 using FirePDF.Writing;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class XREFTable
+    public class XrefTable
     {
-        public struct XREFRecord
+        public struct XrefRecord
         {
             public int objectNumber;
             public int generation;
@@ -30,23 +27,23 @@ namespace FirePDF.Model
             public int compressedObjectNumber;
         }
 
-        private Dictionary<long, XREFRecord> usedRecords;
+        private readonly Dictionary<long, XrefRecord> usedRecords;
 
         /// <summary>
         /// a set of free records, stored as hashes
         /// </summary>
-        private HashSet<long> freeRecords;
+        private readonly HashSet<long> freeRecords;
 
-        public XREFTable()
+        public XrefTable()
         {
-            usedRecords = new Dictionary<long, XREFRecord>();
+            usedRecords = new Dictionary<long, XrefRecord>();
             freeRecords = new HashSet<long>();
         }
 
         /// <summary>
         /// manually add an xref record to the table. if it already exists then it will be overwritten
         /// </summary>
-        public void addRecord(XREFRecord record)
+        public void AddRecord(XrefRecord record)
         {
             long hash = ((record.objectNumber & 0xffffffff) << 16) + (record.generation & 0xffff);
             usedRecords[hash] = record;
@@ -55,7 +52,7 @@ namespace FirePDF.Model
             freeRecords.Remove(hash);
         }
         
-        public int getNextFreeRecordNumber()
+        public int GetNextFreeRecordNumber()
         {
             //TODO should probably do something with the free records here
 
@@ -72,7 +69,7 @@ namespace FirePDF.Model
             }
         }
 
-        public void clear()
+        public void Clear()
         {
             usedRecords.Clear();
             freeRecords.Clear();
@@ -81,7 +78,7 @@ namespace FirePDF.Model
         /// <summary>
         /// marks an object as free. if it already exists as a used record then it is skipped
         /// </summary>
-        public void addFreeRecord(int objectNumber, int generation)
+        public void AddFreeRecord(int objectNumber, int generation)
         {
             long hash = ((objectNumber & 0xffffffff) << 16) + (generation & 0xffff);
 
@@ -93,57 +90,57 @@ namespace FirePDF.Model
             freeRecords.Add(hash);
         }
 
-        internal void serialize(PDFWriter pdfWriter)
+        internal void Serialize(PdfWriter pdfWriter)
         {
-            pdfWriter.writeASCII("xref");
-            pdfWriter.writeNewLine();
+            pdfWriter.WriteAscii("xref");
+            pdfWriter.WriteNewLine();
 
             if(freeRecords.Any())
             {
                 throw new NotImplementedException();
             }
 
-            List<XREFRecord> records = usedRecords.Select(x => x.Value).OrderBy(x => x.objectNumber).ToList();
+            List<XrefRecord> records = usedRecords.Select(x => x.Value).OrderBy(x => x.objectNumber).ToList();
 
-            List<XREFRecord> subRecords = new List<XREFRecord>();
+            List<XrefRecord> subRecords = new List<XrefRecord>();
             subRecords.Add(records.First());
 
-            foreach(XREFRecord record in records.Skip(1))
+            foreach(XrefRecord record in records.Skip(1))
             {
                 if(subRecords.Last().objectNumber + 1 != record.objectNumber)
                 {
-                    serializeSubSection(pdfWriter, subRecords);
+                    SerializeSubSection(pdfWriter, subRecords);
                     subRecords.Clear();
                 }
 
                 subRecords.Add(record);
             }
 
-            serializeSubSection(pdfWriter, subRecords);
+            SerializeSubSection(pdfWriter, subRecords);
         }
 
-        public bool hasXREFRecord(ObjectReference indirectReference)
+        public bool HasXrefRecord(ObjectReference indirectReference)
         {
             return usedRecords.ContainsKey(indirectReference.GetHashCode());
         }
 
-        private void serializeSubSection(PDFWriter pdfWriter, List<XREFRecord> records)
+        private static void SerializeSubSection(PdfWriter pdfWriter, IReadOnlyCollection<XrefRecord> records)
         {
-            pdfWriter.writeASCII(records.First().objectNumber + " " + records.Count);
-            pdfWriter.writeNewLine();
+            pdfWriter.WriteAscii(records.First().objectNumber + " " + records.Count);
+            pdfWriter.WriteNewLine();
 
-            foreach(XREFRecord record in records)
+            foreach(XrefRecord record in records)
             {
-                pdfWriter.writeASCII(record.offset.ToString("0000000000") + " " + record.generation.ToString("00000") + " n\r\n");
+                pdfWriter.WriteAscii(record.offset.ToString("0000000000") + " " + record.generation.ToString("00000") + " n\r\n");
             }
         }
 
-        public IEnumerable<XREFRecord> getAllXREFRecords()
+        public IEnumerable<XrefRecord> GetAllXrefRecords()
         {
             return usedRecords.Values;
         }
 
-        private void getRecordFromHash(long hash, out int objectNumber, out int generation)
+        private void GetRecordFromHash(long hash, out int objectNumber, out int generation)
         {
             generation = (int)(hash & 0xffff);
             hash >>= 16;
@@ -151,12 +148,12 @@ namespace FirePDF.Model
             objectNumber = (int)(hash & 0xffffffff);
         }
 
-        public XREFRecord? getXREFRecord(ObjectReference indirectReference)
+        public XrefRecord? GetXrefRecord(ObjectReference indirectReference)
         {
-            return getXREFRecord(indirectReference.objectNumber, indirectReference.generation);
+            return GetXrefRecord(indirectReference.objectNumber, indirectReference.generation);
         }
 
-        public XREFRecord? getXREFRecord(int objectNumber, int generation)
+        public XrefRecord? GetXrefRecord(int objectNumber, int generation)
         {
             long hash = ((objectNumber & 0xffffffff) << 16) + (generation & 0xffff);
             if(usedRecords.ContainsKey(hash))
@@ -173,9 +170,9 @@ namespace FirePDF.Model
         /// merges the given table into this table
         /// if a record exists in both tables then it will not be overwritten
         /// </summary>
-        public void mergeIn(XREFTable table)
+        public void MergeIn(XrefTable table)
         {
-            foreach(var pair in table.usedRecords)
+            foreach(KeyValuePair<long, XrefRecord> pair in table.usedRecords)
             {
                 if(usedRecords.ContainsKey(pair.Key))
                 {
@@ -196,10 +193,10 @@ namespace FirePDF.Model
         /// <summary>
         /// parses an xref table from the stream at the current position
         /// </summary>
-        public void fromStream(Stream stream)
+        public void FromStream(Stream stream)
         {
             long lastPosition = stream.Position;
-            while (parseXREFSection(stream))
+            while (ParseXrefSection(stream))
             {
                 lastPosition = stream.Position;
             }
@@ -207,16 +204,16 @@ namespace FirePDF.Model
             stream.Position = lastPosition;
         }
 
-        private bool parseXREFSection(Stream stream)
+        private bool ParseXrefSection(Stream stream)
         {
-            string firstLine = ASCIIReader.readLine(stream);
+            string firstLine = AsciiReader.ReadLine(stream);
             if (firstLine != "xref")
             {
                 return false;
             }
             
             long lastPosition = stream.Position;
-            while (parseXREFSubSection(stream))
+            while (ParseXrefSubSection(stream))
             {
                 lastPosition = stream.Position;
             }
@@ -226,9 +223,9 @@ namespace FirePDF.Model
             return true;
         }
 
-        private bool parseXREFSubSection(Stream stream)
+        private bool ParseXrefSubSection(Stream stream)
         {
-            string header = ASCIIReader.readLine(stream);
+            string header = AsciiReader.ReadLine(stream);
             Match headerMatch = Regex.Match(header, @"^(\d+) (\d+)$");
 
             if (headerMatch.Success == false)
@@ -243,7 +240,7 @@ namespace FirePDF.Model
             {
                 int objectNumber = firstObjectNumber + i;
 
-                string record = ASCIIReader.readLine(stream);
+                string record = AsciiReader.ReadLine(stream);
 
                 long offset = long.Parse(record.Substring(0, 10));
                 int generation = int.Parse(record.Substring(11, 6));
@@ -253,7 +250,7 @@ namespace FirePDF.Model
 
                 if (type == 'n')
                 {
-                    usedRecords[hash] = new XREFRecord
+                    usedRecords[hash] = new XrefRecord
                     {
                         objectNumber = objectNumber,
                         generation = generation,

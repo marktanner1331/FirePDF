@@ -2,34 +2,26 @@
 using FirePDF.Model;
 using FirePDF.Processors;
 using FirePDF.Reading;
-using FirePDF.Rendering;
-using FirePDF.StreamPartFunctions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Graphical_Debugger
 {
     public partial class MainWindow : Form
     {
-        private SplitContainer splitter;
+        private readonly SplitContainer splitter;
 
-        private PDFRenderer pdfRenderer;
-        private OperationListBox listBox;
+        private readonly PdfRenderer pdfRenderer;
+        private readonly OperationListBox listBox;
 
         private IStreamOwner owner;
         private List<Operation> operations;
 
         public MainWindow()
         {
-            this.BackColor = Color.Black;
+            BackColor = Color.Black;
 
             InitializeComponent();
             Text = "FirePDF Graphical Debugger";
@@ -39,37 +31,37 @@ namespace Graphical_Debugger
             splitter.SplitterDistance = 200;
             Controls.Add(splitter);
             
-            pdfRenderer = new PDFRenderer();
+            pdfRenderer = new PdfRenderer();
             splitter.Panel2.Controls.Add(pdfRenderer);
             pdfRenderer.Size = splitter.Panel2.ClientSize;
 
             listBox = new OperationListBox();
             splitter.Panel1.Controls.Add(listBox);
             splitter.SplitterMoved += Splitter_SplitterMoved;
-            listBox.onCheckChanged += ListBox_onCheckChanged;
+            listBox.OnCheckChanged += ListBox_onCheckChanged;
             listBox.Size = splitter.Panel1.ClientSize;
             
-            loadPDF(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\3.pdf");
+            LoadPdf(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\3.Pdf");
         }
 
         private void ListBox_onCheckChanged()
         {
-            pdfRenderer.render(owner, listBox.getCheckedMap());
+            pdfRenderer.Render(owner, listBox.GetCheckedMap());
         }
 
-        private void loadPDF(string fullPathToFile)
+        private void LoadPdf(string fullPathToFile)
         {
-            PDF pdf = new PDF(fullPathToFile);
+            Pdf pdf = new Pdf(fullPathToFile);
 
-            Page page = pdf.getPage(1);
+            Page page = pdf.GetPage(1);
             owner = page;
             StreamCollector collector = new StreamCollector();
             RecursiveStreamReader reader = new RecursiveStreamReader(collector);
 
-            reader.readStreamRecursively(page);
+            reader.ReadStreamRecursively(page);
             operations = collector.operations;
             
-            listBox.setOperations(operations);
+            listBox.SetOperations(operations);
         }
 
         protected override void OnClientSizeChanged(EventArgs e)

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirePDF.Model
+﻿namespace FirePDF.Model
 {
     public class Name
     {
-        private string value;
+        private readonly string value;
 
         public Name(string value)
         {
@@ -42,7 +36,7 @@ namespace FirePDF.Model
 
         public static bool operator !=(Name a, Name b)
         {
-            return a.value != b.value;
+            return b != null && a.value != b.value;
         }
 
         public override string ToString()
@@ -57,17 +51,14 @@ namespace FirePDF.Model
 
         public override bool Equals(object obj)
         {
-            if(obj is Name)
+            switch (obj)
             {
-                return ((Name)obj).value.Equals(value);
-            }
-            else if(obj is string)
-            {
-                return ((Name)(string)obj).value.Equals(value);
-            }
-            else
-            {
-                return base.Equals(obj);
+                case Name name:
+                    return name.value.Equals(value);
+                case string s:
+                    return ((Name)s).value.Equals(value);
+                default:
+                    return base.Equals(obj);
             }
         }
     }

@@ -1,20 +1,16 @@
 ﻿using FirePDF.Model;
 using System;
-using System.Collections.Generic;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Processors
 {
     public class ClippingProcessor
     {
-        private Func<Model.GraphicsState> getGraphicsState;
-        private LineProcessor lineProcessor;
+        private readonly Func<Model.GraphicsState> getGraphicsState;
+        private readonly LineProcessor lineProcessor;
 
         //if this is not null then the current path should be used as a clipping path upon the next painting operation
-        //see PDF 8.5.4 for mor details
+        //see Pdf 8.5.4 for mor details
         //we can't simply store this in currentPath.windingRule as this could be used for real painting with a different winding rule
         //i.e. the operations could go W F*
         private FillMode? shouldClipPath = null;
@@ -25,9 +21,9 @@ namespace FirePDF.Processors
             this.lineProcessor = lineProcessor;
         }
 
-        public bool shouldClipCurrentPath => shouldClipPath != null;
+        public bool ShouldClipCurrentPath => shouldClipPath != null;
 
-        public static bool isClippingCommand(string operatorName)
+        public static bool IsClippingCommand(string operatorName)
         {
             switch (operatorName)
             {
@@ -39,7 +35,7 @@ namespace FirePDF.Processors
             }
         }
 
-        public bool processOperation(Operation operation)
+        public bool ProcessOperation(Operation operation)
         {
             switch (operation.operatorName)
             {
@@ -60,10 +56,10 @@ namespace FirePDF.Processors
                 case "S":
                     if (shouldClipPath != null)
                     {
-                        GraphicsPath currentPath = lineProcessor.currentPath;
+                        GraphicsPath currentPath = lineProcessor.CurrentPath;
 
                         currentPath.FillMode = shouldClipPath.Value;
-                        getGraphicsState().intersectClippingPath(currentPath);
+                        getGraphicsState().IntersectClippingPath(currentPath);
                         shouldClipPath = null;
                     }
                     break;

@@ -1,8 +1,8 @@
 ﻿namespace FirePDF.Model
 {
-    internal class PDFGroup : IHaveUnderlyingDict
+    internal class PdfGroup : HaveUnderlyingDict
     {
-        public PDFGroup(PDFDictionary underlyingDict) : base(underlyingDict)
+        public PdfGroup(PdfDictionary underlyingDict) : base(underlyingDict)
         {
         }
     }

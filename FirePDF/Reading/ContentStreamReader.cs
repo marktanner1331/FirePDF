@@ -4,18 +4,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Reading
 {
     public static class ContentStreamReader
     {
-        public static List<Operation> readOperationsFromStream(PDF pdf, Stream decompressedStream)
+        public static List<Operation> ReadOperationsFromStream(Pdf pdf, Stream decompressedStream)
         {
             List<Operation> operations = new List<Operation>();
             Operation currentOperation = new Operation();
 
-            readTokens(
+            ReadTokens(
                 pdf, 
                 decompressedStream,
                 operatorName =>
@@ -30,11 +29,11 @@ namespace FirePDF.Reading
             return operations;
         }
 
-        private static void readTokens(PDF pdf, Stream stream, Action<string> foundOperator, Action<object> foundOperand)
+        private static void ReadTokens(Pdf pdf, Stream stream, Action<string> foundOperator, Action<object> foundOperand)
         {
             while (stream.Position < stream.Length)
             {
-                skipOverWhiteSpace(stream);
+                SkipOverWhiteSpace(stream);
                 char current = (char)stream.ReadByte();
                 stream.Position--;
 
@@ -42,7 +41,7 @@ namespace FirePDF.Reading
                 {
                     case '<': //either start of dict or hex string
                         {
-                            object obj = PDFReader.readObject(pdf, stream);
+                            object obj = PdfReader.ReadObject(pdf, stream);
                             foundOperand(obj);
                         }
                         break;
@@ -52,29 +51,29 @@ namespace FirePDF.Reading
                             //string s = ASCIIReader.readASCIIString(stream, 50);
                             //stream.Position = temp;
 
-                            object obj = PDFReader.readArray(pdf, stream);
+                            object obj = PdfReader.ReadArray(pdf, stream);
                             foundOperand(obj);
                         }
                         break;
                     case '(':
                         {
-                            object obj = PDFReader.readString(stream);
+                            object obj = PdfReader.ReadString(stream);
                             foundOperand(obj);
                         }
                         break;
                     case '/':
                         {
-                            object obj = PDFReader.readName(stream);
+                            object obj = PdfReader.ReadName(stream);
                             foundOperand(obj);
                         }
                         break;
                     case 'B': //inline images
                         {
-                            string operatorName = readString(stream);
+                            string operatorName = ReadString(stream);
                             if (operatorName == "BI")
                             {
                                 stream.Position -= 2;
-                                List<object> data = readInlineImage(stream);
+                                List<object> data = ReadInlineImage(stream);
                                 data.ForEach(foundOperand);
                                 foundOperator("BI");
                             }
@@ -86,7 +85,7 @@ namespace FirePDF.Reading
                         break;
                     case 'n':
                         {
-                            string s = readString(stream);
+                            string s = ReadString(stream);
                             if (s == "null")
                             {
                                 //need to check im doing this right
@@ -95,7 +94,7 @@ namespace FirePDF.Reading
                                 //it could be a nop
                                 //and would therefore be an operator, with no operands
                                 throw new NotImplementedException();
-                                foundOperand(null);
+                                //foundOperand(null);
                             }
                             else
                             {
@@ -105,7 +104,7 @@ namespace FirePDF.Reading
                         break;
                     case 'f':
                         {
-                            string s = readString(stream);
+                            string s = ReadString(stream);
                             if (s == "false")
                             {
                                 foundOperand(false);
@@ -134,7 +133,7 @@ namespace FirePDF.Reading
                     case '+':
                     case '.':
                         {
-                            object obj = PDFReader.readNumber(stream);
+                            object obj = PdfReader.ReadNumber(stream);
                             if (Convert.ToDouble(obj) == 20.1942)
                             {
 
@@ -144,7 +143,7 @@ namespace FirePDF.Reading
                         break;
                     case 'R':
                         {
-                            string operatorName = readString(stream);
+                            string operatorName = ReadString(stream);
                             switch (operatorName)
                             {
                                 case "RG":
@@ -155,7 +154,7 @@ namespace FirePDF.Reading
                         break;
                     default: //if it matches none of the above cases then it must be an operator
                         {
-                            string operatorName = readString(stream);
+                            string operatorName = ReadString(stream);
                             if(operatorName != "")
                             {
                                 foundOperator(operatorName);
@@ -166,7 +165,7 @@ namespace FirePDF.Reading
             }
         }
 
-        private static List<object> readInlineImage(Stream stream)
+        private static List<object> ReadInlineImage(Stream stream)
         {
             while (true)
             {
@@ -196,9 +195,9 @@ namespace FirePDF.Reading
             }
         }
 
-        private static string readString(Stream stream)
+        private static string ReadString(Stream stream)
         {
-            skipOverWhiteSpace(stream);
+            SkipOverWhiteSpace(stream);
 
             //average string size is around 2 and the normal string buffer size is
             //about 16 so lets save some space.
@@ -209,7 +208,7 @@ namespace FirePDF.Reading
             {
                 char current = (char)stream.ReadByte();
 
-                if (isWhitespace(current) || "[]<(/".Contains(current))
+                if (IsWhitespace(current) || "[]<(/".Contains(current))
                 {
                     stream.Position--;
                     return builder.ToString();
@@ -227,7 +226,7 @@ namespace FirePDF.Reading
                     }
                 }
 
-                pushChar:;
+                pushChar:
                 builder.Append(current);
                 previous = current;
             }
@@ -235,7 +234,7 @@ namespace FirePDF.Reading
             return builder.ToString();
         }
 
-        private static bool isWhitespace(char c)
+        private static bool IsWhitespace(char c)
         {
             switch (c)
             {
@@ -251,7 +250,7 @@ namespace FirePDF.Reading
             }
         }
 
-        private static void skipOverWhiteSpace(Stream stream)
+        private static void SkipOverWhiteSpace(Stream stream)
         {
             while (stream.Position != stream.Length)
             {

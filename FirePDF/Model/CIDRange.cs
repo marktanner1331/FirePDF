@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirePDF.Model
+﻿namespace FirePDF.Model
 {
-    public class CIDRange
+    public class CidRange
     {
         private readonly int from;
         private int to;
         private readonly int cid;
 
-        public CIDRange(int from, int to, int cid)
+        public CidRange(int from, int to, int cid)
         {
             this.from = from;
             this.to = to;
@@ -20,7 +14,7 @@ namespace FirePDF.Model
         }
 
         
-        public int codeToCID(int code)
+        public int CodeToCid(int code)
         {
             if (from <= code && code <= to)
             {
@@ -33,12 +27,12 @@ namespace FirePDF.Model
         }
 
         /// <summary>
-        /// if two CIDRanges are next to eachother then they can be represented by a single range
+        /// if two CIDRanges are next to each other then they can be represented by a single range
         /// this method tries to extend the current range to include the new range, and returns true if it can
         /// </summary>
-        public bool tryExtend(int newFrom, int newTo, int newCID)
+        public bool TryExtend(int newFrom, int newTo, int newCid)
         {
-            if(to + 1 != newFrom || cid + (to - from + 1) != newCID)
+            if(to + 1 != newFrom || cid + (to - @from) + 1 != newCid)
             {
                 return false;
             }

@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Reading
 {
-    class ProxyStream : Stream
+    public class ProxyStream : Stream
     {
-        private Stream stream;
-        private long position;
-        private int length;
+        private readonly Stream stream;
+        private readonly long position;
+        private readonly int length;
 
         public ProxyStream(Stream stream, long position, int length)
         {

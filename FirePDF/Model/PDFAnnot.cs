@@ -1,8 +1,8 @@
 ﻿namespace FirePDF.Model
 {
-    internal class PDFAnnot : IHaveUnderlyingDict
+    internal class PdfAnnot : HaveUnderlyingDict
     {
-        public PDFAnnot(PDFDictionary underlyingDict) : base(underlyingDict)
+        public PdfAnnot(PdfDictionary underlyingDict) : base(underlyingDict)
         {
         }
     }

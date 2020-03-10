@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirePDF.Model
+﻿namespace FirePDF.Model
 {
     /// <summary>
     /// A codespacerange defines the range of a codespace
@@ -24,7 +17,7 @@ namespace FirePDF.Model
             this.codeLength = codeLength;
         }
 
-        public bool isInRange(int code)
+        public bool IsInRange(int code)
         {
             return code >= start && code <= end;
         }

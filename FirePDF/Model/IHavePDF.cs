@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirePDF.Model
+﻿namespace FirePDF.Model
 {
-    public abstract class IHavePDF
+    public abstract class HavePdf
     {
-        public PDF pdf { get; protected set; }
-        public IHavePDF(PDF pdf)
+        public Pdf Pdf { get; protected set; }
+
+        protected HavePdf(Pdf pdf)
         {
-            this.pdf = pdf;
+            Pdf = pdf;
         }
     }
 }

@@ -1,11 +1,6 @@
 ﻿using FirePDF.Model;
 using FirePDF.Rendering;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Processors
 {
@@ -14,26 +9,26 @@ namespace FirePDF.Processors
     /// </summary>
     public class ImageProcessor
     {
-        private Func<PDFResources> getResources;
-        private IRenderer renderer;
+        private readonly Func<PdfResources> getResources;
+        private readonly Renderer renderer;
 
-        public ImageProcessor(Func<PDFResources> getResources, IRenderer renderer)
+        public ImageProcessor(Func<PdfResources> getResources, Renderer renderer)
         {
             this.getResources = getResources;
             this.renderer = renderer;
         }
 
-        public bool processOperation(Operation operation)
+        public bool ProcessOperation(Operation operation)
         {
             switch (operation.operatorName)
             {
                 case "Do":
                     string xObjectName = (Name)operation.operands[0];
-                    object xObject = getResources().getObjectAtPath("XObject", xObjectName);
+                    object xObject = getResources().GetObjectAtPath("XObject", xObjectName);
 
                     if(xObject is XObjectImage)
                     {
-                        renderer?.drawImage(xObject as XObjectImage);
+                        renderer?.DrawImage(xObject as XObjectImage);
                         return true;
                     }
                     else

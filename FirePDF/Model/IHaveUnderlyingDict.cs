@@ -1,35 +1,31 @@
-﻿using FirePDF.Reading;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class IHaveUnderlyingDict : IHavePDF, IHaveChildren
+    public class HaveUnderlyingDict : HavePdf, IHaveChildren
     {
-        public PDFDictionary underlyingDict { get; protected set; }
+        public PdfDictionary UnderlyingDict { get; protected set; }
 
-        public IHaveUnderlyingDict(PDFDictionary underlyingDict) : base(underlyingDict.pdf)
+        public HaveUnderlyingDict(PdfDictionary underlyingDict) : base(underlyingDict.Pdf)
         {
-            this.underlyingDict = underlyingDict;
+            UnderlyingDict = underlyingDict;
         }
 
-        internal IHaveUnderlyingDict() : base(null)
+        internal HaveUnderlyingDict() : base(null)
         {
 
         }
 
-        public virtual bool isDirty() => underlyingDict.isDirty();
+        public virtual bool IsDirty() => UnderlyingDict.IsDirty();
 
-        public static IHaveUnderlyingDict fromDictionary(PDFDictionary dict)
+        public static HaveUnderlyingDict FromDictionary(PdfDictionary dict)
         {
-            //TODO: the underlyingDict will store a reference to the pdf, so w dont need to pass it in here
-            switch (dict.get<Name>("Type"))
+            //TODO: the underlyingDict will store a reference to the Pdf, so w don''t need to pass it in here
+            switch (dict.Get<Name>("Type"))
             {
                 case "Font":
-                    return Model.Font.loadExistingFontFromPDF(dict);
+                    return Font.LoadExistingFontFromPdf(dict);
                 case "Catalog":
                     return new Catalog(dict);
                 case "Pages":
@@ -41,17 +37,17 @@ namespace FirePDF.Model
                 case "ExtGState":
                     return new ExtGState(dict);
                 case "Annot":
-                    return new PDFAnnot(dict);
+                    return new PdfAnnot(dict);
                 case "Outlines":
-                    return new PDFOutlines(dict);
+                    return new PdfOutlines(dict);
                 case "StructTreeRoot":
                     return new StructTreeRoot(dict);
                 case "Group":
-                    return new PDFGroup(dict);
+                    return new PdfGroup(dict);
                 case "Encoding":
-                    return new PDFEncoding(dict);
+                    return new PdfEncoding(dict);
                 case "Metadata":
-                    return new PDFMetaDataDictionary(dict);
+                    return new PdfMetaDataDictionary(dict);
                 case "Mask":
                     return new Mask(dict);
                 default:
@@ -59,8 +55,8 @@ namespace FirePDF.Model
             }
         }
 
-        public IEnumerable<ObjectReference> GetObjectReferences() => underlyingDict.GetObjectReferences();
+        public IEnumerable<ObjectReference> GetObjectReferences() => UnderlyingDict.GetObjectReferences();
 
-        public void swapReferences(Func<ObjectReference, ObjectReference> callback) => underlyingDict.swapReferences(callback);
+        public void SwapReferences(Func<ObjectReference, ObjectReference> callback) => UnderlyingDict.SwapReferences(callback);
     }
 }

@@ -1,11 +1,8 @@
-﻿using System;
-using System.IO;
-
-namespace FirePDF.Model
+﻿namespace FirePDF.Model
 {
-    internal class PDFMetaDataDictionary : IHaveUnderlyingDict, PDFMetaData
+    internal class PdfMetaDataDictionary : HaveUnderlyingDict, IPdfMetaData
     {
-        public PDFMetaDataDictionary(PDFDictionary dictionary) : base(dictionary)
+        public PdfMetaDataDictionary(PdfDictionary dictionary) : base(dictionary)
         {
             
         }

@@ -1,17 +1,12 @@
 ﻿using FirePDF.Model;
 using FirePDF.Reading;
 using FirePDF.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Processors
 {
     public class StreamProcessor : IStreamProcessor
     {
-        private IRenderer renderer;
+        private readonly Renderer renderer;
         private GraphicsStateProcessor gsp;
         private LineProcessor lp;
         private PaintingProcessor pp;
@@ -21,48 +16,48 @@ namespace FirePDF.Processors
 
         private RecursiveStreamReader streamReader;
 
-        public StreamProcessor(IRenderer renderer)
+        public StreamProcessor(Renderer renderer)
         {
             this.renderer = renderer;
         }
 
-        public void didStartReadingStream(IStreamOwner streamOwner)
+        public void DidStartReadingStream(IStreamOwner streamOwner)
         {
-            renderer.willStartRenderingStream(streamOwner);
+            renderer.WillStartRenderingStream(streamOwner);
         }
         
-        public virtual void processOperation(Operation operation)
+        public virtual void ProcessOperation(Operation operation)
         {
-            gsp.processOperation(operation);
-            pp.processOperation(operation);
-            cp.processOperation(operation);
-            lp.processOperation(operation);
-            ip.processOperation(operation);
-            tp.processOperation(operation);
+            gsp.ProcessOperation(operation);
+            pp.ProcessOperation(operation);
+            cp.ProcessOperation(operation);
+            lp.ProcessOperation(operation);
+            ip.ProcessOperation(operation);
+            tp.ProcessOperation(operation);
         }
        
-        public void willFinishReadingPage()
+        public void WillFinishReadingPage()
         {
             
         }
 
-        public void willFinishReadingStream()
+        public void WillFinishReadingStream()
         {
             
         }
 
-        public void willStartReadingPage(RecursiveStreamReader parser)
+        public void WillStartReadingPage(RecursiveStreamReader parser)
         {
             streamReader = parser;
             
-            gsp = new GraphicsStateProcessor(() => parser.resources, parser.boundingBox);
+            gsp = new GraphicsStateProcessor(() => parser.Resources, parser.BoundingBox);
             lp = new LineProcessor();
             pp = new PaintingProcessor(renderer, lp);
-            cp = new ClippingProcessor(gsp.getCurrentState, lp);
-            ip = new ImageProcessor(() => parser.resources, renderer);
-            tp = new TextProcessor(gsp.getCurrentState, () => parser.resources, renderer);
+            cp = new ClippingProcessor(gsp.GetCurrentState, lp);
+            ip = new ImageProcessor(() => parser.Resources, renderer);
+            tp = new TextProcessor(gsp.GetCurrentState, () => parser.Resources, renderer);
 
-            renderer.willStartRenderingPage(parser.boundingBox, gsp.getCurrentState);
+            renderer.WillStartRenderingPage(parser.BoundingBox, gsp.GetCurrentState);
         }
     }
 }

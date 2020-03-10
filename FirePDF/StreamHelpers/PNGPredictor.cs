@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.StreamHelpers
 {
-    public class PNGPredictor
+    public class PngPredictor
     {
-        public static byte[] decompress(byte[] compressedBytes, int columns, int bytesPerPixel)
+        public static byte[] Decompress(byte[] compressedBytes, int columns, int bytesPerPixel)
         {
             int rowLength = columns * bytesPerPixel;
 

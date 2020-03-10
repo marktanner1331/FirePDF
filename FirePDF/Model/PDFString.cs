@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 
 namespace FirePDF.Model
 {
-    public class PDFString
+    public class PdfString
     {
         private readonly byte[] bytes;
         private readonly string value;
@@ -15,30 +12,30 @@ namespace FirePDF.Model
         /// returns the number of bytes used to store this string
         /// for example, the length of <00FF> is 2
         /// </summary>
-        public int length => bytes.Length;
+        public int Length => bytes.Length;
 
-        public PDFString(byte[] bytes)
+        public PdfString(byte[] bytes)
         {
             this.bytes = bytes;
-            this.isHexString = true;
+            isHexString = true;
             value = Encoding.ASCII.GetString(bytes);
         }
 
-        public PDFString(byte[] bytes, bool isHexString)
+        public PdfString(byte[] bytes, bool isHexString)
         {
             this.bytes = bytes;
             this.isHexString = isHexString;
             value = Encoding.ASCII.GetString(bytes);
         }
 
-        public PDFString(string value)
+        public PdfString(string value)
         {
             this.value = value;
-            this.isHexString = false;
+            isHexString = false;
             bytes = Encoding.ASCII.GetBytes(value);
         }
 
-        public byte[] toByteArray()
+        public byte[] ToByteArray()
         {
             return bytes;
         }
@@ -47,20 +44,20 @@ namespace FirePDF.Model
         /// returns an int stored in this string
         /// e.g. if the string is <00FF> then 255 will be returned
         /// </summary>
-        public int toBigEndianInt()
+        public int ToBigEndianInt()
         {
             int code = 0;
 
             for (int i = 0; i < bytes.Length; ++i)
             {
                 code <<= 8;
-                code |= (bytes[i] & 0xFF);
+                code |= bytes[i] & 0xFF;
             }
 
             return code;
         }
 
-        public static bool operator ==(PDFString a, PDFString b)
+        public static bool operator ==(PdfString a, PdfString b)
         {
             if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
             {
@@ -75,7 +72,7 @@ namespace FirePDF.Model
             return a.value == b.value;
         }
 
-        public static bool operator !=(PDFString a, PDFString b)
+        public static bool operator !=(PdfString a, PdfString b)
         {
             return a.value != b.value;
         }
@@ -85,7 +82,7 @@ namespace FirePDF.Model
             return value;
         }
 
-        public string toString(Encoding encoding)
+        public string ToString(Encoding encoding)
         {
             return encoding.GetString(bytes);
         }
@@ -97,9 +94,9 @@ namespace FirePDF.Model
 
         public override bool Equals(object obj)
         {
-            if (obj is PDFString)
+            if (obj is PdfString)
             {
-                return ((PDFString)obj).value.Equals(value);
+                return ((PdfString)obj).value.Equals(value);
             }
             else if (obj is string)
             {

@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Matrix = System.Drawing.Drawing2D.Matrix;
 using GraphicsPath = System.Drawing.Drawing2D.GraphicsPath;
 
@@ -12,51 +9,51 @@ namespace FirePDF.Processors
 {
     public class GraphicsStateProcessor
     {
-        private Func<PDFResources> getResources;
-        private Stack<GraphicsState> graphicsStack;
+        private Func<PdfResources> getResources;
+        private readonly Stack<GraphicsState> graphicsStack;
 
         /// <summary>
         /// initializes a new graphics state processor
         /// </summary>
         /// <param name="getResources">the graphics state processor will need access to the resources, i.e. for fonts, color spaces etc</param>
-        public GraphicsStateProcessor(Func<PDFResources> getResources, RectangleF boundingBox)
+        public GraphicsStateProcessor(Func<PdfResources> getResources, RectangleF boundingBox)
         {
             this.getResources = getResources;
 
-            this.graphicsStack = new Stack<GraphicsState>();
+            graphicsStack = new Stack<GraphicsState>();
 
             GraphicsPath clippingPath = new GraphicsPath();
             clippingPath.AddRectangle(boundingBox);
-            this.graphicsStack.Push(new GraphicsState(clippingPath));
+            graphicsStack.Push(new GraphicsState(clippingPath));
         }
 
         /// <summary>
         /// initializes a new graphics state processor
         /// </summary>
         /// <param name="getResources">the graphics state processor will need access to the resources, i.e. for fonts, color spaces etc</param>
-        public GraphicsStateProcessor(Func<PDFResources> getResources, GraphicsPath initialClippingPath)
+        public GraphicsStateProcessor(Func<PdfResources> getResources, GraphicsPath initialClippingPath)
         {
             this.getResources = getResources;
 
-            this.graphicsStack = new Stack<GraphicsState>();
-            this.graphicsStack.Push(new GraphicsState(initialClippingPath));
+            graphicsStack = new Stack<GraphicsState>();
+            graphicsStack.Push(new GraphicsState(initialClippingPath));
         }
 
-        public GraphicsState getCurrentState()
+        public GraphicsState GetCurrentState()
         {
             return graphicsStack.Peek();
         }
 
-        public void processOperation(Operation operation)
+        public void ProcessOperation(Operation operation)
         {
             switch (operation.operatorName)
             {
                 case "cm":
                     {
-                        List<float> operands = operation.getOperandsAsFloats();
+                        List<float> operands = operation.GetOperandsAsFloats();
 
                         Matrix matrix = new Matrix(operands[0], operands[1], operands[2], operands[3], operands[4], operands[5]);
-                        getCurrentState().currentTransformationMatrix.Multiply(matrix);
+                        GetCurrentState().CurrentTransformationMatrix.Multiply(matrix);
                         break;
                     }
                 //                case "CS":
@@ -102,7 +99,7 @@ namespace FirePDF.Processors
                 case "i":
                     {
                         float flatness = (float)operation.operands[0];
-                        getCurrentState().flatnessTolerance = flatness;
+                        GetCurrentState().flatnessTolerance = flatness;
                     }
                     break;
                 //            case "j":
@@ -149,7 +146,7 @@ namespace FirePDF.Processors
                 //getGraphicsState().setMiterLimit(miterLimit.floatValue());
                 //                break;
                 case "q":
-                    graphicsStack.Push(graphicsStack.Peek().clone());
+                    graphicsStack.Push(graphicsStack.Peek().Clone());
                     break;
                 case "Q":
                     if (graphicsStack.Count > 1)
@@ -163,24 +160,24 @@ namespace FirePDF.Processors
                     break;
                 case "rg":
                     {
-                        List<float> floats = operation.getOperandsAsFloats();
+                        List<float> floats = operation.GetOperandsAsFloats();
                         Color color = Color.FromArgb(
                             (int)(255 * floats[0]),
                             (int)(255 * floats[1]),
                             (int)(255 * floats[2]));
 
-                        getCurrentState().nonStrokingColor = color;
+                        GetCurrentState().nonStrokingColor = color;
                     }
                     break;
                 case "RG":
                     {
-                        List<float> floats = operation.getOperandsAsFloats();
+                        List<float> floats = operation.GetOperandsAsFloats();
                         Color color = Color.FromArgb(
                             (int)(255 * floats[0]), 
                             (int)(255 * floats[1]), 
                             (int)(255 * floats[2]));
 
-                        getCurrentState().strokingColor = color;
+                        GetCurrentState().strokingColor = color;
                     }
                     break;
                 //            case "ri":
@@ -213,7 +210,7 @@ namespace FirePDF.Processors
                 //                break;
                 case "w":
                     float lineWidth = operation.operands[0] is float ? (float)operation.operands[0] : (int)operation.operands[0];
-                    getCurrentState().lineWidth = lineWidth;
+                    GetCurrentState().lineWidth = lineWidth;
                     break;
                     //            }
             }

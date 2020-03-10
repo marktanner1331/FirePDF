@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Flattener
 {
-    class Layer
+    public class Layer
     {
         public enum LayerType
         {
-            raster,
-            vector
+            Raster,
+            Vector
         }
 
         public class LayerElement
@@ -43,10 +39,10 @@ namespace Flattener
         public Layer(LayerType type)
         {
             this.type = type;
-            this.elements = new List<LayerElement>();
+            elements = new List<LayerElement>();
         }
 
-        internal bool doesIntersect(RectangleF boundingBox)
+        internal bool DoesIntersect(RectangleF boundingBox)
         {
             foreach(LayerElement element in elements)
             {
@@ -59,7 +55,7 @@ namespace Flattener
             return false;
         }
 
-        public void addElement(LayerElement element)
+        public void AddElement(LayerElement element)
         {
             elements.Add(element);
         }

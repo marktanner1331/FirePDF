@@ -1,20 +1,16 @@
 ﻿using FirePDF.Model;
 using FirePDF.Processors;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Reading
 {
     public class RecursiveStreamReader
     {
-        private IStreamProcessor streamProcessor;
+        private readonly IStreamProcessor streamProcessor;
         
-        private Stack<PDFResources> resourcesStack;
+        private Stack<PdfResources> resourcesStack;
         private Stack<IStreamOwner> streamStack;
         private Stream currentStream;
 
@@ -22,40 +18,40 @@ namespace FirePDF.Reading
         //we cache it here for efficiency
         private IStreamOwner rootStream;
 
-        public RectangleF boundingBox => rootStream?.boundingBox ?? RectangleF.Empty;
+        public RectangleF BoundingBox => rootStream?.BoundingBox ?? RectangleF.Empty;
 
         public RecursiveStreamReader(IStreamProcessor streamProcessor)
         {
             this.streamProcessor = streamProcessor;
         }
 
-        public PDFResources resources => resourcesStack.Peek();
+        public PdfResources Resources => resourcesStack.Peek();
         
-        public PDF pdf => rootStream.pdf;
+        public Pdf Pdf => rootStream.Pdf;
         
-        public void readStreamRecursively(IStreamOwner stream)
+        public void ReadStreamRecursively(IStreamOwner stream)
         {
-            this.rootStream = stream;
+            rootStream = stream;
 
-            resourcesStack = new Stack<PDFResources>();
+            resourcesStack = new Stack<PdfResources>();
             streamStack = new Stack<IStreamOwner>();
 
             //we always need resources, so initializing the stack with an empty resources object
             //will ensure that everything is ok, even if its never used
-            resourcesStack.Push(new PDFResources(rootStream, new PDFDictionary(pdf, new Dictionary<Name, object>())));
+            resourcesStack.Push(new PdfResources(rootStream, new PdfDictionary(Pdf, new Dictionary<Name, object>())));
 
-            streamProcessor.willStartReadingPage(this);
-            processStream(stream);
-            streamProcessor.willFinishReadingPage();
+            streamProcessor.WillStartReadingPage(this);
+            ProcessStream(stream);
+            streamProcessor.WillFinishReadingPage();
         }
 
-        private void processStream(IStreamOwner stream)
+        private void ProcessStream(IStreamOwner stream)
         {
-            PDFResources resources = stream.resources;
+            PdfResources resources = stream.Resources;
             if (resources == null)
             {
                 //if the stream doesnt have its own resources then use the parent resources
-                //this is not in the PDF spec, but the file from
+                //this is not in the Pdf spec, but the file from
                 //PDFBOX-1359 does this and works in Acrobat
                 resources = resourcesStack.Peek();
             }
@@ -63,25 +59,25 @@ namespace FirePDF.Reading
             resourcesStack.Push(resources);
             streamStack.Push(stream);
 
-            streamProcessor.didStartReadingStream(stream);
+            streamProcessor.DidStartReadingStream(stream);
 
             Stream oldStream = currentStream;
-            currentStream = stream.getStream();
+            currentStream = stream.GetStream();
 
-            List<Operation> operations = ContentStreamReader.readOperationsFromStream(pdf, currentStream);
+            List<Operation> operations = ContentStreamReader.ReadOperationsFromStream(Pdf, currentStream);
             foreach(Operation operation in operations)
             {
-                if(operation.operatorName == "Do" && resources.isXObjectForm((Name)operation.operands[0]))
+                if(operation.operatorName == "Do" && resources.IsXObjectForm((Name)operation.operands[0]))
                 {
-                    processStream(resources.getXObjectForm((Name)operation.operands[0]));
+                    ProcessStream(resources.GetXObjectForm((Name)operation.operands[0]));
                 }
                 else
                 {
-                    streamProcessor.processOperation(operation);
+                    streamProcessor.ProcessOperation(operation);
                 }
             }
 
-            streamProcessor.willFinishReadingStream();
+            streamProcessor.WillFinishReadingStream();
 
             currentStream.Dispose();
             currentStream = oldStream;

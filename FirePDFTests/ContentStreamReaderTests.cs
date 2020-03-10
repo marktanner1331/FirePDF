@@ -1,34 +1,30 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FirePDF;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using FirePDF.Reading;
+using FirePDF;
 using FirePDF.Model;
+using FirePDF.Reading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FirePDF.Tests
+namespace FirePDFTests
 {
     [TestClass()]
     public class ContentStreamReaderTests
     {
-        private string getPDFFolder()
+        private static string GetPdfFolder()
         {
-            return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
+            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
         }
 
         [TestMethod()]
-        public void readContentStreamTest()
+        public void ReadContentStreamTest()
         {
-            string file = getPDFFolder() + "pb13332-cop-cats-091204.pdf";
-            PDF pdf = new PDF(file);
+            string file = GetPdfFolder() + "pb13332-cop-cats-091204.Pdf";
+            Pdf pdf = new Pdf(file);
 
-            Page page = pdf.getPage(1);
-            Stream s = page.getStream();
-            List<Operation> operations = ContentStreamReader.readOperationsFromStream(pdf, s);
+            Page page = pdf.GetPage(1);
+            Stream s = page.GetStream();
+            List<Operation> operations = ContentStreamReader.ReadOperationsFromStream(pdf, s);
 
             Assert.AreEqual(4858, operations.Count);
         }

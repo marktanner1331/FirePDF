@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
     public class GraphicsState
     {
-        public Matrix currentTransformationMatrix { get; private set; }
+        public Matrix CurrentTransformationMatrix { get; private set; }
 
         public Matrix textMatrix;
         public Matrix textLineMatrix;
@@ -38,9 +33,9 @@ namespace FirePDF.Model
 
         public GraphicsState(GraphicsPath initialClippingPath)
         {
-            this.clippingPath = new Region(initialClippingPath);
+            clippingPath = new Region(initialClippingPath);
             
-            currentTransformationMatrix = new Matrix();
+            CurrentTransformationMatrix = new Matrix();
 
             textMatrix = new Matrix();
             textLineMatrix = new Matrix();
@@ -60,11 +55,11 @@ namespace FirePDF.Model
             font = null;
         }
 
-        public GraphicsState clone()
+        public GraphicsState Clone()
         {
             return new GraphicsState
             {
-                currentTransformationMatrix = currentTransformationMatrix.Clone(),
+                CurrentTransformationMatrix = CurrentTransformationMatrix.Clone(),
                 textMatrix = textMatrix.Clone(),
                 textLineMatrix = textLineMatrix.Clone(),
                 textLeading = textLeading,
@@ -83,9 +78,9 @@ namespace FirePDF.Model
             };
         }
 
-        public void intersectClippingPath(GraphicsPath currentPath)
+        public void IntersectClippingPath(GraphicsPath currentPath)
         {
-            currentPath.Transform(currentTransformationMatrix);
+            currentPath.Transform(CurrentTransformationMatrix);
             clippingPath.Intersect(currentPath);
         }
     }

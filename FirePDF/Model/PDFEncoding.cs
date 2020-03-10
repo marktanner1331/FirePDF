@@ -1,8 +1,8 @@
 ﻿namespace FirePDF.Model
 {
-    internal class PDFEncoding : IHaveUnderlyingDict
+    internal class PdfEncoding : HaveUnderlyingDict
     {
-        public PDFEncoding(PDFDictionary underlyingDict) : base(underlyingDict)
+        public PdfEncoding(PdfDictionary underlyingDict) : base(underlyingDict)
         {
         }
     }

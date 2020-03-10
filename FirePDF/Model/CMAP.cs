@@ -7,12 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
     //TODO: change every char to an int
-    public class CMAP
+    public class Cmap
     {
         private enum TokenType
         {
@@ -22,7 +21,7 @@ namespace FirePDF.Model
             Value
         }
 
-        public bool isDirty { get; private set;}
+        public bool IsDirty { get; private set;}
 
         public readonly int wMode;
         public readonly Name name;
@@ -35,51 +34,49 @@ namespace FirePDF.Model
         private int minCodeLength = 4;
         private int maxCodeLength = 0;
 
-        private List<CodeSpaceRange> codeSpaceRanges;
+        private readonly List<CodeSpaceRange> codeSpaceRanges;
 
         //some codes are mapped to CID's individually and are stored here
-        private Dictionary<int, int> cidMap;
+        private readonly Dictionary<int, int> cidMap;
 
         //others are stored as part of CID ranges and are stored here
-        private List<CIDRange> cidRanges;
+        private readonly List<CidRange> cidRanges;
 
         //value must be a string as some codes map to multiple chars (e.g. ligatures)
-        private Dictionary<int, string> codeToUnicodeMap;
+        private readonly Dictionary<int, string> codeToUnicodeMap;
 
-        public CMAP()
+        public Cmap()
         {
             codeSpaceRanges = new List<CodeSpaceRange>();
             cidMap = new Dictionary<int, int>();
-            cidRanges = new List<CIDRange>();
+            cidRanges = new List<CidRange>();
             codeToUnicodeMap = new Dictionary<int, string>();
+            IsDirty = false;
 
             //TODO fll these in with default values
             //Maybe best to just load a default empty cmap with all the header and footer stuff sorted?
             throw new NotImplementedException();
-            isDirty = false;
         }
 
         /// <summary>
         /// reads a cmap from the given stream at its current position
         /// comments can come after the 'end' keyword, so this class will try to read to the end of the stream
         /// </summary>
-        public CMAP(Stream stream, bool closeStream = false)
+        public Cmap(Stream stream, bool closeStream = false)
         {
             long startOfStream = stream.Position;
 
             codeSpaceRanges = new List<CodeSpaceRange>();
             cidMap = new Dictionary<int, int>();
-            cidRanges = new List<CIDRange>();
+            cidRanges = new List<CidRange>();
             codeToUnicodeMap = new Dictionary<int, string>();
-            isDirty = false;
+            IsDirty = false;
 
             object previousToken = null;
-            object token;
-            TokenType tokenType;
 
             while (stream.Position < stream.Length)
             {
-                token = readNextToken(stream, out tokenType);
+                object token = ReadNextToken(stream, out TokenType tokenType);
 
                 switch (tokenType)
                 {
@@ -87,25 +84,25 @@ namespace FirePDF.Model
                         switch ((Name)token)
                         {
                             case "CMapName":
-                                name = (Name)readNextToken(stream, out _);
+                                name = (Name)ReadNextToken(stream, out _);
                                 break;
                             case "CMapType":
-                                type = (int)readNextToken(stream, out _);
+                                type = (int)ReadNextToken(stream, out _);
                                 break;
                             case "CMapVersion":
-                                version = readNextToken(stream, out _).ToString();
+                                version = ReadNextToken(stream, out _).ToString();
                                 break;
                             case "Ordering":
-                                ordering = ((PDFString)readNextToken(stream, out _)).ToString();
+                                ordering = ((PdfString)ReadNextToken(stream, out _)).ToString();
                                 break;
                             case "Registry":
-                                registry = ((PDFString)readNextToken(stream, out _)).ToString();
+                                registry = ((PdfString)ReadNextToken(stream, out _)).ToString();
                                 break;
                             case "Supplement":
-                                supplement = (int)readNextToken(stream, out _);
+                                supplement = (int)ReadNextToken(stream, out _);
                                 break;
                             case "WMode":
-                                wMode = (int)readNextToken(stream, out _);
+                                wMode = (int)ReadNextToken(stream, out _);
                                 break;
                         }
                         break;
@@ -113,18 +110,18 @@ namespace FirePDF.Model
                         switch ((string)token)
                         {
                             case "beginbfchar":
-                                readBeginBFCharFromStream((int)previousToken, stream);
+                                ReadBeginBfCharFromStream((int)previousToken, stream);
                                 break;
                             case "beginbfrange":
-                                readBeginBFRangeFromStream((int)previousToken, stream);
+                                ReadBeginBfRangeFromStream((int)previousToken, stream);
                                 break;
                             case "begincidchar":
                                 throw new NotImplementedException();
                             case "begincodespacerange":
-                                readBeginCodeSpaceRangeFromStream((int)previousToken, stream);
+                                ReadBeginCodeSpaceRangeFromStream((int)previousToken, stream);
                                 break;
                             case "begincidrange":
-                                readBeginCIDRangeFromStream((int)previousToken, stream);
+                                ReadBeginCidRangeFromStream((int)previousToken, stream);
                                 break;
                             case "endcmap":
                                 goto endOfLoop;
@@ -133,6 +130,12 @@ namespace FirePDF.Model
                         }
 
                         break;
+                    case TokenType.Header:
+                        break;
+                    case TokenType.Value:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
 
                 previousToken = token;
@@ -140,7 +143,7 @@ namespace FirePDF.Model
 
             endOfLoop:
 
-            isDirty = false;
+            IsDirty = false;
             if(closeStream)
             {
                 stream.Close();
@@ -151,12 +154,12 @@ namespace FirePDF.Model
         /// <summary>
         /// reads a named cmap such as /Identity-H
         /// </summary>
-        public CMAP(Name cmapName) : this(openReadCmapWithName(cmapName), true)
+        public Cmap(Name cmapName) : this(OpenReadCmapWithName(cmapName), true)
         {
             
         }
 
-        private static Stream openReadCmapWithName(Name cmapName)
+        private static Stream OpenReadCmapWithName(Name cmapName)
         {
             //TODO better path resolution
             //even the ability to provide a custom path
@@ -169,12 +172,11 @@ namespace FirePDF.Model
             return File.OpenRead(cmapPath);
         }
 
-        private void readBeginCodeSpaceRangeFromStream(int numRanges, Stream stream)
+        private void ReadBeginCodeSpaceRangeFromStream(int numRanges, Stream stream)
         {
             for (int i = 0; i < numRanges; i++)
             {
-                TokenType tokenType;
-                object token = readNextToken(stream, out tokenType);
+                object token = ReadNextToken(stream, out TokenType tokenType);
 
                 if (tokenType == TokenType.Operator)
                 {
@@ -188,17 +190,17 @@ namespace FirePDF.Model
                     }
                 }
 
-                int start = ((PDFString)token).toBigEndianInt();
-                int codeLength = ((PDFString)token).length;
-                int end = ((PDFString)readNextToken(stream, out _)).toBigEndianInt();
+                int start = ((PdfString)token).ToBigEndianInt();
+                int codeLength = ((PdfString)token).Length;
+                int end = ((PdfString)ReadNextToken(stream, out _)).ToBigEndianInt();
 
-                addCodeSpaceRange(new CodeSpaceRange(start, end, codeLength));
+                AddCodeSpaceRange(new CodeSpaceRange(start, end, codeLength));
             }
         }
 
-        private static object readNextToken(Stream stream, out TokenType type)
+        private static object ReadNextToken(Stream stream, out TokenType type)
         {
-            PDFReader.skipOverWhiteSpace(stream);
+            PdfReader.SkipOverWhiteSpace(stream);
             char current = (char)stream.ReadByte();
             stream.Position--;
 
@@ -206,15 +208,15 @@ namespace FirePDF.Model
             {
                 case '%':
                     type = TokenType.Header;
-                    return ASCIIReader.readLine(stream);
+                    return AsciiReader.ReadLine(stream);
                 case '/':
                     type = TokenType.Name;
-                    return PDFReader.readName(stream);
+                    return PdfReader.ReadName(stream);
                 case '(':
                 case '[':
                 case '<':
                     type = TokenType.Value;
-                    return PDFReader.readObject(null, stream);
+                    return PdfReader.ReadObject(null, stream);
                 case '0':
                 case '1':
                 case '2':
@@ -225,16 +227,16 @@ namespace FirePDF.Model
                 case '7':
                 case '8':
                 case '9':
-                    //parsing numbers seperately so that the PDFReader doesnt try to parse it as an indirect reference
+                    //parsing numbers separately so that the PDFReader doesn't try to parse it as an indirect reference
                     type = TokenType.Value;
-                    return PDFReader.readNumber(stream);
+                    return PdfReader.ReadNumber(stream);
                 default:
                     type = TokenType.Operator;
-                    return readString(stream);
+                    return ReadString(stream);
             }
         }
 
-        private static string readString(Stream stream)
+        private static string ReadString(Stream stream)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -242,7 +244,7 @@ namespace FirePDF.Model
             {
                 char current = (char)stream.ReadByte();
 
-                if (isWhitespace(current) || "[]<(/".Contains(current) || (current >= '0' && current <= '9'))
+                if (IsWhitespace(current) || "[]<(/".Contains(current) || current >= '0' && current <= '9')
                 {
                     stream.Position--;
                     return builder.ToString();
@@ -254,12 +256,11 @@ namespace FirePDF.Model
             return builder.ToString();
         }
        
-        private void readBeginBFRangeFromStream(int numRows, Stream stream)
+        private void ReadBeginBfRangeFromStream(int numRows, Stream stream)
         {
             for (int j = 0; j < numRows; j++)
             {
-                TokenType tokenType;
-                object token = readNextToken(stream, out tokenType);
+                object token = ReadNextToken(stream, out TokenType tokenType);
 
                 if (tokenType == TokenType.Header)
                 {
@@ -278,64 +279,60 @@ namespace FirePDF.Model
                     }
                 }
 
-                int start = ((PDFString)token).toBigEndianInt();
-                int end = ((PDFString)readNextToken(stream, out _)).toBigEndianInt();
+                int start = ((PdfString)token).ToBigEndianInt();
+                int end = ((PdfString)ReadNextToken(stream, out _)).ToBigEndianInt();
 
-                token = readNextToken(stream, out _);
+                token = ReadNextToken(stream, out _);
 
-                if (token is Name)
+                switch (token)
                 {
-                    addCharMapping(start, (Name)token);
-                    if (start != end)
+                    case Name name:
                     {
-                        //if its a name, we can't increment it
-                        throw new Exception();
-                    }
-                }
-                else if (token is PDFString pdfStr)
-                {
-                    string value;
-                    if (pdfStr.length == 1)
-                    {
-                        value = pdfStr.toString(Encoding.GetEncoding("ISO_8859_1"));
-                    }
-                    else
-                    {
-                        value = pdfStr.toString(Encoding.BigEndianUnicode);
-                    }
-
-                    if (start != end && value.Length > 1)
-                    {
-                        //we can't increment a value that has multiple characters
-                        throw new Exception();
-                    }
-
-                    while (true)
-                    {
-                        addCharMapping(start, value);
-
-                        if (start == end)
+                        AddCharMapping(start, name);
+                        if (start != end)
                         {
-                            break;
+                            //if its a name, we can't increment it
+                            throw new Exception();
                         }
 
-                        start++;
-                        value = ((char)(value[0] + 1)).ToString(); ;
+                        break;
                     }
-                }
-                else
-                {
-                    throw new Exception("unknown token type");
+                    case PdfString pdfStr:
+                    {
+                        string value = pdfStr.ToString(pdfStr.Length == 1 ? Encoding.GetEncoding("ISO_8859_1") : Encoding.BigEndianUnicode);
+
+                        if (start != end && value.Length > 1)
+                        {
+                            //we can't increment a value that has multiple characters
+                            throw new Exception();
+                        }
+
+                        while (true)
+                        {
+                            AddCharMapping(start, value);
+
+                            if (start == end)
+                            {
+                                break;
+                            }
+
+                            start++;
+                            value = ((char)(value[0] + 1)).ToString();
+                        }
+
+                        break;
+                    }
+                    default:
+                        throw new Exception("unknown token type");
                 }
             }
         }
 
-        private void readBeginBFCharFromStream(int numRows, Stream stream)
+        private void ReadBeginBfCharFromStream(int numRows, Stream stream)
         {
             for (int j = 0; j < numRows; j++)
             {
-                TokenType tokenType;
-                object token = readNextToken(stream, out tokenType);
+                object token = ReadNextToken(stream, out TokenType tokenType);
 
                 if (tokenType == TokenType.Operator)
                 {
@@ -349,41 +346,41 @@ namespace FirePDF.Model
                     }
                 }
 
-                int code = ((PDFString)token).toBigEndianInt();
+                int code = ((PdfString)token).ToBigEndianInt();
 
-                token = readNextToken(stream, out _);
+                token = ReadNextToken(stream, out _);
 
-                if (token is PDFString pdfStr)
+                switch (token)
                 {
-                    string value;
-                    if (pdfStr.length == 1)
+                    case PdfString pdfStr:
                     {
-                        value = pdfStr.toString(Encoding.GetEncoding("ISO_8859_1"));
-                    }
-                    else
-                    {
-                        value = pdfStr.toString(Encoding.BigEndianUnicode);
-                    }
+                        string value;
+                        if (pdfStr.Length == 1)
+                        {
+                            value = pdfStr.ToString(Encoding.GetEncoding("ISO_8859_1"));
+                        }
+                        else
+                        {
+                            value = pdfStr.ToString(Encoding.BigEndianUnicode);
+                        }
 
-                    addCharMapping(code, value);
-                }
-                else if (token is Name)
-                {
-                    addCharMapping(code, (Name)token);
-                }
-                else
-                {
-                    throw new Exception("error reading beginbfchar, unknown token: " + token);
+                        AddCharMapping(code, value);
+                        break;
+                    }
+                    case Name name:
+                        AddCharMapping(code, name);
+                        break;
+                    default:
+                        throw new Exception("error reading beginbfchar, unknown token: " + token);
                 }
             }
         }
 
-        private void readBeginCIDRangeFromStream(int numRows, Stream stream)
+        private void ReadBeginCidRangeFromStream(int numRows, Stream stream)
         {
             for (int i = 0; i < numRows; i++)
             {
-                TokenType tokenType;
-                object token = readNextToken(stream, out tokenType);
+                object token = ReadNextToken(stream, out TokenType tokenType);
 
                 if (tokenType == TokenType.Operator)
                 {
@@ -394,19 +391,19 @@ namespace FirePDF.Model
                     break;
                 }
 
-                int start = ((PDFString)token).toBigEndianInt();
-                int end = ((PDFString)readNextToken(stream, out _)).toBigEndianInt();
+                int start = ((PdfString)token).ToBigEndianInt();
+                int end = ((PdfString)ReadNextToken(stream, out _)).ToBigEndianInt();
 
-                int mappedCode = (int)readNextToken(stream, out _);
+                int mappedCode = (int)ReadNextToken(stream, out _);
 
                 //when the start equals the end it means that the range is being used to map a single code
                 if (end == start)
                 {
-                    addCIDMapping((char)start, mappedCode);
+                    AddCidMapping((char)start, mappedCode);
                 }
                 else
                 {
-                    addCIDRange((char)start, (char)end, mappedCode);
+                    AddCidRange((char)start, (char)end, mappedCode);
                 }
             }
         }
@@ -414,20 +411,20 @@ namespace FirePDF.Model
         /// <summary>
         /// reads a big endian int from the start of the buffer, consuming 'length' bytes
         /// </summary>
-        private static int readBigEndianInt(byte[] buffer, int length)
+        private static int ReadBigEndianInt(IReadOnlyList<byte> buffer, int length)
         {
             int code = 0;
-
+            
             for (int i = 0; i < length; ++i)
             {
                 code <<= 8;
-                code |= (buffer[i] & 0xFF);
+                code |= buffer[i] & 0xFF;
             }
 
             return code;
         }
 
-        private static bool isWhitespace(char c)
+        private static bool IsWhitespace(char c)
         {
             switch (c)
             {
@@ -443,39 +440,25 @@ namespace FirePDF.Model
             }
         }
 
-        public string codeToUnicode(int code)
+        public string CodeToUnicode(int code)
         {
-            if(codeToUnicodeMap.ContainsKey(code))
-            {
-                return codeToUnicodeMap[code];
-            }
-
-            return null;
+            return codeToUnicodeMap.ContainsKey(code) ? codeToUnicodeMap[code] : null;
         }
 
-        public int codeToCID(int code)
+        public int CodeToCid(int code)
         {
             if(cidMap.ContainsKey(code))
             {
                 return cidMap[code];
             }
-            
-            foreach (CIDRange range in cidRanges)
-            {
-                int cid = range.codeToCID(code);
-                if (cid != -1)
-                {
-                    return cid;
-                }
-            }
 
-            return 0;
+            return cidRanges.Select(range => range.CodeToCid(code)).FirstOrDefault(cid => cid != -1);
         }
 
         /// <summary>
         /// reads a character code from the stream
         /// </summary>
-        public int readCodeFromStream(Stream stream)
+        public int ReadCodeFromStream(Stream stream)
         {
             //we create a buffer that stores our code
             byte[] bytes = new byte[maxCodeLength];
@@ -494,63 +477,61 @@ namespace FirePDF.Model
 
                 foreach (CodeSpaceRange range in codeSpaceRanges)
                 {
-                    if (range.codeLength == codeLength)
+                    if (range.codeLength != codeLength) continue;
+                    int code = ReadBigEndianInt(bytes, codeLength);
+                    if (range.IsInRange(code))
                     {
-                        int code = readBigEndianInt(bytes, codeLength);
-                        if (range.isInRange(code))
-                        {
-                            return code;
-                        }
+                        return code;
                     }
                 }
             }
 
-            Logger.warning("Invalid character code sequence: " + ByteWriter.byteArrayToHexString(bytes) + "in CMap: " + name);
+            Logger.Warning("Invalid character code sequence: " + ByteWriter.ByteArrayToHexString(bytes) + "in CMap: " + name);
             return 0;
         }
 
-        public void writeToStream(Stream stream)
+        public void WriteToStream(Stream stream)
         {
             throw new NotImplementedException();
         }
 
-        public void addCodeSpaceRange(CodeSpaceRange range)
+        public void AddCodeSpaceRange(CodeSpaceRange range)
         {
             codeSpaceRanges.Add(range);
             maxCodeLength = Math.Max(maxCodeLength, range.codeLength);
             minCodeLength = Math.Min(minCodeLength, range.codeLength);
-            isDirty = true;
+            IsDirty = true;
         }
 
-        public void addCIDMapping(char code, int cid)
+        public void AddCidMapping(char code, int cid)
         {
             cidMap[code] = cid;
-            isDirty = true;
+            IsDirty = true;
         }
 
         /// <summary>
         /// adds the given CID range to the set of CID ranges covered by this CMAP
         /// </summary>
-        public void addCIDRange(char start, char end, int cid)
+        public void AddCidRange(char start, char end, int cid)
         {
             //first we check if the most recent range can be extended to cover the new range
             if(cidRanges.Count != 0)
             {
-                if(cidRanges.Last().tryExtend(start, end, cid))
+                if(cidRanges.Last().TryExtend(start, end, cid))
                 {
                     return;
                 }
             }
 
             //otherwise add a new range
-            cidRanges.Add(new CIDRange(start, end, cid));
-            isDirty = true;
+            cidRanges.Add(new CidRange(start, end, cid));
+            IsDirty = true;
         }
 
-        public void addCharMapping(int code, string unicode)
+        public void AddCharMapping(int code, string unicode)
         {
             codeToUnicodeMap.Add(code, unicode);
-            isDirty = true;
+            IsDirty = true;
         }
     }
 }

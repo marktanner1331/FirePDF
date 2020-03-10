@@ -1,44 +1,35 @@
 ﻿using FirePDF;
 using FirePDF.Model;
-using FirePDF.Processors;
-using FirePDF.Reading;
 using FirePDF.Rendering;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using GraphicsState = FirePDF.Model.GraphicsState;
 
 namespace test
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        internal static void Main(string[] args)
         {
             //extractTextTest();
             //fixCMAP();
 
-            string file = @"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\3.pdf";
+            const string file = @"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\3.Pdf";
             //foreach(string file in Directory.EnumerateFiles(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\"))
             //{
-            using (PDF pdf = new PDF(file))
+            using (Pdf pdf = new Pdf(file))
             {
-                List<Font> fonts = pdf.getAll<Font>();
-                fonts = fonts.Where(x => x.baseFont.ToString().Contains("News706BT") && x.encoding != null).ToList();
+                List<Font> fonts = pdf.GetAll<Font>();
+                fonts = fonts.Where(x => x.baseFont.ToString().Contains("News706BT") && x.Encoding != null).ToList();
                 foreach (Font font in fonts)
                 {
-                    if (font.toUnicode != null)
+                    if (font.ToUnicode != null)
                     {
-                        CMAP cmap = font.toUnicode;
-                        if (cmap.codeToUnicode(0xc0) == "i" || cmap.codeToUnicode(0xc1) == "l")
+                        Cmap cmap = font.ToUnicode;
+                        if (cmap.CodeToUnicode(0xc0) == "i" || cmap.CodeToUnicode(0xc1) == "l")
                         {
-                            PDFStream cmapData = font.underlyingDict.get<PDFStream>("ToUnicode");
-                            using (Stream stream = cmapData.getDecompressedStream())
+                            PdfStream cmapData = font.UnderlyingDict.Get<PdfStream>("ToUnicode");
+                            using (Stream stream = cmapData.GetDecompressedStream())
                             using (StreamReader streamReader = new StreamReader(stream))
                             {
                                 string cmapString = streamReader.ReadToEnd();
@@ -52,53 +43,53 @@ namespace test
                                     continue;
                                 }
 
-                                ObjectReference newCmapRef = pdf.addStream(cmapString);
-                                font.underlyingDict.set("ToUnicode", newCmapRef);
+                                ObjectReference newCmapRef = pdf.AddStream(cmapString);
+                                font.UnderlyingDict.Set("ToUnicode", newCmapRef);
                             }
                         }
                     }
                 }
 
-                pdf.save(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09 fixed\3.pdf", SaveType.Fresh);
+                pdf.Save(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09 fixed\3.Pdf", SaveType.Fresh);
             }
             //}
         }
 
-        private static void extractTextTest()
+        private static void ExtractTextTest()
         {
-            string file = @"C:\Users\Mark Tanner\scratch\orig fixed.pdf";
-            using (PDF pdf = new PDF(file))
+            const string file = @"C:\Users\Mark Tanner\scratch\orig fixed.Pdf";
+            using (Pdf pdf = new Pdf(file))
             {
-                Page page = pdf.getPage(1);
+                Page page = pdf.GetPage(1);
                 TextExtractor extractor = new TextExtractor();
-                extractor.extractText(page);
+                extractor.ExtractText(page);
             }
         }
 
-        private static void fixCMAP()
+        private static void FixCmap()
         {
-            string file = @"C:\Users\Mark Tanner\scratch\orig.pdf";
-            string cmap = @"C:\Users\Mark Tanner\scratch\fixed cmap.txt";
+            const string file = @"C:\Users\Mark Tanner\scratch\orig.Pdf";
+            const string cmap = @"C:\Users\Mark Tanner\scratch\fixed cmap.txt";
 
-            CMAP temp = new CMAP(File.OpenRead(cmap), true);
+            Cmap temp = new Cmap(File.OpenRead(cmap), true);
 
-            using (PDF pdf = new PDF(file))
+            using (Pdf pdf = new Pdf(file))
             {
-                ObjectReference newCMAP = pdf.addStream(new FileInfo(cmap));
+                ObjectReference newCmap = pdf.AddStream(new FileInfo(cmap));
 
-                Page page = pdf.getPage(1);
+                Page page = pdf.GetPage(1);
 
-                List<Name> fontNames = page.resources.getFontResourceNames();
+                List<Name> fontNames = page.Resources.GetFontResourceNames();
                 foreach (Name fontName in fontNames)
                 {
-                    Font font = page.resources.getFont(fontName);
+                    Font font = page.Resources.GetFont(fontName);
                     if (font.baseFont == "HGEBGL+News706BT-RomanC")
                     {
-                        font.setToUnicodeCMAP(newCMAP);
+                        font.SetToUnicodeCmap(newCmap);
                     }
                 }
 
-                pdf.save(@"C:\Users\Mark Tanner\scratch\orig fixed.pdf", SaveType.Fresh);
+                pdf.Save(@"C:\Users\Mark Tanner\scratch\orig fixed.Pdf", SaveType.Fresh);
             }
         }
     }

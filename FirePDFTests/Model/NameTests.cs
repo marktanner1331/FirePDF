@@ -1,12 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FirePDF.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace FirePDF.Model.Tests
+namespace FirePDFTests.Model
 {
     [TestClass()]
     public class NameTests

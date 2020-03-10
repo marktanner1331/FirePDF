@@ -2,30 +2,24 @@
 using FirePDF.Processors;
 using FirePDF.Reading;
 using FirePDF.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Flattener
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            string file = @"C:\Users\Mark Tanner\scratch\sarie page 1.pdf";
-            PDF pdf = new PDF(file);
+            const string file = @"C:\Users\Mark Tanner\scratch\sarie page 1.Pdf";
+            Pdf pdf = new Pdf(file);
 
-            Page page = pdf.getPage(1);
+            Page page = pdf.GetPage(1);
             
-            IRenderer renderer = new Splitter();
+            Renderer renderer = new Splitter();
 
             StreamProcessor sp = new StreamProcessor(renderer);
             RecursiveStreamReader streamReader = new RecursiveStreamReader(sp);
 
-            streamReader.readStreamRecursively(page);
+            streamReader.ReadStreamRecursively(page);
         }
     }
 }

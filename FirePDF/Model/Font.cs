@@ -1,54 +1,49 @@
-﻿using FirePDF.Writing;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public abstract class Font : IHaveUnderlyingDict
+    public abstract class Font : HaveUnderlyingDict
     {
-        private Lazy<CMAP> _encoding;
-        public CMAP encoding => _encoding.Value;
+        private readonly Lazy<Cmap> encoding;
+        public Cmap Encoding => encoding.Value;
 
-        private Lazy<CMAP> _toUnicode;
-        public CMAP toUnicode => _toUnicode.Value;
+        private readonly Lazy<Cmap> toUnicode;
+        public Cmap ToUnicode => toUnicode.Value;
 
         public Name baseFont;
 
-        protected Font(PDFDictionary dictionary) : base(dictionary)
+        protected Font(PdfDictionary dictionary) : base(dictionary)
         {
-            baseFont = dictionary.get<Name>("BaseFont");
-            _encoding = new Lazy<CMAP>(loadEncoding);
-            _toUnicode = new Lazy<CMAP>(loadToUnicode);
+            baseFont = dictionary.Get<Name>("BaseFont");
+            encoding = new Lazy<Cmap>(LoadEncoding);
+            toUnicode = new Lazy<Cmap>(LoadToUnicode);
         }
 
-        protected abstract CMAP loadEncoding();
+        protected abstract Cmap LoadEncoding();
 
-        protected abstract CMAP loadToUnicode();
+        protected abstract Cmap LoadToUnicode();
 
 
-        public override bool isDirty()
+        public override bool IsDirty()
         {
-            if (_encoding.IsValueCreated && encoding != null && encoding.isDirty)
+            if (encoding.IsValueCreated && Encoding != null && Encoding.IsDirty)
             {
                 return true;
             }
 
-            if (_toUnicode.IsValueCreated && encoding != null && toUnicode.isDirty)
+            if (toUnicode.IsValueCreated && Encoding != null && ToUnicode.IsDirty)
             {
                 return true;
             }
 
-            return base.isDirty();
+            return base.IsDirty();
         }
 
-        public static Font loadExistingFontFromPDF(PDFDictionary dictionary)
+        public static Font LoadExistingFontFromPdf(PdfDictionary dictionary)
         {
-            Name subType = dictionary.get<Name>("Subtype");
+            Name subType = dictionary.Get<Name>("Subtype");
             switch (subType)
             {
                 case "Type0":
@@ -58,9 +53,9 @@ namespace FirePDF.Model
                 case "Type3":
                     return new Type3Font(dictionary);
                 case "CIDFontType0":
-                    return new CIDType0Font(dictionary);
+                    return new CidType0Font(dictionary);
                 case "CIDFontType2":
-                    return new CIDFontType2(dictionary);
+                    return new CidFontType2(dictionary);
                 case "TrueType":
                     return new TrueTypeFont(dictionary);
                 default:
@@ -68,32 +63,32 @@ namespace FirePDF.Model
             }
         }
 
-        public abstract void setToUnicodeCMAP(ObjectReference objectReference);
+        public abstract void SetToUnicodeCmap(ObjectReference objectReference);
 
         /// <summary>
-        /// converts a pdf hex string shown by the Tj or TJ operator into a unicode string
+        /// converts a Pdf hex string shown by the Tj or TJ operator into a unicode string
         /// this is not always possible, and this method can return an empty string in that case
         /// </summary>
         //TODO move implementation into this class
         //like the above method
-        public abstract string readUnicodeStringFromHexString(byte[] hexString);
+        public abstract string ReadUnicodeStringFromHexString(byte[] hexString);
 
-        public abstract FontDescriptor getFontDescriptor();
+        public abstract FontDescriptor GetFontDescriptor();
 
         /// <summary>
         /// returns the size of the text
         /// including char spacing, word spacing, and scaling by the horizontal scaling, font size, text matrix
         /// but not the current transformation matrix
         /// </summary>
-        public abstract SizeF measureText(byte[] hexString, GraphicsState graphicsState);
+        public abstract SizeF MeasureText(byte[] hexString, GraphicsState graphicsState);
 
-        internal void prepareForWriting()
+        internal void PrepareForWriting()
         {
-            if(_encoding.IsValueCreated && encoding != null && encoding.isDirty)
+            if(encoding.IsValueCreated && Encoding != null && Encoding.IsDirty)
             {
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    encoding.writeToStream(stream);
+                    Encoding.WriteToStream(stream);
                 }
             }
         }

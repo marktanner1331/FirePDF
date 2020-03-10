@@ -1,147 +1,145 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.StreamPartFunctions
 {
-    public class Node<X> where X : class
+    public class Node<TX> where TX : class
     {
-        private List<Node<X>> children;
-        public X value { get; private set; }
+        private List<Node<TX>> children;
+        public TX Value { get; private set; }
 
-        private Node<X> parent;
-        public readonly int uniqueID;
+        private Node<TX> parent;
+        public readonly int uniqueId;
 
-        private static int uniqueIDCounter = 0;
+        private static int _uniqueIdCounter = 0;
 
         public Node()
         {
-            uniqueID = uniqueIDCounter++;
+            uniqueId = _uniqueIdCounter++;
         }
 
-        public Node(X value)
+        public Node(TX value)
         {
-            this.value = value;
-            uniqueID = uniqueIDCounter++;
+            Value = value;
+            uniqueId = _uniqueIdCounter++;
         }
 
-        public void removeChild(int index)
+        public void RemoveChild(int index)
         {
             children?.RemoveAt(index);
         }
 
-        public void clearChildren()
+        public void ClearChildren()
         {
             children?.Clear();
         }
 
-        public int getNumChildren()
+        public int GetNumChildren()
         {
-            return children?.Count ?? (value == null ? 0 : 1);
+            return children?.Count ?? (Value == null ? 0 : 1);
         }
 
-        public List<X> getAllLeafNodes()
+        public List<TX> GetAllLeafNodes()
         {
-            List<X> nodes = new List<X>();
+            List<TX> nodes = new List<TX>();
 
-            getAllLeafNodes(nodes);
+            GetAllLeafNodes(nodes);
 
             return nodes;
         }
 
-        private void getAllLeafNodes(List<X> nodes)
+        private void GetAllLeafNodes(ICollection<TX> nodes)
         {
-            if (value != null)
+            if (Value != null)
             {
-                nodes.Add(value);
+                nodes.Add(Value);
             }
             else
             {
-                foreach (Node<X> node in children)
+                foreach (Node<TX> node in children)
                 {
-                    node.getAllLeafNodes(nodes);
+                    node.GetAllLeafNodes(nodes);
                 }
             }
         }
 
-        public void addChildNode(X child)
+        public void AddChildNode(TX child)
         {
-            if (value == null && children == null)
+            if (Value == null && children == null)
             {
-                value = child;
+                Value = child;
             }
             else
             {
-                addChildNode(new Node<X>(child));
+                AddChildNode(new Node<TX>(child));
             }
         }
 
-        public void convertNodeFromLeafToBranch()
+        public void ConvertNodeFromLeafToBranch()
         {
-            if(value == null)
+            if(Value == null)
             {
                 return;
             }
 
-            Node<X> node = new Node<X>(value);
+            Node<TX> node = new Node<TX>(Value);
             node.parent = this;
 
-            children = new List<Node<X>>();
+            children = new List<Node<TX>>();
             children.Add(node);
-            value = null;
+            Value = null;
         }
 
-        public void addChildNode(Node<X> child)
+        public void AddChildNode(Node<TX> child)
         {
             if (children == null)
             {
-                children = new List<Node<X>>();
+                children = new List<Node<TX>>();
             }
 
-            if (value != null)
+            if (Value != null)
             {
-                Node<X> node = new Node<X>(value);
+                Node<TX> node = new Node<TX>(Value);
                 node.parent = this;
 
                 children.Add(node);
-                value = null;
+                Value = null;
             }
 
             child.parent = this;
             children.Add(child);
         }
 
-        public void swapLeaves(Func<X, X> swapper)
+        public void SwapLeaves(Func<TX, TX> swapper)
         {
-            if (value != null)
+            if (Value != null)
             {
-                value = swapper(value);
+                Value = swapper(Value);
             }
             else
             {
-                foreach (Node<X> node in children.ToList())
+                foreach (Node<TX> node in children.ToList())
                 {
-                    node.swapLeaves(swapper);
+                    node.SwapLeaves(swapper);
                 }
             }
         }
 
-        public void removeLeaves(Func<X, bool> test)
+        public void RemoveLeaves(Func<TX, bool> test)
         {
-            if (value != null)
+            if (Value != null)
             {
-                if(test(value))
+                if(test(Value))
                 {
                     parent.children.Remove(this);
                 }
             }
             else
             {
-                foreach (Node<X> node in children.ToList())
+                foreach (Node<TX> node in children.ToList())
                 {
-                    node.removeLeaves(test);
+                    node.RemoveLeaves(test);
                 }
 
                 if(children.Count == 0 && parent != null)
@@ -151,44 +149,44 @@ namespace FirePDF.StreamPartFunctions
             }
         }
 
-        public List<Node<X>> getChildren()
+        public List<Node<TX>> GetChildren()
         {
             if (children == null)
             {
-                return new List<Node<X>>();
+                return new List<Node<TX>>();
             }
 
             return children;
         }
 
-        public void setChildren(List<Node<X>> children)
+        public void SetChildren(List<Node<TX>> children)
         {
-            if (value != null)
+            if (Value != null)
             {
                 throw new Exception("trying to set children when node has a value");
             }
             
             this.children = children;
-            foreach (Node<X> child in children)
+            foreach (Node<TX> child in children)
             {
                 child.parent = this;
             }
         }
 
-        public String toFullString()
+        public string ToFullString()
         {
-            return toFullString("");
+            return ToFullString("");
         }
 
-        private String toFullString(String indent)
+        private string ToFullString(string indent)
         {
-            if (value != null)
+            if (Value != null)
             {
-                String s2 = value.ToString();
-                String[] lines = s2.Split('\n');
+                string s2 = Value.ToString();
+                string[] lines = s2.Split('\n');
 
-                String t = "";
-                foreach(String line in lines)
+                string t = "";
+                foreach(string line in lines)
                 {
                     if (string.IsNullOrEmpty(t) == false)
                     {
@@ -201,15 +199,15 @@ namespace FirePDF.StreamPartFunctions
                 return t;
             }
 
-            String s = "";
-            foreach (Node<X> node in children)
+            string s = "";
+            foreach (Node<TX> node in children)
             {
                 if (string.IsNullOrEmpty(s) == false)
                 {
                     s += "\n";
                 }
 
-                s += node.toFullString(indent + "    ");
+                s += node.ToFullString(indent + "    ");
             }
 
             return s;

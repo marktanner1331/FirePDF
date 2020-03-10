@@ -1,11 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace FirePDF.Model
 {
-    internal class PDFMetaDataStream : PDFStream, PDFMetaData
+    internal class PdfMetaDataStream : PdfStream, IPdfMetaData
     {
-        public PDFMetaDataStream(Stream stream, PDFDictionary dictionary, long startOfStream) : base(stream, dictionary, startOfStream)
+        public PdfMetaDataStream(Stream stream, PdfDictionary dictionary, long startOfStream) : base(stream, dictionary, startOfStream)
         {
 
         }

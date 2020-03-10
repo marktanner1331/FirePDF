@@ -1,29 +1,25 @@
 ﻿using FirePDF.Model;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Writing
 {
     public static class ContentStreamWriter
     {
-        public static void writeOperationsToStream(Stream stream, IEnumerable<Operation> operations)
+        public static void WriteOperationsToStream(Stream stream, IEnumerable<Operation> operations)
         {
-            using (PDFWriter writer = new PDFWriter(stream, true))
+            using (PdfWriter writer = new PdfWriter(stream, true))
             {
                 foreach (Operation operation in operations)
                 {
                     foreach (object operand in operation.operands)
                     {
-                        writer.writeDirectObject(operand);
-                        writer.writeASCII(" ");
+                        writer.WriteDirectObject(operand);
+                        writer.WriteAscii(" ");
                     }
 
-                    writer.writeASCII(operation.operatorName);
-                    writer.writeNewLine();
+                    writer.WriteAscii(operation.operatorName);
+                    writer.WriteNewLine();
                 }
             }
         }

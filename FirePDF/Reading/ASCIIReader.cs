@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Reading
 {
-    public static class ASCIIReader
+    public static class AsciiReader
     {
         /// <summary>
         /// reads an ascii string from the stream at the given position
         /// </summary>
-        public static string readASCIIString(Stream stream, int length)
+        public static string ReadAsciiString(Stream stream, int length)
         {
             byte[] buffer = new byte[length];
             stream.Read(buffer, 0, length);
@@ -23,7 +19,7 @@ namespace FirePDF.Reading
         /// <summary>
         /// reads an integer stored as an ascii string
         /// </summary>
-        public static int readASCIIInteger(Stream stream)
+        public static int ReadAsciiInteger(Stream stream)
         {
             int i = 0;
             while (true)
@@ -43,7 +39,7 @@ namespace FirePDF.Reading
         /// <summary>
         /// reads characters up until a new line character is found. the stream is advanced to the first byte of the next line
         /// </summary>
-        public static string readLine(Stream stream)
+        public static string ReadLine(Stream stream)
         {
             StringBuilder sb = new StringBuilder();
             while(true)
@@ -60,7 +56,7 @@ namespace FirePDF.Reading
                 }
             }
 
-            end:;
+            end:
 
             while (true)
             {

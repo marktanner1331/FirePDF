@@ -1,8 +1,8 @@
 ﻿namespace FirePDF.Model
 {
-    internal class ExtGState : IHaveUnderlyingDict
+    internal class ExtGState : HaveUnderlyingDict
     {
-        public ExtGState(PDFDictionary underlyingDict) : base(underlyingDict)
+        public ExtGState(PdfDictionary underlyingDict) : base(underlyingDict)
         {
         }
     }

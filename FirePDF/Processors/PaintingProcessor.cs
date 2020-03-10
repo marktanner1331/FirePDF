@@ -1,26 +1,21 @@
 ﻿using FirePDF.Model;
 using FirePDF.Rendering;
-using System;
-using System.Collections.Generic;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Processors
 {
     public class PaintingProcessor
     {
-        private IRenderer renderer;
-        private LineProcessor lineProcessor;
+        private readonly Renderer renderer;
+        private readonly LineProcessor lineProcessor;
 
-        public PaintingProcessor(IRenderer renderer, LineProcessor lineProcessor)
+        public PaintingProcessor(Renderer renderer, LineProcessor lineProcessor)
         {
             this.renderer = renderer;
             this.lineProcessor = lineProcessor;
         }
 
-        public static bool isPaintingCommand(string operatorName)
+        public static bool IsPaintingCommand(string operatorName)
         {
             switch (operatorName)
             {
@@ -39,41 +34,41 @@ namespace FirePDF.Processors
             }
         }
 
-        public bool processOperation(Operation operation)
+        public bool ProcessOperation(Operation operation)
         {
             switch (operation.operatorName)
             {
                 case "b":
-                    lineProcessor.processOperation(new Operation("h", null));
-                    processOperation(new Operation("B", null));
+                    lineProcessor.ProcessOperation(new Operation("h", null));
+                    ProcessOperation(new Operation("B", null));
                     break;
                 case "b*":
-                    lineProcessor.processOperation(new Operation("h", null));
-                    processOperation(new Operation("B*", null));
+                    lineProcessor.ProcessOperation(new Operation("h", null));
+                    ProcessOperation(new Operation("B*", null));
                     break;
                 case "B":
-                    lineProcessor.currentPath.FillMode = FillMode.Winding;
-                    renderer?.fillAndStrokePath(lineProcessor.currentPath);
+                    lineProcessor.CurrentPath.FillMode = FillMode.Winding;
+                    renderer?.FillAndStrokePath(lineProcessor.CurrentPath);
                     break;
                 case "B*":
-                    lineProcessor.currentPath.FillMode = FillMode.Alternate;
-                    renderer?.fillAndStrokePath(lineProcessor.currentPath);
+                    lineProcessor.CurrentPath.FillMode = FillMode.Alternate;
+                    renderer?.FillAndStrokePath(lineProcessor.CurrentPath);
                     break;
                 case "f":
                 case "F":
-                    lineProcessor.currentPath.FillMode = FillMode.Winding;
-                    renderer?.fillPath(lineProcessor.currentPath);
+                    lineProcessor.CurrentPath.FillMode = FillMode.Winding;
+                    renderer?.FillPath(lineProcessor.CurrentPath);
                     break;
                 case "f*":
-                    lineProcessor.currentPath.FillMode = FillMode.Alternate;
-                    renderer?.fillPath(lineProcessor.currentPath);
+                    lineProcessor.CurrentPath.FillMode = FillMode.Alternate;
+                    renderer?.FillPath(lineProcessor.CurrentPath);
                     break;
                 case "s":
-                    lineProcessor.processOperation(new Operation("h", null));
-                    processOperation(new Operation("S", operation.operands));
+                    lineProcessor.ProcessOperation(new Operation("h", null));
+                    ProcessOperation(new Operation("S", operation.operands));
                     break;
                 case "S":
-                    renderer?.strokePath(lineProcessor.currentPath);
+                    renderer?.StrokePath(lineProcessor.CurrentPath);
                     break;
                 default:
                     return false;

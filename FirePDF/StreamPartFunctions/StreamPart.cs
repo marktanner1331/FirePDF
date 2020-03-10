@@ -1,9 +1,5 @@
 ﻿using FirePDF.Model;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.StreamPartFunctions
 {
@@ -22,21 +18,21 @@ namespace FirePDF.StreamPartFunctions
         public StreamPart(List<Operation> operations)
         {
             this.operations = operations;
-            this.tags = new HashSet<string>();
-            this.variables = new Dictionary<string, string>();
+            tags = new HashSet<string>();
+            variables = new Dictionary<string, string>();
         }
 
-        public void addOperation(Operation operation)
+        public void AddOperation(Operation operation)
         {
             operations.Add(operation);
         }
 
-        public void addTag(string tag)
+        public void AddTag(string tag)
         {
             tags.Add(tag);
         }
 
-        public void removeTags(params string[] parameters)
+        public void RemoveTags(params string[] parameters)
         {
             foreach(string tag in parameters)
             {
@@ -44,7 +40,7 @@ namespace FirePDF.StreamPartFunctions
             }
         }
 
-        public bool hasTag(string tag)
+        public bool HasTag(string tag)
         {
             return tags.Contains(tag);
         }

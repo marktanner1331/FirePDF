@@ -1,28 +1,25 @@
 ﻿using FirePDF;
 using FirePDF.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDFTests
 {
     [TestClass]
     public class ReadTests
     {
-        private string getPDFFolder()
+        private static string GetPdfFolder()
         {
-            return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
+            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/../../pdfs/";
         }
 
-        private string getOutputPDFFolder()
+        private static string GetOutputPdfFolder()
         {
-            string folder = getPDFFolder() + "output/";
+            string folder = GetPdfFolder() + "output/";
             if (Directory.Exists(folder) == false)
             {
                 Directory.CreateDirectory(folder);
@@ -32,82 +29,82 @@ namespace FirePDFTests
         }
 
         [TestMethod]
-        public void testPDF()
+        public void TestPdf()
         {
-            string file = getPDFFolder() + "page 24 fixed.pdf";
-            using (PDF pdf = new PDF(file))
+            string file = GetPdfFolder() + "page 24 fixed.Pdf";
+            using (Pdf pdf = new Pdf(file))
             {
-                pdf.insertPage(new Page(pdf, new Size(650, 800)), 1);
+                pdf.InsertPage(new Page(pdf, new Size(650, 800)), 1);
 
-                string temp = getOutputPDFFolder() + Path.GetFileNameWithoutExtension(file) + " full_read_write.pdf";
+                string temp = GetOutputPdfFolder() + Path.GetFileNameWithoutExtension(file) + " full_read_write.Pdf";
                 if (File.Exists(temp))
                 {
                     File.Delete(temp);
                 }
 
-                pdf.save(temp);
+                pdf.Save(temp);
             }
         }
 
         [TestMethod]
-        public void testPDFUpdate()
+        public void TestPdfUpdate()
         {
-            string file = getPDFFolder() + "page 24 fixed.pdf";
-            using (PDF pdf = new PDF(file))
+            string file = GetPdfFolder() + "page 24 fixed.Pdf";
+            using (Pdf pdf = new Pdf(file))
             {
-                pdf.insertPage(new Page(pdf, new Size(650, 800)), 1);
+                pdf.InsertPage(new Page(pdf, new Size(650, 800)), 1);
 
-                string temp = getOutputPDFFolder() + Path.GetFileNameWithoutExtension(file) + " update.pdf";
+                string temp = GetOutputPdfFolder() + Path.GetFileNameWithoutExtension(file) + " update.Pdf";
                 if (File.Exists(temp))
                 {
                     File.Delete(temp);
                 }
 
-                pdf.save(temp, SaveType.Update);
+                pdf.Save(temp, SaveType.Update);
             }
         }
 
         [TestMethod]
-        public void testAllPDFs()
+        public void TestAllPdFs()
         {
-            List<string> inputFiles = Directory.EnumerateFiles(getPDFFolder()).ToList();
+            List<string> inputFiles = Directory.EnumerateFiles(GetPdfFolder()).ToList();
             foreach (string file in inputFiles)
             {
-                PDF pdf = new PDF(file);
-                PDF newPDF = new PDF();
+                Pdf pdf = new Pdf(file);
+                Pdf newPdf = new Pdf();
 
                 foreach (Page page in pdf)
                 {
-                    newPDF.addPage(page);
+                    newPdf.AddPage(page);
                 }
 
-                string temp = getOutputPDFFolder() + Path.GetFileNameWithoutExtension(file) + " full_read_write.pdf";
+                string temp = GetOutputPdfFolder() + Path.GetFileNameWithoutExtension(file) + " full_read_write.Pdf";
                 if (File.Exists(temp))
                 {
                     File.Delete(temp);
                 }
 
-                pdf.save(temp);
+                pdf.Save(temp);
             }
         }
 
         [TestMethod]
-        public void testAllPDFs2()
+        public void TestAllPdFs2()
         {
-            List<string> inputFiles = Directory.EnumerateFiles(getPDFFolder()).ToList();
+            List<string> inputFiles = Directory.EnumerateFiles(GetPdfFolder()).ToList();
             foreach (string file in inputFiles)
             {
-                using (PDF pdf = new PDF(file))
+                using (Pdf pdf = new Pdf(file))
                 {
-                    pdf.insertPage(new Page(pdf, new Size(650, 800)), 1);
+                    pdf.InsertPage(new Page(pdf, new Size(650, 800)), 1);
 
-                    string temp = getOutputPDFFolder() + Path.GetFileNameWithoutExtension(file) + " full_read_write.pdf";
+                    string temp = GetOutputPdfFolder() + Path.GetFileNameWithoutExtension(file) + " full_read_write.Pdf";
                     if (File.Exists(temp))
                     {
                         File.Delete(temp);
                     }
 
-                    pdf.save(temp);
+                    pdf.Save(temp);
                 }
             }
         }

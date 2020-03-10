@@ -1,68 +1,64 @@
-﻿using FirePDF.Model;
-using FirePDF.Reading;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
-    public class PDFResources : IHaveUnderlyingDict
+    public class PdfResources : HaveUnderlyingDict
     {
         private readonly IStreamOwner owner;
 
-        private Dictionary<Name, object> cache;
+        private readonly Dictionary<Name, object> cache;
 
         internal HashSet<string> dirtyObjects;
-        internal bool isDirty => dirtyObjects.Count > 0;
+        public override bool IsDirty() => dirtyObjects.Count > 0;
         
-        public PDFResources(IStreamOwner owner, PDFDictionary underlyingDict) : base(underlyingDict)
+        public PdfResources(IStreamOwner owner, PdfDictionary underlyingDict) : base(underlyingDict)
         {
             this.owner = owner;
             
-            this.cache = new Dictionary<Name, object>();
-            this.dirtyObjects = new HashSet<string>();
+            cache = new Dictionary<Name, object>();
+            dirtyObjects = new HashSet<string>();
         }
         
-        public void overwriteXObject(XObjectForm form, string xObjectName)
+        public void OverwriteXObject(XObjectForm form, string xObjectName)
         {
             //TODO get rid of this
-            overwriteObject(form, "XObject", xObjectName);
+            OverwriteObject(form, "XObject", xObjectName);
         }
 
-        public void overwriteObject(object obj, params string[] path)
+        public void OverwriteObject(object obj, params string[] path)
         {
             string joinedPath = string.Join("/", path);
             cache[joinedPath] = obj;
 
-            setObjectAsDirty(path);
+            SetObjectAsDirty(path);
         }
 
         /// <summary>
         /// returns the resource names of the fonts e.g. [/R16, /R17]
         /// </summary>
         /// <returns></returns>
-        public List<Name> getFontResourceNames()
+        public List<Name> GetFontResourceNames()
         {
-            return underlyingDict.get<PDFDictionary>("Font").keys.ToList();
+            return UnderlyingDict.Get<PdfDictionary>("Font").Keys.ToList();
         }
 
         /// <summary>
         /// returns all form xobjects found in the XObject dictionary
         /// does not return image xObjects
         /// </summary>
-        public IEnumerable<Name> listXObjectForms()
+        public IEnumerable<Name> ListXObjectForms()
         {
-            PDFDictionary xObjects = (PDFDictionary)getObjectAtPath("XObject");
+            PdfDictionary xObjects = (PdfDictionary)GetObjectAtPath("XObject");
             if (xObjects == null)
             {
                 yield break;
             }
 
-            foreach (Name key in xObjects.keys)
+            foreach (Name key in xObjects.Keys)
             {
-                object xObject = xObjects.get<object>(key);
+                object xObject = xObjects.Get<object>(key);
                 if (xObject is XObjectForm)
                 {
                     yield return key;
@@ -70,20 +66,20 @@ namespace FirePDF.Model
             }
         }
 
-        public bool isXObjectImage(string xObjectName)
+        public bool IsXObjectImage(string xObjectName)
         {
-            object xObject = getObjectAtPath("XObject", xObjectName);
+            object xObject = GetObjectAtPath("XObject", xObjectName);
             return xObject is XObjectImage;
         }
 
-        public Font getFont(Name name)
+        public Font GetFont(Name name)
         {
-            return (Font)getObjectAtPath("Font", name);
+            return (Font)GetObjectAtPath("Font", name);
         }
 
-        public bool isXObjectForm(string xObjectName)
+        public bool IsXObjectForm(string xObjectName)
         {
-            object xObject = getObjectAtPath("XObject", xObjectName);
+            object xObject = GetObjectAtPath("XObject", xObjectName);
             return xObject is XObjectForm;
         }
 
@@ -91,7 +87,7 @@ namespace FirePDF.Model
         /// returns the object at the given path, or null if it cannot be found
         /// automatically resolves any indirect references
         /// </summary>
-        public object getObjectAtPath(params string[] path)
+        public object GetObjectAtPath(params string[] path)
         {
             //TODO make this a generic method like getObjectAtPath<Font>()?
 
@@ -101,49 +97,39 @@ namespace FirePDF.Model
                 return cache[joinedPath];
             }
 
-            object root = underlyingDict;
+            object root = UnderlyingDict;
             foreach (string part in path)
             {
-                if (root is PDFDictionary)
+                switch (root)
                 {
-                    PDFDictionary temp = (PDFDictionary)root;
-                    if (temp.containsKey(part))
-                    {
-                        root = temp.get<object>(part);
-                    }
-                    else
-                    {
+                    case PdfDictionary dictionary when dictionary.ContainsKey(part):
+                        root = dictionary.Get<object>(part);
+                        break;
+                    case PdfDictionary dictionary:
                         return null;
-                    }
-                }
-                else if(root is PDFResources)
-                {
-                    root = ((PDFResources)root).underlyingDict.get<object>(part);
-                }
-                else if(root is IStreamOwner)
-                {
-                    if(part != "Resources")
+                    case PdfResources resources:
+                        root = resources.UnderlyingDict.Get<object>(part);
+                        break;
+                    case IStreamOwner streamOwner when part != "Resources":
+                        throw new Exception($"Accessing unknown property '{part}' on IStreamOwner");
+                    case IStreamOwner streamOwner:
+                        root = streamOwner.Resources;
+                        break;
+                    case PdfList temp:
                     {
-                        throw new Exception($"Accessing unknown property '{part}' on IStreamOWner");
-                    }
+                        if (int.TryParse(part, out int index) == false)
+                        {
+                            return null;
+                        }
 
-                    root = ((IStreamOwner)root).resources;
-                }
-                else if (root is PDFList)
-                {
-                    int index;
-                    if (int.TryParse(part, out index) == false)
-                    {
-                        return null;
-                    }
+                        if (temp.Count <= index)
+                        {
+                            return null;
+                        }
 
-                    PDFList temp = (PDFList)root;
-                    if (temp.count <= index)
-                    {
-                        return null;
+                        root = temp.Get<object>(index);
+                        break;
                     }
-
-                    root = temp.get<object>(index);
                 }
             }
 
@@ -151,29 +137,29 @@ namespace FirePDF.Model
             return root;
         }
 
-        public void setObjectAsDirty(string[] path)
+        public void SetObjectAsDirty(string[] path)
         {
             string joinedPath = string.Join("/", path);
             dirtyObjects.Add(joinedPath);
 
-            object root = underlyingDict;
+            object root = UnderlyingDict;
             for (int i = 0; i < path.Length - 1; i++)
             {
                 string part = path[i];
 
-                if (root is PDFDictionary)
+                if (root is PdfDictionary)
                 {
-                    PDFDictionary temp = (PDFDictionary)root;
-                    if (temp.containsKey(part))
+                    PdfDictionary temp = (PdfDictionary)root;
+                    if (temp.ContainsKey(part))
                     {
-                        root = temp.get<object>(part);
+                        root = temp.Get<object>(part);
                     }
                     else
                     {
                         throw new NotImplementedException();
                     }
                 }
-                else if (root is PDFList)
+                else if (root is PdfList)
                 {
                     int index;
                     if (int.TryParse(part, out index) == false)
@@ -181,19 +167,19 @@ namespace FirePDF.Model
                         throw new NotImplementedException();
                     }
 
-                    PDFList temp = (PDFList)root;
-                    if (temp.count <= index)
+                    PdfList temp = (PdfList)root;
+                    if (temp.Count <= index)
                     {
                         throw new NotImplementedException();
                     }
 
-                    root = temp.get<object>(index);
+                    root = temp.Get<object>(index);
                 }
 
                 if (root is ObjectReference)
                 {
                     string[] subPath = path.Take(i + 1).ToArray();
-                    root = getObjectAtPath(subPath);
+                    root = GetObjectAtPath(subPath);
 
                     string joinedSubPath = string.Join("/", subPath);
                     dirtyObjects.Add(joinedSubPath);
@@ -201,27 +187,27 @@ namespace FirePDF.Model
             }
         }
 
-        public void setObjectAtPath(ObjectReference objectReference, string[] path)
+        public void SetObjectAtPath(ObjectReference objectReference, string[] path)
         {
             //TODO replace most of this with getObjectAtPath(path.take(-1))
-            object root = underlyingDict;
+            object root = UnderlyingDict;
             for (int i = 0; i < path.Length - 1; i++)
             {
                 string part = path[i];
 
-                if (root is PDFDictionary)
+                if (root is PdfDictionary)
                 {
-                    PDFDictionary temp = (PDFDictionary)root;
-                    if (temp.containsKey(part))
+                    PdfDictionary temp = (PdfDictionary)root;
+                    if (temp.ContainsKey(part))
                     {
-                        root = temp.get<object>(part);
+                        root = temp.Get<object>(part);
                     }
                     else
                     {
                         throw new NotImplementedException();
                     }
                 }
-                else if (root is PDFList)
+                else if (root is PdfList)
                 {
                     int index;
                     if (int.TryParse(part, out index) == false)
@@ -229,28 +215,28 @@ namespace FirePDF.Model
                         throw new NotImplementedException();
                     }
 
-                    PDFList temp = (PDFList)root;
-                    if (temp.count <= index)
+                    PdfList temp = (PdfList)root;
+                    if (temp.Count <= index)
                     {
                         throw new NotImplementedException();
                     }
 
-                    root = temp.get<object>(index);
+                    root = temp.Get<object>(index);
                 }
                 
                 if (root is ObjectReference)
                 {
                     string[] subPath = path.Take(i + 1).ToArray();
-                    root = getObjectAtPath(subPath);
+                    root = GetObjectAtPath(subPath);
                 }
             }
 
-            if (root is PDFDictionary)
+            if (root is PdfDictionary)
             {
-                PDFDictionary temp = (PDFDictionary)root;
-                temp.set(path.Last(), objectReference);
+                PdfDictionary temp = (PdfDictionary)root;
+                temp.Set(path.Last(), objectReference);
             }
-            else if (root is PDFList)
+            else if (root is PdfList)
             {
                 int index;
                 if (int.TryParse(path.Last(), out index) == false)
@@ -258,31 +244,31 @@ namespace FirePDF.Model
                     throw new NotImplementedException();
                 }
 
-                PDFList temp = (PDFList)root;
-                if (temp.count <= index)
+                PdfList temp = (PdfList)root;
+                if (temp.Count <= index)
                 {
                     throw new NotImplementedException();
                 }
                 
-                temp.set(index, objectReference);
+                temp.Set(index, objectReference);
             }
         }
 
         /// <summary>
-        /// returns all form xobjects found in the XObject dictionary
+        /// returns all form xObjects found in the XObject dictionary
         /// does not return form xObjects
         /// </summary>
-        public IEnumerable<Name> listXObjectImages()
+        public IEnumerable<Name> ListXObjectImages()
         {
-            PDFDictionary xObjects = (PDFDictionary)getObjectAtPath("XObject");
+            PdfDictionary xObjects = (PdfDictionary)GetObjectAtPath("XObject");
             if (xObjects == null)
             {
                 yield break;
             }
 
-            foreach (Name key in xObjects.keys)
+            foreach (Name key in xObjects.Keys)
             {
-                object xObject = xObjects.get<object>(key);
+                object xObject = xObjects.Get<object>(key);
                 if (xObject is XObjectImage)
                 {
                     yield return key;
@@ -293,9 +279,9 @@ namespace FirePDF.Model
         /// <summary>
         /// returns the xObject image with the given name, or null if it cannot be found or is not an image
         /// </summary>
-        public XObjectImage getXObjectImage(string xObjectName)
+        public XObjectImage GetXObjectImage(string xObjectName)
         {
-            object xObject = getObjectAtPath("XObject", xObjectName);
+            object xObject = GetObjectAtPath("XObject", xObjectName);
             if (xObject is XObjectImage)
             {
                 return (XObjectImage)xObject;
@@ -309,9 +295,9 @@ namespace FirePDF.Model
         /// <summary>
         /// returns the xObject form with the given name, or null if it cannot be found or is not a form
         /// </summary>
-        public XObjectForm getXObjectForm(string xObjectName)
+        public XObjectForm GetXObjectForm(string xObjectName)
         {
-            object xObject = getObjectAtPath("XObject", xObjectName);
+            object xObject = GetObjectAtPath("XObject", xObjectName);
             if (xObject is XObjectForm)
             {
                 return (XObjectForm)xObject;

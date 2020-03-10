@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FirePDF.Model
 {
@@ -27,7 +25,7 @@ namespace FirePDF.Model
         {
             if(operands.Count > 0)
             {
-                return string.Join(" ", operands.Select(x => operandToString(x))) + " " + operatorName;
+                return string.Join(" ", operands.Select(OperandToString)) + " " + operatorName;
             }
             else
             {
@@ -35,42 +33,37 @@ namespace FirePDF.Model
             }
         }
 
-        public int getOperandAsInt(int index)
+        public int GetOperandAsInt(int index)
         {
             return Convert.ToInt32(operands[index]);
         }
 
-        public float getOperandAsFloat(int index)
+        public float GetOperandAsFloat(int index)
         {
             return (float)Convert.ToDouble(operands[index]);
         }
         
-        public Name getOperandAsName(int index)
+        public Name GetOperandAsName(int index)
         {
             return (Name)operands[index];
         }
 
-        private string operandToString(object operand)
+        private static string OperandToString(object operand)
         {
-            if(operand is byte[])
+            switch (operand)
             {
-                return BitConverter.ToString((byte[])operand).Replace("-", "");
-            }
-            else if(operand is IEnumerable<object>)
-            {
-                return "[" + string.Join(" ", (IEnumerable<object>)operand).Select(x => operandToString(x)) + "]";
-            }
-            else if(operand is Name)
-            {
-                return string.Join("", ((string)(Name)operand).Select(x => x < 32 || x > 128 ? @"\u" + (int)x : x.ToString()));
-            }
-            else
-            {
-                return Convert.ToString(operand);
+                case byte[] bytes:
+                    return BitConverter.ToString(bytes).Replace("-", "");
+                case IEnumerable<object> objects:
+                    return "[" + string.Join(" ", objects).Select(x => OperandToString(x)) + "]";
+                case Name name:
+                    return string.Join("", ((string)name).Select(x => x < 32 || x > 128 ? @"\u" + (int)x : x.ToString()));
+                default:
+                    return Convert.ToString(operand);
             }
         }
 
-        public PointF[] getOperandsAsPointFs()
+        public PointF[] GetOperandsAsPointFs()
         {
             PointF[] points = new PointF[operands.Count / 2];
 
@@ -83,19 +76,19 @@ namespace FirePDF.Model
             return points;
         }
 
-        public List<int> getOperandsAsInts()
+        public List<int> GetOperandsAsInts()
         {
-            return operands.Select(x => Convert.ToInt32(x)).ToList();
+            return operands.Select(Convert.ToInt32).ToList();
         }
 
-        public List<float> getOperandsAsFloats()
+        public List<float> GetOperandsAsFloats()
         {
             return operands.Select(x => (float)Convert.ToDouble(x)).ToList();
         }
 
-        public List<double> getOperandsAsDoubles()
+        public List<double> GetOperandsAsDoubles()
         {
-            return operands.Select(x => Convert.ToDouble(x)).ToList();
+            return operands.Select(Convert.ToDouble).ToList();
         }
     }
 }

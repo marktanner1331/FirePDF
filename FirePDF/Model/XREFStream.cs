@@ -6,41 +6,41 @@ using FirePDF.Reading;
 
 namespace FirePDF.Model
 {
-    //pdf 7.5.8
-    public class XREFStream
+    //Pdf 7.5.8
+    public class XrefStream
     {
-        public Trailer trailer { get; private set; }
-        public XREFTable table { get; private set; }
+        public Trailer Trailer { get; private set; }
+        public XrefTable Table { get; private set; }
 
         /// <summary>
         /// assumes the current position of the stream is the first byte of the object header
         /// </summary>
-        public void fromStream(PDF pdf, Stream stream)
+        public void FromStream(Pdf pdf, Stream stream)
         {
-            PDFReader.skipOverObjectHeader(stream);
+            PdfReader.SkipOverObjectHeader(stream);
 
-            PDFDictionary dict = PDFReader.readDictionary(pdf, stream);
-            trailer = new Trailer(dict);
+            PdfDictionary dict = PdfReader.ReadDictionary(pdf, stream);
+            Trailer = new Trailer(dict);
 
-            PDFReader.skipOverStreamHeader(stream);
+            PdfReader.SkipOverStreamHeader(stream);
             
-            using (Stream inner = PDFReader.decompressStream(pdf, stream, dict))
+            using (Stream inner = PdfReader.DecompressStream(pdf, stream, dict))
             {
-                int size = dict.get<int>("Size");
+                int size = dict.Get<int>("Size");
 
                 //An array containing a pair of integers for each subsection in this section.
                 //Default value: [0 Size].
                 List<int> index;
-                if (dict.containsKey("Index"))
+                if (dict.ContainsKey("Index"))
                 {
-                    index = dict.get<PDFList>("Index").cast<int>();
+                    index = dict.Get<PdfList>("Index").Cast<int>();
                 }
                 else
                 {
                     index = new List<int> { 0, size };
                 }
 
-                List<int> w = dict.get<PDFList>("W").cast<int>().ToList();
+                List<int> w = dict.Get<PdfList>("W").Cast<int>().ToList();
 
                 List<Tuple<int, int>> sections = new List<Tuple<int, int>>();
                 for (int i = 0; i < index.Count; i += 2)
@@ -50,7 +50,7 @@ namespace FirePDF.Model
 
                 int entryLength = w.Sum();
 
-                table = new XREFTable();
+                Table = new XrefTable();
                 foreach (Tuple<int, int> section in sections)
                 {
                     for (int k = 0; k < section.Item2; k++)
@@ -81,10 +81,10 @@ namespace FirePDF.Model
                         switch (field1)
                         {
                             case 0:
-                                table.addFreeRecord(objectNumber, field3);
+                                Table.AddFreeRecord(objectNumber, field3);
                                 break;
                             case 1:
-                                table.addRecord(new XREFTable.XREFRecord
+                                Table.AddRecord(new XrefTable.XrefRecord
                                 {
                                     objectNumber = objectNumber,
                                     offset = field2,
@@ -95,7 +95,7 @@ namespace FirePDF.Model
                                 //field3 contains the object index
                                 //however we don't actually need this
                                 //as the compressed objects are stored against their object numbers, not their indices
-                                table.addRecord(new XREFTable.XREFRecord
+                                Table.AddRecord(new XrefTable.XrefRecord
                                 {
                                     objectNumber = objectNumber,
                                     compressedObjectNumber = field2,

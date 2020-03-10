@@ -3,39 +3,31 @@ using System.Drawing;
 
 namespace FirePDF.Model
 {
-    internal class CIDFontType2 : Font
+    internal class CidFontType2 : Font
     {
-        public CIDFontType2(PDFDictionary dictionary) : base(dictionary)
+        public CidFontType2(PdfDictionary dictionary) : base(dictionary)
         {
         }
 
-        protected override CMAP loadEncoding()
+        protected override Cmap LoadEncoding()
         {
-            object encodingObj = underlyingDict.get<object>("Encoding");
-            if (encodingObj is Name)
-            {
-                return new CMAP((Name)encodingObj);
-            }
-            else
-            {
-                //TODO
-                return null;
-            }
+            object encodingObj = UnderlyingDict.Get<object>("Encoding");
+            return encodingObj is Name name ? new Cmap(name) : null;
         }
 
-        protected override CMAP loadToUnicode()
+        protected override Cmap LoadToUnicode()
         {
-            if (underlyingDict.containsKey("ToUnicode"))
+            if (UnderlyingDict.ContainsKey("ToUnicode"))
             {
-                PDFStream stream = underlyingDict.get<PDFStream>("ToUnicode");
+                PdfStream stream = UnderlyingDict.Get<PdfStream>("ToUnicode");
 
-                if (stream.underlyingDict.containsKey("UseCMap"))
+                if (stream.UnderlyingDict.ContainsKey("UseCMap"))
                 {
                     //in theory we just load the other cmap and merge it with this one
                     throw new NotImplementedException();
                 }
 
-                return new CMAP(stream.getDecompressedStream());
+                return new Cmap(stream.GetDecompressedStream());
             }
             else
             {
@@ -43,22 +35,22 @@ namespace FirePDF.Model
             }
         }
 
-        public override FontDescriptor getFontDescriptor()
+        public override FontDescriptor GetFontDescriptor()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public override SizeF measureText(byte[] hexString, GraphicsState graphicsState)
+        public override SizeF MeasureText(byte[] hexString, GraphicsState graphicsState)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public override string readUnicodeStringFromHexString(byte[] hexString)
+        public override string ReadUnicodeStringFromHexString(byte[] hexString)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public override void setToUnicodeCMAP(ObjectReference objectReference)
+        public override void SetToUnicodeCmap(ObjectReference objectReference)
         {
             throw new NotImplementedException();
         }

@@ -1,8 +1,8 @@
 ﻿namespace FirePDF.Model
 {
-    internal class Mask : IHaveUnderlyingDict
+    internal class Mask : HaveUnderlyingDict
     {
-        public Mask(PDFDictionary underlyingDict) : base(underlyingDict)
+        public Mask(PdfDictionary underlyingDict) : base(underlyingDict)
         {
         }
     }

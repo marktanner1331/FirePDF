@@ -1,79 +1,75 @@
-﻿using FirePDF.Reading;
-using FirePDF.Writing;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace FirePDF.Model
 {
-    public class PageTreeNode : IHaveUnderlyingDict
+    public class PageTreeNode : HaveUnderlyingDict
     {
-        public PageTreeNode(PDF pdf) : base(new PDFDictionary(pdf))
+        public PageTreeNode(Pdf pdf) : base(new PdfDictionary(pdf))
         {
-            underlyingDict.set("Type", (Name)"Pages");
-            underlyingDict.set("Kids", new PDFList(pdf));
-            underlyingDict.set("Count", 0);
+            UnderlyingDict.Set("Type", (Name)"Pages");
+            UnderlyingDict.Set("Kids", new PdfList(pdf));
+            UnderlyingDict.Set("Count", 0);
         }
 
-        public PageTreeNode(PDFDictionary underlyingDict) : base(underlyingDict)
+        public PageTreeNode(PdfDictionary underlyingDict) : base(underlyingDict)
         {
             
         }
 
-        public Page getPage(int oneBasedPageNumber)
+        public Page GetPage(int oneBasedPageNumber)
         {
             int pageCounter = 1;
-            foreach (object node in underlyingDict.get<PDFList>("Kids").cast<object>())
+            foreach (object node in UnderlyingDict.Get<PdfList>("Kids").Cast<object>())
             {
-                if (node is PageTreeNode)
+                switch (node)
                 {
-                    int numPages = ((PageTreeNode)node).getNumPages();
-                    if(pageCounter + numPages > oneBasedPageNumber)
+                    case PageTreeNode treeNode:
                     {
-                        return ((PageTreeNode)node).getPage(oneBasedPageNumber - pageCounter + 1);
+                        int numPages = treeNode.GetNumPages();
+                        if(pageCounter + numPages > oneBasedPageNumber)
+                        {
+                            return treeNode.GetPage(oneBasedPageNumber - pageCounter + 1);
+                        }
+                        else
+                        {
+                            pageCounter += numPages;
+                        }
+
+                        break;
                     }
-                    else
-                    {
-                        pageCounter += numPages;
-                    }
-                }
-                else if(node is Page)
-                {
-                    if(pageCounter == oneBasedPageNumber)
-                    {
-                        return (Page)node;
-                    }
-                    else
-                    {
-                        pageCounter++;
-                    }
-                }
-                else
-                {
-                    throw new Exception("error reading page tree");
+                    case Page page:
+                        if (pageCounter == oneBasedPageNumber)
+                        {
+                            return (Page)node;
+                        }
+                        else
+                        {
+                            pageCounter++;
+                        }
+
+                        break;
+                    default:
+                        throw new Exception("error reading page tree");
                 }
             }
 
             throw new Exception("Page not found in catalog");
         }
         
-        public void insertPage(Page newPage, ObjectReference objRef, int oneBasedPageNumber)
+        public void InsertPage(Page newPage, ObjectReference objRef, int oneBasedPageNumber)
         {
-            underlyingDict.set("Count", underlyingDict.get<int>("Count") + 1);
+            UnderlyingDict.Set("Count", UnderlyingDict.Get<int>("Count") + 1);
 
             int pageCounter = 1;
             int i = 0;
-            foreach (object node in underlyingDict.get<PDFList>("Kids").cast<object>())
+            foreach (object node in UnderlyingDict.Get<PdfList>("Kids").Cast<object>())
             {
                 if (node is PageTreeNode)
                 {
-                    int numPages = ((PageTreeNode)node).getNumPages();
+                    int numPages = ((PageTreeNode)node).GetNumPages();
                     if (pageCounter + numPages > oneBasedPageNumber)
                     {
-                        ((PageTreeNode)node).insertPage(newPage, objRef, oneBasedPageNumber - pageCounter + 1);
+                        ((PageTreeNode)node).InsertPage(newPage, objRef, oneBasedPageNumber - pageCounter + 1);
                         return;
                     }
                     else
@@ -96,20 +92,20 @@ namespace FirePDF.Model
                 i++;
             }
             
-            underlyingDict.get<PDFList>("Kids").insert(i, objRef);
+            UnderlyingDict.Get<PdfList>("Kids").Insert(i, objRef);
 
-            ObjectReference me = pdf.store.reverseGet(this);
+            ObjectReference me = Pdf.store.ReverseGet(this);
             if(me == null)
             {
                 throw new Exception();
             }
 
-            newPage.underlyingDict.set("Parent", me);
+            newPage.UnderlyingDict.Set("Parent", me);
         }
 
         /// <summary>
-        /// returns the number of pages in the pdf
+        /// returns the number of pages in the Pdf
         /// </summary>
-        public int getNumPages() => underlyingDict.get<int>("Count");
+        public int GetNumPages() => UnderlyingDict.Get<int>("Count");
     }
 }
