@@ -89,7 +89,7 @@ namespace FirePDF.Model
         
         public T Get<T>(ObjectReference indirectReference)
         {
-            Debug.WriteLine("Getting object: " + indirectReference);
+            //Debug.WriteLine("Getting object: " + indirectReference);
 
             if(cache.ContainsKey(indirectReference))
             {
@@ -303,7 +303,9 @@ namespace FirePDF.Model
         public void Dispose()
         {
             existingStream?.Dispose();
+            existingStream?.Close();
             newStream?.Dispose();
+            newStream?.Close();
         }
     }
 }

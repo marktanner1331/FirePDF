@@ -141,7 +141,7 @@ namespace FirePDF.Model
                 if(obj is ObjectReference)
                 {
                     ObjectReference newReference = callback(obj as ObjectReference);
-                    if(obj != newReference)
+                    if(!obj.Equals(newReference))
                     {
                         newInner.Add(newReference);
                         isDirty = true;
@@ -154,9 +154,9 @@ namespace FirePDF.Model
                 else
                 {
                     newInner.Add(obj);
-                    if (obj is IHaveChildren)
+                    if (obj is IHaveChildren children)
                     {
-                        (obj as IHaveChildren).SwapReferences(callback);
+                        children.SwapReferences(callback);
                     }
                 }
             }

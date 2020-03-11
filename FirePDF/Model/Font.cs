@@ -33,7 +33,7 @@ namespace FirePDF.Model
                 return true;
             }
 
-            if (toUnicode.IsValueCreated && Encoding != null && ToUnicode.IsDirty)
+            if (toUnicode.IsValueCreated && ToUnicode != null && ToUnicode.IsDirty)
             {
                 return true;
             }

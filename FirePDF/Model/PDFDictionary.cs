@@ -94,7 +94,7 @@ namespace FirePDF.Model
                     case ObjectReference reference:
                     {
                         ObjectReference newReference = callback(reference);
-                        if(reference.Equals(newReference))
+                        if(!reference.Equals(newReference))
                         {
                             inner[key] = newReference;
                             isDirty = true;

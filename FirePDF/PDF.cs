@@ -139,8 +139,10 @@ namespace FirePDF
         {
             if (saveType == SaveType.Fresh)
             {
-                PdfWriter writer = new PdfWriter(File.Create(fullFilePath), false);
-                writer.WriteNewPdf(this);
+                using (PdfWriter writer = new PdfWriter(File.Create(fullFilePath), false))
+                {
+                    writer.WriteNewPdf(this);
+                }
             }
             else
             {

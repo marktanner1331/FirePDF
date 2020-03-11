@@ -63,7 +63,7 @@ namespace FirePDF.Reading
         public static float ReadVersion(Stream stream)
         {
             string header = AsciiReader.ReadAsciiString(stream, 16);
-            string versionString = Regex.Match(header, @"(?<=^%Pdf-)\d\.\d").Value;
+            string versionString = Regex.Match(header, @"(?<=^%PDF-)\d\.\d").Value;
             return float.Parse(versionString);
         }
 
@@ -511,7 +511,7 @@ namespace FirePDF.Reading
                             //skip over the end bracket
                             stream.Position++;
 
-                            return new PdfString(bytes);
+                            return new PdfString(bytes, false);
                         }
                         else
                         {

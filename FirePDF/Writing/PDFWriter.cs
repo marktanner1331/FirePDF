@@ -48,7 +48,7 @@ namespace FirePDF.Writing
 
         public void WriteHeader(float version)
         {
-            WriteAscii("%Pdf-");
+            WriteAscii("%PDF-");
             WriteAscii(version);
             WriteByte(0x0a);
             WriteBytes(new byte[] { 0x25, 0xe2, 0xe3, 0xcf, 0xd3 });
@@ -195,6 +195,10 @@ namespace FirePDF.Writing
             foreach(ObjectReference objectRef in objectReferences.OrderBy(x => x.objectNumber))
             {
                 object value = objectRef.Get<object>();
+                if (objectRef.objectNumber == 60)
+                {
+
+                }
                 WriteIndirectObject(objectRef.objectNumber, objectRef.generation, value);
             }
         }
@@ -279,7 +283,7 @@ namespace FirePDF.Writing
                 WriteAscii("stream");
                 WriteNewLine();
                 WriteStream(streamObj.GetCompressedStream());
-
+                WriteNewLine();
                 WriteAscii("endstream");
             }
             else if(obj is Font font)
@@ -339,7 +343,7 @@ namespace FirePDF.Writing
                 }
                 else
                 {
-                    WriteDirectObject((string)obj);
+                    WriteDirectObject(obj.ToString());
                 }
                 
             }
@@ -360,7 +364,7 @@ namespace FirePDF.Writing
             foreach (byte b in hexString)
                 hex.AppendFormat("{0:x2}", b);
 
-            WriteAscii(hex.ToString());
+            WriteAscii("<" + hex.ToString() + ">");
         }
 
         public void WriteDirectObject(string s)
@@ -466,12 +470,12 @@ namespace FirePDF.Writing
 
         public void WriteAscii(float f)
         {
-            WriteAscii(f.ToString(CultureInfo.InvariantCulture));
+            WriteAscii(Math.Round(f, 2).ToString(CultureInfo.InvariantCulture));
         }
 
         public void WriteAscii(double d)
         {
-            WriteAscii(d.ToString(CultureInfo.InvariantCulture));
+            WriteAscii(Math.Round(d, 2).ToString(CultureInfo.InvariantCulture));
         }
 
         public void WriteAscii(long l)

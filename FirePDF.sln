@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirePDF NetFramework 35", "FirePDF NetFramework 35\FirePDF NetFramework 35.csproj", "{8E99970A-C195-4399-A08A-9F09DE1B5EAF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test 35", "test 35\test 35.csproj", "{EE7D0A93-2DEE-4B08-8025-99836F015F87}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{8E99970A-C195-4399-A08A-9F09DE1B5EAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E99970A-C195-4399-A08A-9F09DE1B5EAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E99970A-C195-4399-A08A-9F09DE1B5EAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE7D0A93-2DEE-4B08-8025-99836F015F87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE7D0A93-2DEE-4B08-8025-99836F015F87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE7D0A93-2DEE-4B08-8025-99836F015F87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE7D0A93-2DEE-4B08-8025-99836F015F87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
