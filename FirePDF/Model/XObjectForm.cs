@@ -20,7 +20,7 @@ namespace FirePDF.Model
         /// </summary>
         public XObjectForm(Stream stream, PdfDictionary dict, long startOfStream) : base(stream, dict, startOfStream)
         {
-            Resources = new PdfResources(this, UnderlyingDict.Get<PdfDictionary>("Resources"));
+            Resources = new PdfResources(UnderlyingDict.Get<PdfDictionary>("Resources"));
             BoundingBox = UnderlyingDict.Get<PdfList>("BBox").AsRectangle();
         }
 

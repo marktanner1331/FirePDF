@@ -41,14 +41,34 @@ namespace FirePDF.Model
             inner.Remove(key);
         }
 
-        public T Get<T>(Name key, bool resolveReferences = true)
+        public object Get(Name key, bool resolveReferences)
         {
             if (inner.ContainsKey(key))
             {
                 object value = inner[key];
 
                 //if we get an object reference, and we don't want an object reference, then resolve it
-                if(value is ObjectReference reference && resolveReferences && typeof(T) != typeof(ObjectReference))
+                if (value is ObjectReference reference && resolveReferences)
+                {
+                    return Pdf.store.Get<object>(reference);
+                }
+
+                return value;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public T Get<T>(Name key)
+        {
+            if (inner.ContainsKey(key))
+            {
+                object value = inner[key];
+
+                //if we get an object reference, and we don't want an object reference, then resolve it
+                if(value is ObjectReference reference && typeof(T) != typeof(ObjectReference))
                 {
                     return Pdf.store.Get<T>(reference);
                 }
@@ -57,7 +77,7 @@ namespace FirePDF.Model
             }
             else
             {
-                return default(T);
+                return default;
             }
         }
 

@@ -6,17 +6,13 @@ namespace FirePDF.Model
 {
     public class PdfResources : HaveUnderlyingDict
     {
-        private readonly IStreamOwner owner;
-
         private readonly Dictionary<Name, object> cache;
 
         internal HashSet<string> dirtyObjects;
         public override bool IsDirty() => dirtyObjects.Count > 0;
         
-        public PdfResources(IStreamOwner owner, PdfDictionary underlyingDict) : base(underlyingDict)
+        public PdfResources(PdfDictionary underlyingDict) : base(underlyingDict)
         {
-            this.owner = owner;
-            
             cache = new Dictionary<Name, object>();
             dirtyObjects = new HashSet<string>();
         }

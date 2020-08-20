@@ -1,0 +1,5 @@
+1.0.0
+First stable(ish) build
+
+1.0.1
+Fixed a few critical bugs, especially when writing fresh pdf's.

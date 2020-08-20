@@ -41,7 +41,7 @@ namespace Graphical_Debugger
             listBox.OnCheckChanged += ListBox_onCheckChanged;
             listBox.Size = splitter.Panel1.ClientSize;
             
-            LoadPdf(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\3.Pdf");
+            LoadPdf(@"C:\Users\Mark Tanner\Documents\c#\tanners-library\test2\bin\Debug\temp-2020-05-01-4e18e5ab\pdf.pdf");
         }
 
         private void ListBox_onCheckChanged()

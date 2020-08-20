@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace FirePDF.Model
 {
@@ -28,11 +30,86 @@ namespace FirePDF.Model
             value = Encoding.ASCII.GetString(bytes);
         }
 
-        public PdfString(string value)
+        public PdfString(string value) : this(ReadFromStringLiteral(value), false)  {}
+
+        /// <summary>
+        /// converts a string literal, usually surrounded by () in the pdf file, into a byte array, parsing any escaped characters
+        /// </summary>
+        /// <param name="value">the string literal, without its enclosing brackets</param>
+        private static byte[] ReadFromStringLiteral(string value)
         {
-            this.value = value;
-            isHexString = false;
-            bytes = Encoding.ASCII.GetBytes(value);
+            List<byte> temp = new List<byte>();
+
+            for (int i = 0; i < value.Length; i++)
+            {
+                switch (value[i])
+                {
+                    case '\\':
+                        switch (value[++i])
+                        {
+                            case 'n':
+                                temp.Add((byte)'\n');
+                                break;
+                            case 'r':
+                                temp.Add((byte)'\r');
+                                break;
+                            case 't':
+                                temp.Add((byte)'\t');
+                                break;
+                            case 'b':
+                                temp.Add((byte)'\b');
+                                break;
+                            case 'f':
+                                temp.Add((byte)'\f');
+                                break;
+                            case '(':
+                            case ')':
+                            case '\\':
+                                goto default;
+                            case '\r':
+                                //a backslash followed by a new line means its a single line string split over multiple lines
+                                //this means we can simply skip over these bytes
+                                //and act like they were never there
+                                if (value[i + 1] == '\n')
+                                {
+                                    i++;
+                                }
+                                continue;
+                            case '\n':
+                                continue;
+                            case '0':
+                            case '1':
+                            case '2':
+                            case '3':
+                            case '4':
+                            case '5':
+                            case '6':
+                            case '7':
+                                //we have an octal character
+                                int k = ((value[i] - '0') << 6) + ((value[i + 1] - '0') << 3) + (value[i + 2] - '0');
+                                i += 2;
+
+                                temp.Add((byte)k);
+                                break;
+                            default:
+                                temp.Add((byte)value[i]);
+                                break;
+                        }
+                        break;
+                    case '\r':
+                        temp.Add((byte)value[i]);
+                        if (value[i + 1] == '\n')
+                        {
+                            i++;
+                        }
+                        break;
+                    default:
+                        temp.Add((byte)value[i]);
+                        break;
+                }
+            }
+
+            return temp.ToArray();
         }
 
         public byte[] ToByteArray()

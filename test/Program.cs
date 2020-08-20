@@ -1,6 +1,11 @@
 ﻿using FirePDF;
 using FirePDF.Model;
+using FirePDF.Processors;
+using FirePDF.Reading;
 using FirePDF.Rendering;
+using FirePDF.Writing;
+using Flattener;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,48 +16,121 @@ namespace test
     {
         internal static void Main(string[] args)
         {
-            //extractTextTest();
-            //fixCMAP();
+            run();
+        }
 
-            const string file = @"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\3.Pdf";
-            //foreach(string file in Directory.EnumerateFiles(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09\"))
-            //{
+        private static void run()
+        {
+            string file = @"C:\Users\Mark Tanner\Documents\clients\seattle times\01.pdf";
             using (Pdf pdf = new Pdf(file))
             {
-                List<Font> fonts = pdf.GetAll<Font>();
-                fonts = fonts.Where(x => x.baseFont.ToString().Contains("News706BT") && x.Encoding != null).ToList();
-                foreach (Font font in fonts)
+                removeOperation(pdf, (x, resources) =>
                 {
-                    if (font.ToUnicode != null)
+                    if (x.operatorName != "Do")
                     {
-                        Cmap cmap = font.ToUnicode;
-                        if (cmap.CodeToUnicode(0xc0) == "i" || cmap.CodeToUnicode(0xc1) == "l")
-                        {
-                            PdfStream cmapData = font.UnderlyingDict.Get<PdfStream>("ToUnicode");
-                            using (Stream stream = cmapData.GetDecompressedStream())
-                            using (StreamReader streamReader = new StreamReader(stream))
-                            {
-                                string cmapString = streamReader.ReadToEnd();
+                        return false;
+                    }
 
-                                int oldLength = cmapString.Length;
-                                cmapString = cmapString.Replace("<00c0><00c0><0069>", "<00c0><00c0><00660069>");
-                                cmapString = cmapString.Replace("<00c1><00c1><006c>", "<00c1><00c1><0066006c>");
-                                if(oldLength == cmapString.Length)
-                                {
-                                    //no change to cmap, so no point saving it
-                                    continue;
-                                }
+                    return resources.IsXObjectImage(x.GetOperandAsName(0));
+                });
 
-                                ObjectReference newCmapRef = pdf.AddStream(cmapString);
-                                font.UnderlyingDict.Set("ToUnicode", newCmapRef);
-                            }
-                        }
+                pdf.Save(file.Replace(@"\seattle times\", @"\seattle times\no images\"), SaveType.Fresh);
+            }
+        }
+
+        private static void removeOperation(Pdf pdf, Func<Operation, PdfResources, bool> callback)
+        {
+            foreach (Page page in pdf)
+            {
+                Dictionary<ObjectReference, ObjectReference> refMap = new Dictionary<ObjectReference, ObjectReference>();
+                Queue<ObjectReference> streams = new Queue<ObjectReference>(page.enumerateContentStreamReferences());
+                HashSet<ObjectReference> modifiedStreams = new HashSet<ObjectReference>();
+
+                while (streams.Count > 0)
+                {
+                    ObjectReference objRef = streams.Dequeue();
+                    if (modifiedStreams.Contains(objRef))
+                    {
+                        continue;
+                    }
+
+                    modifiedStreams.Add(objRef);
+                    PdfStream stream = objRef.Get<PdfStream>();
+
+                    List<Operation> operations = ContentStreamReader.ReadOperationsFromStream(pdf, stream.GetDecompressedStream());
+                    int count = operations.Count;
+
+                    operations = operations.Where(x => callback(x, page.Resources) == false).ToList();
+
+                    if (count != operations.Count)
+                    {
+                        MemoryStream ms = new MemoryStream();
+                        ContentStreamWriter.WriteOperationsToStream(ms, operations);
+                        ms.Seek(0, SeekOrigin.Begin);
+                        ObjectReference newStreamRef = pdf.AddStream(ms);
+
+                        refMap[objRef] = newStreamRef;
                     }
                 }
 
-                pdf.Save(@"C:\Users\Mark Tanner\scratch\press herald 2020-03-09 fixed\3.Pdf", SaveType.Fresh);
+                page.SwapReferences(x =>
+                {
+                    if (refMap.ContainsKey(x))
+                    {
+                        return refMap[x];
+                    }
+                    else
+                    {
+                        return x;
+                    }
+                });
             }
-            //}
+        }
+
+        private static void runAll()
+        {
+            const string folder = @"C:\Users\Mark Tanner\Documents\clients\seattle times\";
+            foreach (string file in Directory.EnumerateFiles(folder).Skip(26))
+            {
+                using (Pdf pdf = new Pdf(file))
+                {
+                    Page page = pdf.GetPage(1);
+                    PdfList contents = page.UnderlyingDict.Get<PdfList>("Contents");
+                    Dictionary<ObjectReference, ObjectReference> refMap = new Dictionary<ObjectReference, ObjectReference>();
+
+                    for (int i = 0; i < contents.Count; i++)
+                    {
+                        ObjectReference objRef = contents.Get<ObjectReference>(i, false);
+                        PdfStream stream = objRef.Get<PdfStream>();
+
+                        List<Operation> operations = ContentStreamReader.ReadOperationsFromStream(pdf, stream.GetDecompressedStream());
+                        if (operations.Any(x => x.operatorName == "sh"))
+                        {
+                            operations = operations.Where(x => x.operatorName != "sh").ToList();
+                            MemoryStream ms = new MemoryStream();
+                            ContentStreamWriter.WriteOperationsToStream(ms, operations);
+                            ms.Seek(0, SeekOrigin.Begin);
+                            ObjectReference newStreamRef = pdf.AddStream(ms);
+
+                            refMap[objRef] = newStreamRef;
+                        }
+                    }
+
+                    page.SwapReferences(x =>
+                    {
+                        if (refMap.ContainsKey(x))
+                        {
+                            return refMap[x];
+                        }
+                        else
+                        {
+                            return x;
+                        }
+                    });
+
+                    pdf.Save(file.Replace(@"\seattle times\", @"\seattle times\fixed\"), SaveType.Update);
+                }
+            }
         }
 
         private static void ExtractTextTest()

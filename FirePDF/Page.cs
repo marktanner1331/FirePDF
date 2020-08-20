@@ -13,7 +13,7 @@ namespace FirePDF
         public RectangleF BoundingBox { get; }
 
         //TODO: do we need to check if the underlying dict is dirty too?
-        public override bool IsDirty() => Resources.IsDirty();
+        public override bool IsDirty() => UnderlyingDict.IsDirty() || Resources.IsDirty();
         public bool IsOrphan { get; internal set; }
 
         Pdf IStreamOwner.Pdf => Pdf;
@@ -22,9 +22,9 @@ namespace FirePDF
         {
             IsOrphan = true;
 
-            Resources = new PdfResources(this, new PdfDictionary(Pdf));
+            Resources = new PdfResources(new PdfDictionary(Pdf));
             UnderlyingDict.Set("Resources", Pdf.store.Add(Resources.UnderlyingDict));
-            
+
             UnderlyingDict.Set("Type", (Name)"Page");
             UnderlyingDict.Set("MediaBox", new PdfList(Pdf, 0, 0, pageSize.Width, pageSize.Height));
         }
@@ -33,9 +33,29 @@ namespace FirePDF
 
         internal Page(PdfDictionary pageDictionary, bool isOrphan) : base(pageDictionary)
         {
-            Resources = new PdfResources(this, UnderlyingDict.Get<PdfDictionary>("Resources"));
+            Resources = new PdfResources(UnderlyingDict.Get<PdfDictionary>("Resources"));
             IsOrphan = isOrphan;
             BoundingBox = UnderlyingDict.Get<PdfList>("MediaBox").AsRectangle();
+        }
+
+        public IEnumerable<ObjectReference> enumerateContentStreamReferences()
+        {
+            object contents = UnderlyingDict.Get("Contents", false);
+            if (contents is ObjectReference)
+            {
+                yield return contents as ObjectReference;
+            }
+            else if (contents is PdfList list)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    yield return list.Get<ObjectReference>(i, false);
+                }
+            }
+            else
+            {
+                throw new Exception();
+            }
         }
 
         public ObjectReference Serialize(PdfWriter writer)
@@ -64,7 +84,7 @@ namespace FirePDF
         {
             MemoryStream compositeStream = new MemoryStream();
 
-            object contents = UnderlyingDict.Get<object>("Contents", true);
+            object contents = UnderlyingDict.Get("Contents", true);
 
             if (contents is PdfStream)
             {

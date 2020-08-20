@@ -12,6 +12,7 @@ namespace test_35
     {
         static void Main(string[] args)
         {
+            fixPDFFile(new FileInfo(@"C:\Users\Mark Tanner\scratch\page.pdf"));
             using (Pdf pdf = new Pdf(new FileInfo(@"C:\Users\Mark Tanner\scratch\page.pdf")))
             {
                 var k = pdf.Get<object>(60, 0);

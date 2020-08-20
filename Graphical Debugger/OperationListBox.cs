@@ -18,7 +18,7 @@ namespace Graphical_Debugger
 
         public void SetOperations(List<Operation> operations)
         {
-            StreamTree tree = new StreamTree(operations);
+            StreamTree tree = new StreamTree(operations.ToArray());
             Controls.Clear();
             Nodes.Clear();
             OperationTreeNode root = new OperationTreeNode(tree.root);

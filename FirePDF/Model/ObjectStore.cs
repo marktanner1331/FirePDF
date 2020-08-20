@@ -205,7 +205,7 @@ namespace FirePDF.Model
                         }
                         else
                         {
-                            object value = dict.Get<object>(key, false);
+                            object value = dict.Get(key, false);
                             newDict.Add(key, value);
                         }
                     }
@@ -256,7 +256,7 @@ namespace FirePDF.Model
                         }
                         else
                         {
-                            object value = dict.Get<object>(key, false);
+                            object value = dict.Get(key, false);
                             newDict.Add(key, DeepClone(value));
                         }
                     }

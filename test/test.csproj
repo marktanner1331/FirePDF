@@ -59,6 +59,10 @@
       <Project>{1bfbbbde-01aa-495b-bef9-fb88a938ab68}</Project>
       <Name>FirePDF</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Flattener\Flattener.csproj">
+      <Project>{72DF8316-5A70-4D1B-9E3E-68F5AF4B943D}</Project>
+      <Name>Flattener</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

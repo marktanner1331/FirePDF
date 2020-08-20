@@ -423,115 +423,35 @@ namespace FirePDF.Reading
 
             int count = 1;
 
-            StringBuilder sb = new StringBuilder();
-            while (true)
+            while (count != 0)
             {
                 byte current = (byte)stream.ReadByte();
                 switch ((char)current)
                 {
                     case '\\':
-                        current = (byte)stream.ReadByte();
-                        switch ((char)current)
-                        {
-                            case 'n':
-                                sb.Append('\n');
-                                break;
-                            case 'r':
-                                sb.Append('\r');
-                                break;
-                            case 't':
-                                sb.Append('\t');
-                                break;
-                            case 'b':
-                                sb.Append('\b');
-                                break;
-                            case 'f':
-                                sb.Append('\f');
-                                break;
-                            case '(':
-                            case ')':
-                            case '\\':
-                                goto default;
-                            case '\r':
-                                if (stream.ReadByte() == '\n')
-                                {
-                                    continue;
-                                }
-                                else
-                                {
-                                    stream.Position--;
-                                    continue;
-                                }
-                            case '\n':
-                                continue;
-                            case '0':
-                            case '1':
-                            case '2':
-                            case '3':
-                            case '4':
-                            case '5':
-                            case '6':
-                            case '7':
-                            case '8':
-                            case '9':
-                                int k = current - '0';
-                                for (int i = 0; i < 2; i++)
-                                {
-                                    current = (byte)stream.ReadByte();
-                                    if (current < '0' || current > '9')
-                                    {
-                                        stream.Position--;
-                                        break;
-                                    }
-
-                                    k *= 8;
-                                    k += current - '0';
-                                }
-
-                                sb.Append((char)k);
-                                break;
-                            default:
-                                sb.Append((char)current);
-                                break;
-                        }
-                        break;
+                        //we know that a string doesn't end with a \ so we can simply skip the next character
+                        //this nicely handles escaped brackets like '\)'
+                        stream.Position++;
+                        continue;
                     case '(':
                         count++;
-                        goto default;
+                        continue;
                     case ')':
                         count--;
-                        if (count == 0)
-                        {
-                            int stringLength = (int)(stream.Position - startOfString - 1);
-
-                            stream.Position = startOfString;
-                            byte[] bytes = new byte[stringLength];
-                            stream.Read(bytes, 0, stringLength);
-
-                            //skip over the end bracket
-                            stream.Position++;
-
-                            return new PdfString(bytes, false);
-                        }
-                        else
-                        {
-                            goto default;
-                        }
-                    case '\r':
-                        sb.Append((char)0x0a);
-                        if (stream.ReadByte() != '\n')
-                        {
-                            stream.Position--;
-                        }
-                        break;
-                    case '\n':
-                        sb.Append((char)0x0a);
-                        break;
-                    default:
-                        sb.Append((char)current);
-                        break;
+                        continue;
                 }
             }
+
+            int stringLength = (int)(stream.Position - startOfString - 1);
+            byte[] bytes = new byte[stringLength];
+
+            stream.Position = startOfString;
+            stream.Read(bytes, 0, stringLength);
+
+            //skip over the end bracket
+            stream.Position++;
+
+            return new PdfString(bytes, false);
         }
 
         private static PdfString ReadHexString(Stream stream)
@@ -557,6 +477,7 @@ namespace FirePDF.Reading
         
         private static byte[] StringToByteArray(string hex)
         {
+            hex = hex.Replace("\n", "");
             return Enumerable.Range(0, hex.Length)
                              .Where(x => x % 2 == 0)
                              .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
