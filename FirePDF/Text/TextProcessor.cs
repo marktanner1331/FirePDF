@@ -6,7 +6,7 @@ using FirePDF.Model;
 using FirePDF.Rendering;
 using GraphicsState = FirePDF.Model.GraphicsState;
 
-namespace FirePDF.Processors
+namespace FirePDF.Text
 {
     public class TextProcessor
     {
@@ -21,6 +21,33 @@ namespace FirePDF.Processors
             this.getGraphicsState = getGraphicsState;
             this.getResources = getResources;
             this.renderer = renderer;
+        }
+
+        public static bool isTextOperation(Operation operation)
+        {
+            switch (operation.operatorName)
+            {
+                case "BT":
+                case "ET":
+                case "Tc":
+                case "Td":
+                case "TD":
+                case "Tf":
+                case "Tj":
+                case "TJ":
+                case "TL":
+                case "Tm":
+                case "Tr":
+                case "Ts":
+                case "Tw":
+                case "Tz":
+                case "T*":
+                case "'":
+                case "\"":
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         public bool ProcessOperation(Operation operation)
@@ -59,10 +86,6 @@ namespace FirePDF.Processors
                     }
                 case "Tf":
                     getGraphicsState().font = getResources().GetFont(operation.GetOperandAsName(0));
-                    if(operation.GetOperandAsName(0) == "R16")
-                    {
-
-                    }
                     getGraphicsState().fontSize = operation.GetOperandAsFloat(1);
                     break;
                 case "Tj":

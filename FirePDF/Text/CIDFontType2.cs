@@ -1,18 +1,13 @@
-﻿using System;
+﻿using FirePDF.Model;
+using System;
 using System.Drawing;
 
-namespace FirePDF.Model
+namespace FirePDF.Text
 {
     internal class CidFontType2 : Font
     {
         public CidFontType2(PdfDictionary dictionary) : base(dictionary)
         {
-        }
-
-        protected override Cmap LoadEncoding()
-        {
-            object encodingObj = UnderlyingDict.Get<object>("Encoding");
-            return encodingObj is Name name ? new Cmap(name) : null;
         }
 
         protected override Cmap LoadToUnicode()

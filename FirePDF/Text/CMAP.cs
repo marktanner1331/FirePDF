@@ -1,4 +1,5 @@
-﻿using FirePDF.Reading;
+﻿using FirePDF.Model;
+using FirePDF.Reading;
 using FirePDF.Util;
 using FirePDF.Writing;
 using System;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace FirePDF.Model
+namespace FirePDF.Text
 {
     //TODO: change every char to an int
     public class Cmap
@@ -157,6 +158,11 @@ namespace FirePDF.Model
         public Cmap(Name cmapName) : this(OpenReadCmapWithName(cmapName), true)
         {
             
+        }
+
+        public void addDifferences(PdfList differences)
+        {
+            throw new NotImplementedException();
         }
 
         private static Stream OpenReadCmapWithName(Name cmapName)

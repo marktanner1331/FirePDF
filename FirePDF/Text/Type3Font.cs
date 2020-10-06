@@ -1,7 +1,8 @@
-﻿using System;
+﻿using FirePDF.Model;
+using System;
 using System.Drawing;
 
-namespace FirePDF.Model
+namespace FirePDF.Text
 {
     internal class Type3Font : Font
     {
@@ -27,20 +28,6 @@ namespace FirePDF.Model
         public override void SetToUnicodeCmap(ObjectReference objectReference)
         {
             throw new NotImplementedException();
-        }
-
-        protected override Cmap LoadEncoding()
-        {
-            object encodingObj = UnderlyingDict.Get<object>("Encoding");
-            if (encodingObj is Name)
-            {
-                return new Cmap((Name)encodingObj);
-            }
-            else
-            {
-                //TODO
-                return null;
-            }
         }
 
         protected override Cmap LoadToUnicode()

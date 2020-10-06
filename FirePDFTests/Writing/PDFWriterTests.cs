@@ -44,7 +44,7 @@ namespace FirePDFTests.Writing
             {
                 using (PdfWriter writer = new PdfWriter(ms, true))
                 {
-                    string formName = page.Resources.ListXObjectForms().First();
+                    string formName = page.Resources.ListFormXObjectNames().First();
                     XObjectForm form = page.Resources.GetXObjectForm(formName);
 
                     page.Resources.OverwriteXObject(form, formName);

@@ -1,4 +1,5 @@
 ﻿using FirePDF.Model;
+using FirePDF.Text;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,6 +15,8 @@ namespace FirePDF.Writing
         private readonly byte[] buffer;
         private int bufferIndex;
         private readonly bool leaveOpen;
+
+        private const int roundingPrecision = 3;
 
         private readonly XrefTable newTable;
 
@@ -470,12 +473,31 @@ namespace FirePDF.Writing
 
         public void WriteAscii(float f)
         {
-            WriteAscii(Math.Round(f, 2).ToString(CultureInfo.InvariantCulture));
+            string s = Math.Round(f, roundingPrecision).ToString(CultureInfo.InvariantCulture);
+            if(s.StartsWith("0."))
+            {
+                s = s.Substring(1);
+            } else if (s.StartsWith("-0."))
+            {
+                s = s.Substring(2);
+                s = "-" + s;
+            }
+            WriteAscii(s);
         }
 
         public void WriteAscii(double d)
         {
-            WriteAscii(Math.Round(d, 2).ToString(CultureInfo.InvariantCulture));
+            string s = Math.Round(d, roundingPrecision).ToString(CultureInfo.InvariantCulture);
+            if (s.StartsWith("0."))
+            {
+                s = s.Substring(1);
+            }
+            else if (s.StartsWith("-0."))
+            {
+                s = s.Substring(2);
+                s = "-" + s;
+            }
+            WriteAscii(s);
         }
 
         public void WriteAscii(long l)

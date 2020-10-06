@@ -1,6 +1,7 @@
-﻿using System.Drawing;
+﻿using FirePDF.Model;
+using System.Drawing;
 
-namespace FirePDF.Model
+namespace FirePDF.Text
 {
     public class FontDescriptor : HaveUnderlyingDict
     {

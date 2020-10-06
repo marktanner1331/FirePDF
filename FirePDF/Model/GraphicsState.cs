@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using FirePDF.Text;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace FirePDF.Model
@@ -24,7 +25,7 @@ namespace FirePDF.Model
         public Color strokingColor;
 
         public Region clippingPath;
-        public Font font;
+        public Text.Font font;
 
         /// <summary>
         /// used internally for cloning

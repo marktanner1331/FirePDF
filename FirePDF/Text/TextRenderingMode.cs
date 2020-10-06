@@ -1,4 +1,4 @@
-﻿namespace FirePDF.Model
+﻿namespace FirePDF.Text
 {
     public enum TextRenderingMode
     {

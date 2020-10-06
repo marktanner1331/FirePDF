@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirePDF.Text;
+using System;
 using System.Collections.Generic;
 
 namespace FirePDF.Model
@@ -45,11 +46,13 @@ namespace FirePDF.Model
                 case "Group":
                     return new PdfGroup(dict);
                 case "Encoding":
-                    return new PdfEncoding(dict);
+                    return new PDFEncoding(dict);
                 case "Metadata":
                     return new PdfMetaDataDictionary(dict);
                 case "Mask":
                     return new Mask(dict);
+                case "Pattern":
+                    return new PatternDictionary(dict);
                 default:
                     throw new NotImplementedException();
             }

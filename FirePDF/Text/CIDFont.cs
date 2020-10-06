@@ -1,4 +1,6 @@
-﻿namespace FirePDF.Model
+﻿using FirePDF.Model;
+
+namespace FirePDF.Text
 {
     public abstract class CidFont : Font
     {

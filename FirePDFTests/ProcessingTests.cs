@@ -26,7 +26,7 @@ namespace FirePDFTests
 
             Page page = pdf.GetPage(1);
 
-            List<Name> forms = page.Resources.ListXObjectForms().ToList();
+            List<Name> forms = page.Resources.ListFormXObjectNames().ToList();
             XObjectForm form = page.Resources.GetXObjectForm(forms.First());
 
             Stream s = form.GetStream();
@@ -47,7 +47,7 @@ namespace FirePDFTests
 
             Page page = pdf.GetPage(1);
 
-            List<Name> forms = page.Resources.ListXObjectForms().ToList();
+            List<Name> forms = page.Resources.ListFormXObjectNames().ToList();
             XObjectForm form = page.Resources.GetXObjectForm(forms.First());
 
             Stream s = form.GetStream();
@@ -62,7 +62,7 @@ namespace FirePDFTests
 
             Page page = pdf.GetPage(1);
 
-            List<Name> forms = page.Resources.ListXObjectForms().ToList();
+            List<Name> forms = page.Resources.ListFormXObjectNames().ToList();
             XObjectForm form = page.Resources.GetXObjectForm(forms.First());
 
             Stream s = form.GetStream();
@@ -76,7 +76,7 @@ namespace FirePDFTests
 
             Page page = pdf.GetPage(1);
 
-            List<Name> forms = page.Resources.ListXObjectForms().ToList();
+            List<Name> forms = page.Resources.ListFormXObjectNames().ToList();
             XObjectForm form = page.Resources.GetXObjectForm(forms.First());
 
             Stream s = form.GetStream();

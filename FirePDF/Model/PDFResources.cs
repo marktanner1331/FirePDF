@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirePDF.Text;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,13 +11,13 @@ namespace FirePDF.Model
 
         internal HashSet<string> dirtyObjects;
         public override bool IsDirty() => dirtyObjects.Count > 0;
-        
+
         public PdfResources(PdfDictionary underlyingDict) : base(underlyingDict)
         {
             cache = new Dictionary<Name, object>();
             dirtyObjects = new HashSet<string>();
         }
-        
+
         public void OverwriteXObject(XObjectForm form, string xObjectName)
         {
             //TODO get rid of this
@@ -35,16 +36,78 @@ namespace FirePDF.Model
         /// returns the resource names of the fonts e.g. [/R16, /R17]
         /// </summary>
         /// <returns></returns>
-        public List<Name> GetFontResourceNames()
+        public List<Name> ListFontResourceNames()
         {
             return UnderlyingDict.Get<PdfDictionary>("Font").Keys.ToList();
+        }
+
+        public void removeFont(Name name)
+        {
+            PdfDictionary fonts = (PdfDictionary)GetObjectAtPath("Font");
+            if (fonts == null)
+            {
+                return;
+            }
+
+            fonts.RemoveEntry(name);
+        }
+
+        public void removeXObject(Name name)
+        {
+            PdfDictionary xObjects = (PdfDictionary)GetObjectAtPath("XObject");
+            if (xObjects == null)
+            {
+                return;
+            }
+
+            xObjects.RemoveEntry(name);
         }
 
         /// <summary>
         /// returns all form xobjects found in the XObject dictionary
         /// does not return image xObjects
         /// </summary>
-        public IEnumerable<Name> ListXObjectForms()
+        public IEnumerable<ObjectReference> ListFormXObjects()
+        {
+            PdfDictionary xObjects = (PdfDictionary)GetObjectAtPath("XObject");
+            if (xObjects == null)
+            {
+                yield break;
+            }
+
+            foreach (KeyValuePair<Name, object> entry in xObjects)
+            {
+                ObjectReference objRef = entry.Value as ObjectReference;
+                if (objRef.Get<object>() is XObjectForm)
+                {
+                    yield return objRef;
+                }
+            }
+        }
+
+        public IEnumerable<ObjectReference> ListImages()
+        {
+            PdfDictionary xObjects = (PdfDictionary)GetObjectAtPath("XObject");
+            if (xObjects == null)
+            {
+                yield break;
+            }
+
+            foreach (KeyValuePair<Name, object> entry in xObjects)
+            {
+                ObjectReference objRef = entry.Value as ObjectReference;
+                if (objRef.Get<object>() is XObjectForm)
+                {
+                    yield return objRef;
+                }
+            }
+        }
+
+        /// <summary>
+        /// returns all form xobjects found in the XObject dictionary
+        /// does not return image xObjects
+        /// </summary>
+        public IEnumerable<Name> ListFormXObjectNames()
         {
             PdfDictionary xObjects = (PdfDictionary)GetObjectAtPath("XObject");
             if (xObjects == null)
@@ -88,7 +151,7 @@ namespace FirePDF.Model
             //TODO make this a generic method like getObjectAtPath<Font>()?
 
             string joinedPath = string.Join("/", path);
-            if(cache.ContainsKey(joinedPath))
+            if (cache.ContainsKey(joinedPath))
             {
                 return cache[joinedPath];
             }
@@ -112,20 +175,20 @@ namespace FirePDF.Model
                         root = streamOwner.Resources;
                         break;
                     case PdfList temp:
-                    {
-                        if (int.TryParse(part, out int index) == false)
                         {
-                            return null;
-                        }
+                            if (int.TryParse(part, out int index) == false)
+                            {
+                                return null;
+                            }
 
-                        if (temp.Count <= index)
-                        {
-                            return null;
-                        }
+                            if (temp.Count <= index)
+                            {
+                                return null;
+                            }
 
-                        root = temp.Get<object>(index);
-                        break;
-                    }
+                            root = temp.Get<object>(index);
+                            break;
+                        }
                 }
             }
 
@@ -219,7 +282,7 @@ namespace FirePDF.Model
 
                     root = temp.Get<object>(index);
                 }
-                
+
                 if (root is ObjectReference)
                 {
                     string[] subPath = path.Take(i + 1).ToArray();
@@ -245,7 +308,7 @@ namespace FirePDF.Model
                 {
                     throw new NotImplementedException();
                 }
-                
+
                 temp.Set(index, objectReference);
             }
         }
@@ -254,7 +317,7 @@ namespace FirePDF.Model
         /// returns all form xObjects found in the XObject dictionary
         /// does not return form xObjects
         /// </summary>
-        public IEnumerable<Name> ListXObjectImages()
+        public IEnumerable<Name> ListXObjectImageNames()
         {
             PdfDictionary xObjects = (PdfDictionary)GetObjectAtPath("XObject");
             if (xObjects == null)

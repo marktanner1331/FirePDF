@@ -1,4 +1,4 @@
-﻿namespace FirePDF.Model
+﻿namespace FirePDF.Text
 {
     /// <summary>
     /// A codespacerange defines the range of a codespace

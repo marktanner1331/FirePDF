@@ -107,7 +107,7 @@ namespace Flattener
         public override void DrawText(byte[] text)
         {
             FirePDF.Model.GraphicsState gs = getGraphicsState();
-            FirePDF.Model.Font font = gs.font;
+            FirePDF.Text.Font font = gs.font;
             Matrix temp = gs.CurrentTransformationMatrix;
 
             SizeF size = font.MeasureText(text, gs);

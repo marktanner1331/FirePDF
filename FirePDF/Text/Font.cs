@@ -1,13 +1,14 @@
-﻿using System;
+﻿using FirePDF.Model;
+using System;
 using System.Drawing;
 using System.IO;
 
-namespace FirePDF.Model
+namespace FirePDF.Text
 {
     public abstract class Font : HaveUnderlyingDict
     {
-        private readonly Lazy<Cmap> encoding;
-        public Cmap Encoding => encoding.Value;
+        private readonly Lazy<PDFEncoding> encoding;
+        public PDFEncoding Encoding => encoding.Value;
 
         private readonly Lazy<Cmap> toUnicode;
         public Cmap ToUnicode => toUnicode.Value;
@@ -17,18 +18,50 @@ namespace FirePDF.Model
         protected Font(PdfDictionary dictionary) : base(dictionary)
         {
             baseFont = dictionary.Get<Name>("BaseFont");
-            encoding = new Lazy<Cmap>(LoadEncoding);
+            encoding = new Lazy<PDFEncoding>(LoadEncoding);
             toUnicode = new Lazy<Cmap>(LoadToUnicode);
         }
 
-        protected abstract Cmap LoadEncoding();
+        protected virtual PDFEncoding LoadEncoding()
+        {
+            object encodingObj = UnderlyingDict.Get("Encoding", true);
+            if (encodingObj is Name encodingName)
+            {
+                return new PDFEncoding(new Cmap(encodingName));
+            }
+            else if(encodingObj is PDFEncoding encodingDict)
+            {
+                //TODO move to PdfEncoding
+                return encodingDict;
+
+                //if(encodingDict.UnderlyingDict.ContainsKey("BaseEncoding") == false)
+                //{
+                //    throw new Exception("use the font's built-in encoding");
+                //}
+
+                //Name baseEncoding = encodingDict.UnderlyingDict.Get<Name>("BaseEncoding");
+                //Cmap cmap = new Cmap(baseEncoding);
+
+                //if (encodingDict.UnderlyingDict.ContainsKey("Differences"))
+                //{
+                //    PdfList differences = encodingDict.UnderlyingDict.Get<PdfList>("Differences");
+                //    //cmap.addDifferences(differences);
+                //}
+
+                //return cmap;
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
 
         protected abstract Cmap LoadToUnicode();
 
 
         public override bool IsDirty()
         {
-            if (encoding.IsValueCreated && Encoding != null && Encoding.IsDirty)
+            if (encoding.IsValueCreated && Encoding != null && Encoding.IsDirty())
             {
                 return true;
             }
@@ -73,6 +106,8 @@ namespace FirePDF.Model
         //like the above method
         public abstract string ReadUnicodeStringFromHexString(byte[] hexString);
 
+        public string ReadUnicodeStringFromHexString(PdfString s) => ReadUnicodeStringFromHexString(s.ToByteArray());
+
         public abstract FontDescriptor GetFontDescriptor();
 
         /// <summary>
@@ -84,7 +119,7 @@ namespace FirePDF.Model
 
         internal void PrepareForWriting()
         {
-            if(encoding.IsValueCreated && Encoding != null && Encoding.IsDirty)
+            if(encoding.IsValueCreated && Encoding != null && Encoding.IsDirty())
             {
                 using (MemoryStream stream = new MemoryStream())
                 {

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using FirePDF.Model;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Text;
 
-namespace FirePDF.Model
+namespace FirePDF.Text
 {
     //Pdf spec 9.7
     public class Type0Font : Font
@@ -13,20 +14,6 @@ namespace FirePDF.Model
         public Type0Font(PdfDictionary dictionary) : base(dictionary)
         {
             
-        }
-
-        protected override Cmap LoadEncoding()
-        {
-            object encodingObj = UnderlyingDict.Get<object>("Encoding");
-            if (encodingObj is Name)
-            {
-                return new Cmap((Name)encodingObj);
-            }
-            else
-            {
-                //TODO
-                return null;
-            }
         }
 
         protected override Cmap LoadToUnicode()

@@ -113,7 +113,7 @@ namespace FirePDF.Rendering
             RefreshGraphicsState();
 
             Model.GraphicsState gs = getGraphicsState();
-            Model.Font font = gs.font;
+            Text.Font font = gs.font;
 
             SizeF size = font.MeasureText(text, gs);
 

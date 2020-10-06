@@ -1,6 +1,7 @@
 ﻿using FirePDF.Model;
 using FirePDF.Reading;
 using FirePDF.Rendering;
+using FirePDF.Text;
 
 namespace FirePDF.Processors
 {

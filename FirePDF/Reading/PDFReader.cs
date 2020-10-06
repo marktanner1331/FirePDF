@@ -202,6 +202,10 @@ namespace FirePDF.Reading
 
         public static object ReadIndirectObject(Pdf pdf, Stream stream, XrefTable.XrefRecord xrefRecord)
         {
+            if(xrefRecord.objectNumber == 41)
+            {
+                Console.WriteLine();
+            }
             object obj;
             if (xrefRecord.isCompressed)
             {
@@ -599,7 +603,7 @@ namespace FirePDF.Reading
                 {
                     sb.Append((char)current);
                 }
-                else if (current == '_' || current == '.' || current == '-' || current == '+')
+                else if (current == '_' || current == '.' || current == '-' || current == '+' || current == '*')
                 {
                     sb.Append((char)current);
                 }

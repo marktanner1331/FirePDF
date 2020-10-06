@@ -24,7 +24,7 @@ namespace FirePDFTests
             Pdf pdf = new Pdf(file);
 
             Page page = pdf.GetPage(1);
-            Assert.AreEqual(1, page.Resources.ListXObjectImages().Count());
+            Assert.AreEqual(1, page.Resources.ListXObjectImageNames().Count());
         }
 
         [TestMethod()]
@@ -35,7 +35,7 @@ namespace FirePDFTests
 
             Page page = pdf.GetPage(1);
 
-            List<Name> forms = page.Resources.ListXObjectForms().ToList();
+            List<Name> forms = page.Resources.ListFormXObjectNames().ToList();
             XObjectForm form = page.Resources.GetXObjectForm(forms.First());
 
             Stream s = form.GetStream();

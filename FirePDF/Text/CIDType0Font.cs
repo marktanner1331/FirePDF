@@ -1,8 +1,9 @@
-﻿using System;
+﻿using FirePDF.Model;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace FirePDF.Model
+namespace FirePDF.Text
 {
     //Pdf spec 9.7.4
     public class CidType0Font : CidFont
@@ -16,20 +17,6 @@ namespace FirePDF.Model
         private readonly Lazy<Dictionary<int, int>> widths;
 
         private FontDescriptor FontDescriptor => UnderlyingDict.Get<FontDescriptor>("FontDescriptor");
-
-        protected override Cmap LoadEncoding()
-        {
-            object encodingObj = UnderlyingDict.Get<object>("Encoding");
-            if (encodingObj is Name name)
-            {
-                return new Cmap(name);
-            }
-            else
-            {
-                //TODO
-                return null;
-            }
-        }
 
         protected override Cmap LoadToUnicode()
         {

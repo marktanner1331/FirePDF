@@ -24,7 +24,7 @@ namespace FirePDFTests.Model
 
             Page page = pdf.GetPage(1);
 
-            List<Name> forms = page.Resources.ListXObjectForms().ToList();
+            List<Name> forms = page.Resources.ListFormXObjectNames().ToList();
             XObjectForm form = page.Resources.GetXObjectForm(forms.First());
 
             XObjectImage xObjectImage = form.Resources.GetXObjectImage("img0");

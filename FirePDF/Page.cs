@@ -38,24 +38,121 @@ namespace FirePDF
             BoundingBox = UnderlyingDict.Get<PdfList>("MediaBox").AsRectangle();
         }
 
-        public IEnumerable<ObjectReference> enumerateContentStreamReferences()
+        public IEnumerable<ObjectReference> ListImages(bool includeFormXObjects)
         {
+            HashSet<ObjectReference> forms = new HashSet<ObjectReference>();
+            HashSet<ObjectReference> images = new HashSet<ObjectReference>();
+
+            void processResources(PdfResources resources)
+            {
+                foreach(ObjectReference imageReference in resources.ListImages())
+                {
+                    images.Add(imageReference);
+                }
+
+                if(includeFormXObjects)
+                {
+                    foreach (ObjectReference formReference in resources.ListFormXObjects())
+                    {
+                        if (forms.Contains(formReference))
+                        {
+                            continue;
+                        }
+
+                        forms.Add(formReference);
+
+                        XObjectForm form = formReference.Get<XObjectForm>();
+                        processResources(form.Resources);
+                    }
+                }
+            };
+
+            processResources(this.Resources);
+
+            return images;
+        }
+
+        /// <summary>
+        /// returns references to all IStreamOwners used on the page
+        /// this includes the page itself + any form xObjects
+        /// </summary>
+        public IEnumerable<IStreamOwner> listIStreamOwners()
+        {
+            HashSet<IStreamOwner> streamOwners = new HashSet<IStreamOwner>();
+            streamOwners.Add(this);
+
+            HashSet<ObjectReference> processedForms = new HashSet<ObjectReference>();
+
+            void processResources(PdfResources resources)
+            {
+                foreach (ObjectReference formReference in resources.ListFormXObjects())
+                {
+                    if (processedForms.Contains(formReference))
+                    {
+                        continue;
+                    }
+
+                    processedForms.Add(formReference);
+
+                    XObjectForm form = formReference.Get<XObjectForm>();
+                    streamOwners.Add(form);
+
+                    processResources(form.Resources);
+                }
+            };
+
+            return streamOwners;
+        }
+
+        /// <summary>
+        /// returns a list of references to the  content streams for the page
+        /// </summary>
+        /// <param name="includeFormXObjects">When set to true, the form XObject streams will also be returned</param>
+        public IEnumerable<ObjectReference> ListContentStreams(bool includeFormXObjects)
+        {
+            HashSet<ObjectReference> refs = new HashSet<ObjectReference>();
+
             object contents = UnderlyingDict.Get("Contents", false);
             if (contents is ObjectReference)
             {
-                yield return contents as ObjectReference;
+                refs.Add(contents as ObjectReference);
             }
             else if (contents is PdfList list)
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    yield return list.Get<ObjectReference>(i, false);
+                    refs.Add(list.Get<ObjectReference>(i, false));
                 }
             }
             else
             {
                 throw new Exception();
             }
+
+            if(includeFormXObjects == false)
+            {
+                return refs;
+            }
+
+            void processResources(PdfResources resources)
+            {
+                foreach(ObjectReference formReference in resources.ListFormXObjects())
+                {
+                    if(refs.Contains(formReference))
+                    {
+                        continue;
+                    }
+
+                    refs.Add(formReference);
+
+                    XObjectForm form = formReference.Get<XObjectForm>();
+                    processResources(form.Resources);
+                }
+            };
+
+            processResources(this.Resources);
+
+            return refs;
         }
 
         public ObjectReference Serialize(PdfWriter writer)
