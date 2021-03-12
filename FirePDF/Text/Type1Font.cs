@@ -8,6 +8,8 @@ namespace FirePDF.Text
 {
     public class Type1Font : Font
     {
+        private CidFont DescendantFont => (CidFont) UnderlyingDict.Get<PdfList>("DescendantFonts").Get<Font>(0);
+
         public Type1Font(PdfDictionary dictionary) : base(dictionary)
         {
 
@@ -15,12 +17,47 @@ namespace FirePDF.Text
 
         public override FontDescriptor GetFontDescriptor()
         {
-            throw new NotImplementedException();
+            return UnderlyingDict.Get<FontDescriptor>("FontDescriptor");
         }
 
-        public override SizeF MeasureText(byte[] hexString, GraphicsState graphicsState)
+        public override SizeF MeasureText(byte[] hexString, GraphicsState gs)
         {
-            throw new NotImplementedException();
+            return SizeF.Empty;
+           // return SizeF.Empty;
+            FontDescriptor fontDescriptor = GetFontDescriptor();
+
+            //bbox is in glyph space, but we are expressing everything in user space here
+            float height = fontDescriptor.bbox.Height / 1000 * gs.fontSize;
+
+            SizeF size = new SizeF(0, height);
+
+            using (MemoryStream stream = new MemoryStream(hexString))
+            {
+                while (stream.Position != stream.Length)
+                {
+                    int code = Encoding.ReadCodeFromStream(stream);
+                    int cid = Encoding.CodeToCid(code);
+
+                    //hint: the char spacing and word spacing are scaled by the horizontal scaling but not the font size
+
+                    float width = DescendantFont.GetWidthForCid(cid);
+                    size.Width += width * gs.fontSize;
+
+                    size.Width += gs.characterSpacing;
+
+                    if (code == 32)
+                    {
+                        size.Width += gs.wordSpacing;
+                    }
+                }
+            }
+
+            size.Width *= gs.horizontalScaling;
+
+            size.Width *= gs.textMatrix.Elements[0];
+            size.Height *= gs.textMatrix.Elements[3];
+
+            return size;
         }
 
         public override string ReadUnicodeStringFromHexString(byte[] hexString)

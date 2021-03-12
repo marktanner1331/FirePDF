@@ -290,9 +290,15 @@ namespace FirePDF.Text
 
                 token = ReadNextToken(stream, out _);
 
-                switch (token)
-                {
-                    case Name name:
+                addCharMapping(token, start, end);
+            }
+        }
+
+        private void addCharMapping(object token, int start, int end)
+        {
+            switch (token)
+            {
+                case Name name:
                     {
                         AddCharMapping(start, name);
                         if (start != end)
@@ -303,7 +309,7 @@ namespace FirePDF.Text
 
                         break;
                     }
-                    case PdfString pdfStr:
+                case PdfString pdfStr:
                     {
                         string value = pdfStr.ToString(pdfStr.Length == 1 ? Encoding.GetEncoding("ISO_8859_1") : Encoding.BigEndianUnicode);
 
@@ -328,9 +334,14 @@ namespace FirePDF.Text
 
                         break;
                     }
-                    default:
-                        throw new Exception("unknown token type");
-                }
+                case PdfList list:
+                    if (list.Count == 1 && list.Get<object>(0, false) is PdfString)
+                    {
+                        addCharMapping(list.Get<object>(0, false), start, end);
+                    }
+                    break;
+                default:
+                    throw new Exception("unknown token type");
             }
         }
 

@@ -368,11 +368,11 @@ namespace FirePDF.Reading
             else if (current >= '0' && current <= '9' || ".-".Contains((char)current))
             {
                 long currentOffset = stream.Position;
-                try
+                if(TryReadObjectReference(pdf, stream, out ObjectReference reference))
                 {
-                    return ReadObjectReference(pdf, stream);
+                    return reference;
                 }
-                catch
+                else
                 {
                     stream.Position = currentOffset;
                 }
@@ -537,7 +537,14 @@ namespace FirePDF.Reading
                 else
                 {
                     stream.Position--;
-                    double f = double.Parse(sb.ToString());
+                    string temp = sb.ToString();
+
+                    if(temp == "-")
+                    {
+                        temp = "0";
+                    }
+
+                    double f = double.Parse(temp);
                     if (f == (int)f)
                     {
                         return (int)f;
@@ -550,7 +557,36 @@ namespace FirePDF.Reading
             }
         }
 
-        private static ObjectReference ReadObjectReference(Pdf pdf, Stream stream)
+        private static bool TryReadObjectReference(Pdf pdf, Stream stream, out ObjectReference reference)
+        {
+            int number = AsciiReader.ReadAsciiInteger(stream);
+
+            if (stream.ReadByte() != ' ')
+            {
+                reference = null;
+                return false;
+            }
+
+            int generation = AsciiReader.ReadAsciiInteger(stream);
+
+            if (stream.ReadByte() != ' ')
+            {
+                reference = null;
+                return false;
+            }
+
+            char r = (char)stream.ReadByte();
+            if (r != 'R')
+            {
+                reference = null;
+                return false;
+            }
+
+            reference = new ObjectReference(pdf, number, generation);
+            return true;
+        }
+
+        private static ObjectReference ReadObjectReferenceOld(Pdf pdf, Stream stream)
         {
             int number = AsciiReader.ReadAsciiInteger(stream);
 

@@ -1,4 +1,5 @@
-﻿using FirePDF.Writing;
+﻿using FirePDF.StreamHelpers;
+using FirePDF.Writing;
 using System;
 using System.Drawing;
 using System.IO;
@@ -52,18 +53,25 @@ namespace FirePDF.Model
             //return writer.writeIndirectObjectUsingNextFreeNumber(underlyingDict, stream);
         }
 
-        public void WriteContentStream(Stream s)
+        public void UpdateStream(Stream s)
         {
-            throw new Exception("not handling saving yet");
+            stream = s;
 
+            ///hint:
+            ///these operations mark the underlying dictionary as dirty
+            ///PDFWriter will see this and rewrite the entire object, including the stream
+            UnderlyingDict.RemoveEntry("Filter");
+            UnderlyingDict.Set("Length", s.Length);
+
+            //isStreamDirty = true;
             //stream = new MemoryStream();
 
             //s.Position = 0;
-            //ASCIIHexDecodeWriter.encode(s, stream);
+            //AsciiHexDecodeWriter.Encode(s, stream);
 
             //startOfStream = 0;
-            
-            //underlyingDict["Filter"] = (Name)"ASCIIHexDecode";
+
+            //UnderlyingDict.Set("Filter", (Name)"ASCIIHexDecode");
 
             //underlyingDict["Length"] = (int)stream.Length;
 

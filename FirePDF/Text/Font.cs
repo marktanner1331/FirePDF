@@ -50,6 +50,10 @@ namespace FirePDF.Text
 
                 //return cmap;
             }
+            else if(encodingObj is PdfDictionary dict)
+            {
+                return new PDFEncoding(dict);
+            }
             else
             {
                 throw new Exception();

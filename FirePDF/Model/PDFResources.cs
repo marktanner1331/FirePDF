@@ -85,22 +85,30 @@ namespace FirePDF.Model
             }
         }
 
-        public IEnumerable<ObjectReference> ListImages()
+        public IEnumerable<ObjectReference> ListImages(bool recursive)
         {
+            List<ObjectReference> images = new List<ObjectReference>();
+
             PdfDictionary xObjects = (PdfDictionary)GetObjectAtPath("XObject");
             if (xObjects == null)
             {
-                yield break;
+                return images;
             }
 
             foreach (KeyValuePair<Name, object> entry in xObjects)
             {
                 ObjectReference objRef = entry.Value as ObjectReference;
-                if (objRef.Get<object>() is XObjectForm)
+                if (objRef.Get<object>() is XObjectImage)
                 {
-                    yield return objRef;
+                    images.Add(objRef);
+                }
+                else if(recursive && objRef.Get<object>() is XObjectForm form)
+                {
+                    images.AddRange(form.Resources.ListImages(true));
                 }
             }
+
+            return images;
         }
 
         /// <summary>

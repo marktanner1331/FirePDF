@@ -36,7 +36,7 @@
 
         public static bool operator !=(Name a, Name b)
         {
-            return b != null && a.value != b.value;
+            return b is null == false && a.value != b.value;
         }
 
         public override string ToString()

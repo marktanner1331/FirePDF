@@ -257,7 +257,9 @@ namespace FirePDF.Reading
                 char c = (char)stream.ReadByte();
                 switch (c)
                 {
-                    case (char)0x09:
+                    case (char)0:
+                    case (char)9:
+                    case (char)12:
                     case ' ':
                     case '\r':
                     case '\n':

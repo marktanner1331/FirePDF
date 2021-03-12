@@ -6,8 +6,11 @@ using FirePDF.Rendering;
 using FirePDF.Text;
 using FirePDF.Writing;
 using Flattener;
+using ObjectDumper;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 
@@ -17,52 +20,54 @@ namespace test
     {
         internal static void Main(string[] args)
         {
-            //const string file = @"C:\Users\Mark Tanner\Downloads\3108000_PageA_001.pdf";
-            const string file = @"C:\Users\Mark Tanner\Downloads\orig.pdf";
+            const string file = @"C:\Users\Mark Tanner\Documents\clients\media24\CW-3368\die burger 3 page.pdf";
+            
             using (Pdf pdf = new Pdf(file))
             {
-                Page page = pdf.GetPage(1);
-               // Font font = page.Resources.GetFont("T1_5");
-                Font font = page.Resources.GetFont("R33");
-                string unicode = font.ReadUnicodeStringFromHexString(new PdfString(@"o\037ciated"));
+                var k = pdf.Get<Object>(174, 0);
+                
+                //Page page = pdf.GetPage(1);
+
+                //PdfToHhml renderer = new PdfToHhml();
+
+                //StreamProcessor sp = new StreamProcessor(renderer);
+                //RecursiveStreamReader streamReader = new RecursiveStreamReader(sp);
+                //streamReader.ReadStreamRecursively(page);
             }
         }
 
-        private static void ExtractTextTest()
+        class PdfToHhml : Renderer
         {
-            const string file = @"C:\Users\Mark Tanner\scratch\orig fixed.Pdf";
-            using (Pdf pdf = new Pdf(file))
+
+
+            public override void WillStartRenderingPage(RectangleF boundingBox, Func<FirePDF.Model.GraphicsState> getGraphicsState)
             {
-                Page page = pdf.GetPage(1);
-                TextExtractor extractor = new TextExtractor();
-                extractor.ExtractText(page);
+                base.WillStartRenderingPage(boundingBox, getGraphicsState);
             }
-        }
 
-        private static void FixCmap()
-        {
-            const string file = @"C:\Users\Mark Tanner\scratch\orig.Pdf";
-            const string cmap = @"C:\Users\Mark Tanner\scratch\fixed cmap.txt";
-
-            Cmap temp = new Cmap(File.OpenRead(cmap), true);
-
-            using (Pdf pdf = new Pdf(file))
+            public override void DrawImage(XObjectImage image)
             {
-                ObjectReference newCmap = pdf.AddStream(new FileInfo(cmap));
+                throw new NotImplementedException();
+            }
 
-                Page page = pdf.GetPage(1);
+            public override void DrawText(byte[] text)
+            {
+                throw new NotImplementedException();
+            }
 
-                List<Name> fontNames = page.Resources.ListFontResourceNames();
-                foreach (Name fontName in fontNames)
-                {
-                    Font font = page.Resources.GetFont(fontName);
-                    if (font.baseFont == "HGEBGL+News706BT-RomanC")
-                    {
-                        font.SetToUnicodeCmap(newCmap);
-                    }
-                }
+            public override void FillAndStrokePath(GraphicsPath path)
+            {
+                throw new NotImplementedException();
+            }
 
-                pdf.Save(@"C:\Users\Mark Tanner\scratch\orig fixed.Pdf", SaveType.Fresh);
+            public override void FillPath(GraphicsPath path)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void StrokePath(GraphicsPath path)
+            {
+                throw new NotImplementedException();
             }
         }
     }

@@ -43,6 +43,7 @@ namespace FirePDF.Text
 
         public override SizeF MeasureText(byte[] hexString, GraphicsState gs)
         {
+            return SizeF.Empty;
             FontDescriptor fontDescriptor = GetFontDescriptor();
 
             //bbox is in glyph space, but we are expressing everything in user space here

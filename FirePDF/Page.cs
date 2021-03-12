@@ -38,38 +38,9 @@ namespace FirePDF
             BoundingBox = UnderlyingDict.Get<PdfList>("MediaBox").AsRectangle();
         }
 
-        public IEnumerable<ObjectReference> ListImages(bool includeFormXObjects)
+        public IEnumerable<ObjectReference> ListImages()
         {
-            HashSet<ObjectReference> forms = new HashSet<ObjectReference>();
-            HashSet<ObjectReference> images = new HashSet<ObjectReference>();
-
-            void processResources(PdfResources resources)
-            {
-                foreach(ObjectReference imageReference in resources.ListImages())
-                {
-                    images.Add(imageReference);
-                }
-
-                if(includeFormXObjects)
-                {
-                    foreach (ObjectReference formReference in resources.ListFormXObjects())
-                    {
-                        if (forms.Contains(formReference))
-                        {
-                            continue;
-                        }
-
-                        forms.Add(formReference);
-
-                        XObjectForm form = formReference.Get<XObjectForm>();
-                        processResources(form.Resources);
-                    }
-                }
-            };
-
-            processResources(this.Resources);
-
-            return images;
+            return Resources.ListImages(true);
         }
 
         /// <summary>
@@ -100,6 +71,8 @@ namespace FirePDF
                     processResources(form.Resources);
                 }
             };
+
+            processResources(Resources);
 
             return streamOwners;
         }

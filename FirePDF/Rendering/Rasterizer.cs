@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using FirePDF.Model;
@@ -48,7 +49,16 @@ namespace FirePDF.Rendering
             temp.Translate(0, -1);
             
             graphics.Transform = temp;
-            graphics.DrawImage(image.GetImage(), 0, 0, 1, 1);
+
+            try
+            {
+                graphics.DrawImage(image.GetImage(), 0, 0, 1, 1);
+            }
+            catch
+            {
+                Debug.WriteLine("Error drawing image, skipping");
+            }
+
             graphics.Transform = getGraphicsState().CurrentTransformationMatrix;
         }
 

@@ -58,6 +58,11 @@ namespace FirePDF
             UnderlyingDict.Set("Root", store.Add(catalog.UnderlyingDict));
         }
 
+        public ObjectReference ReverseGet(object value)
+        {
+            return store.ReverseGet(value);
+        }
+
         /// <summary>
         /// searches the Pdf for all objects that are of the given type and returns them
         /// </summary>

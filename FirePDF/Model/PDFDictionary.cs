@@ -39,6 +39,7 @@ namespace FirePDF.Model
         public void RemoveEntry(Name key)
         {
             inner.Remove(key);
+            isDirty = true;
         }
 
         public object Get(Name key, bool resolveReferences)
@@ -71,6 +72,11 @@ namespace FirePDF.Model
                 if(value is ObjectReference reference && typeof(T) != typeof(ObjectReference))
                 {
                     return Pdf.store.Get<T>(reference);
+                }
+
+                if(value is long && typeof(T) == typeof(int))
+                {
+                    value = (int)(long)value;
                 }
 
                 return (T)value;
@@ -118,6 +124,14 @@ namespace FirePDF.Model
                         {
                             inner[key] = newReference;
                             isDirty = true;
+                        }
+                        else
+                        {
+                                object obj = reference.Get<object>();
+                                if(obj is IHaveChildren children)
+                                {
+                                    children.SwapReferences(callback);
+                                }
                         }
 
                         break;

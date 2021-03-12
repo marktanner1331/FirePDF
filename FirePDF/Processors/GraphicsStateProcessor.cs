@@ -98,7 +98,7 @@ namespace FirePDF.Processors
                 //                    break;
                 case "i":
                     {
-                        float flatness = (float)operation.operands[0];
+                        float flatness  = Convert.ToSingle(operation.operands[0]);
                         GetCurrentState().flatnessTolerance = flatness;
                     }
                     break;

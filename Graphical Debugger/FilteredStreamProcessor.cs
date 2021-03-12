@@ -7,12 +7,12 @@ namespace Graphical_Debugger
 {
     internal class FilteredStreamProcessor : StreamProcessor
     {
-        private readonly List<bool> operationMap;
+        private readonly bool[] operationMap;
         private int i = 0;
 
         public FilteredStreamProcessor(List<bool> operationMap, Renderer renderer) : base(renderer)
         {
-            this.operationMap = operationMap;
+            this.operationMap = operationMap.ToArray();
         }
 
         public override void ProcessOperation(Operation operation)

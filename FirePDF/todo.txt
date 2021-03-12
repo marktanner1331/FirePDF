@@ -1,0 +1,4 @@
+﻿if we make PDFReader non static then we can put some settings on it
+	this includes not worrying about reading object references if we are inside a content stream
+	i.e. when we are using it to read arrays
+	or maybe just write a new method ReadContentStreamObject()

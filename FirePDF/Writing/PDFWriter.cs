@@ -312,7 +312,7 @@ namespace FirePDF.Writing
             }
             else if (obj is XObjectForm)
             {
-                throw new Exception("should never happen! call XObjectForm.serialize() instead.");
+                throw new Exception("should never happen as a form is a PDFStream.");
             }
             else if (obj is byte[])
             {
