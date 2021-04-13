@@ -165,9 +165,13 @@ namespace FirePDF.Reading
                 {
                     offsetOfLastXRefTable = stream.Position;
 
-                    XrefStream xrefStream = new XrefStream();
-                    xrefStream.FromStream(pdf, stream);
+                    PdfReader.SkipOverObjectHeader(stream);
 
+                    PdfDictionary dict = PdfReader.ReadDictionary(pdf, stream);
+                    PdfReader.SkipOverStreamHeader(stream);
+
+                    XrefStream xrefStream = new XrefStream(stream, dict, stream.Position);
+                    
                     table.MergeIn(xrefStream.Table);
 
                     trailer = xrefStream.Trailer;

@@ -66,7 +66,7 @@ namespace FirePDF
         /// <summary>
         /// searches the Pdf for all objects that are of the given type and returns them
         /// </summary>
-        public List<T> GetAll<T>()
+        public IEnumerable<T> GetAll<T>()
         {
             return store.GetAll<T>();
         }

@@ -65,6 +65,8 @@ namespace FirePDF.Model
                     return new PdfMetaDataStream(stream, dict, startOfStream);
                 case "Pattern":
                     return new Pattern(stream, dict, startOfStream);
+                case "XRef":
+                    return new XrefStream(stream, dict, startOfStream);
                 default:
                     throw new NotImplementedException();
             }

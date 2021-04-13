@@ -49,21 +49,17 @@ namespace FirePDF.Model
         /// <summary>
         /// searches for all objects that are of the given type and returns them
         /// </summary>
-        internal List<T> GetAll<T>()
+        internal IEnumerable<T> GetAll<T>()
         {
-            List<T> objects = new List<T>();
-
             //hint: the newTable contains both the existing and new records
             foreach (XrefTable.XrefRecord record in newTable.GetAllXrefRecords())
             {
                 object obj = Get<object>(record.objectNumber, record.generation);
                 if (obj is T o)
                 {
-                    objects.Add(o);
+                    yield return o;
                 }
             }
-
-            return objects;
         }
 
         /// <summary>

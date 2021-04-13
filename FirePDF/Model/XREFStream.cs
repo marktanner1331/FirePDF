@@ -7,24 +7,22 @@ using FirePDF.Reading;
 namespace FirePDF.Model
 {
     //Pdf 7.5.8
-    public class XrefStream
+    public class XrefStream : PdfStream
     {
         public Trailer Trailer { get; private set; }
         public XrefTable Table { get; private set; }
 
-        /// <summary>
-        /// assumes the current position of the stream is the first byte of the object header
-        /// </summary>
-        public void FromStream(Pdf pdf, Stream stream)
+        public XrefStream(Stream stream, PdfDictionary dict, long startOfStream) : base(stream, dict, startOfStream)
         {
-            PdfReader.SkipOverObjectHeader(stream);
-
-            PdfDictionary dict = PdfReader.ReadDictionary(pdf, stream);
             Trailer = new Trailer(dict);
 
-            PdfReader.SkipOverStreamHeader(stream);
-            
-            using (Stream inner = PdfReader.DecompressStream(pdf, stream, dict))
+            //preserving the stream's position
+            //just in case the calling code isn't expecting it to be updated
+            long temp = stream.Position;
+
+            stream.Position = startOfStream;
+
+            using (Stream inner = base.GetDecompressedStream())
             {
                 int size = dict.Get<int>("Size");
 
@@ -108,6 +106,8 @@ namespace FirePDF.Model
                     }
                 }
             }
+
+            stream.Position = temp;
         }
     }
 }
