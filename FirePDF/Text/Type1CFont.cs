@@ -1,0 +1,112 @@
+﻿using FirePDF.Model;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Text;
+
+namespace FirePDF.Text
+{
+    class Type1CFont : Font
+    {
+        private CidFont DescendantFont => (CidFont)UnderlyingDict.Get<PdfList>("DescendantFonts").Get<Font>(0);
+
+
+        public Type1CFont(PdfDictionary dictionary) : base(dictionary)
+        {
+
+        }
+
+        public override FontDescriptor GetFontDescriptor()
+        {
+            return UnderlyingDict.Get<FontDescriptor>("FontDescriptor");
+        }
+
+        public override SizeF MeasureText(byte[] hexString, GraphicsState gs)
+        {
+            return SizeF.Empty;
+            // return SizeF.Empty;
+            FontDescriptor fontDescriptor = GetFontDescriptor();
+
+            //bbox is in glyph space, but we are expressing everything in user space here
+            float height = fontDescriptor.bbox.Height / 1000 * gs.fontSize;
+
+            SizeF size = new SizeF(0, height);
+
+            using (MemoryStream stream = new MemoryStream(hexString))
+            {
+                while (stream.Position != stream.Length)
+                {
+                    int code = Encoding.ReadCodeFromStream(stream);
+                    int cid = Encoding.CodeToCid(code);
+
+                    //hint: the char spacing and word spacing are scaled by the horizontal scaling but not the font size
+
+                    float width = DescendantFont.GetWidthForCid(cid);
+                    size.Width += width * gs.fontSize;
+
+                    size.Width += gs.characterSpacing;
+
+                    if (code == 32)
+                    {
+                        size.Width += gs.wordSpacing;
+                    }
+                }
+            }
+
+            size.Width *= gs.horizontalScaling;
+
+            size.Width *= gs.textMatrix.Elements[0];
+            size.Height *= gs.textMatrix.Elements[3];
+
+            return size;
+        }
+
+        public override string ReadUnicodeStringFromHexString(byte[] hexString)
+        {
+            if (ToUnicode == null || Encoding == null)
+            {
+                return "";
+            }
+
+            using (MemoryStream stream = new MemoryStream(hexString))
+            {
+                StringBuilder sb = new StringBuilder();
+                while (stream.Position != stream.Length)
+                {
+                    int code = Encoding.ReadCodeFromStream(stream);
+                    string str = ToUnicode.CodeToUnicode(code);
+
+                    sb.Append(str);
+                }
+
+                return sb.ToString();
+            }
+        }
+
+        public override void SetToUnicodeCmap(ObjectReference objectReference)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Cmap LoadToUnicode()
+        {
+            if (UnderlyingDict.ContainsKey("ToUnicode"))
+            {
+                PdfStream stream = UnderlyingDict.Get<PdfStream>("ToUnicode");
+
+                if (stream.UnderlyingDict.ContainsKey("UseCMap"))
+                {
+                    //in theory we just load the other cmap and merge it with this one
+                    throw new NotImplementedException();
+                }
+
+                return new Cmap(stream.GetDecompressedStream());
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+}

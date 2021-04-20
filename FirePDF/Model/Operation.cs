@@ -21,6 +21,26 @@ namespace FirePDF.Model
             this.operands = operands;
         }
 
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if(obj is null)
+            {
+                return false;
+            }
+
+            if(obj is Operation op)
+            {
+                return operatorName == op.operatorName && Enumerable.SequenceEqual(operands, op.operands);
+            }
+
+            return false;
+        }
+
         public override string ToString()
         {
             if(operands.Count > 0)

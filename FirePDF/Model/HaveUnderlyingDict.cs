@@ -53,6 +53,10 @@ namespace FirePDF.Model
                     return new Mask(dict);
                 case "Pattern":
                     return new PatternDictionary(dict);
+                case "XRef":   //these is already wrapped up in a PDFStream
+                case "ObjStm": //maybe in future we could have a StreamDict class
+                case "XObject":
+                    return dict;
                 default:
                     throw new NotImplementedException();
             }

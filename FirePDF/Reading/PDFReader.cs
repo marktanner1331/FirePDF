@@ -76,9 +76,9 @@ namespace FirePDF.Reading
             }
 
             SkipOverWhiteSpace(stream);
-            PdfDictionary dict = ReadDictionary(pdf, stream);
+            HaveUnderlyingDict dict = ReadDictionary(pdf, stream);
 
-            return new Trailer(dict);
+            return new Trailer(dict.UnderlyingDict);
         }
 
         private static long ReadLastStartXref(string chunk)
@@ -167,7 +167,7 @@ namespace FirePDF.Reading
 
                     PdfReader.SkipOverObjectHeader(stream);
 
-                    PdfDictionary dict = PdfReader.ReadDictionary(pdf, stream);
+                    PdfDictionary dict = PdfReader.ReadDictionary(pdf, stream).UnderlyingDict;
                     PdfReader.SkipOverStreamHeader(stream);
 
                     XrefStream xrefStream = new XrefStream(stream, dict, stream.Position);
@@ -223,32 +223,12 @@ namespace FirePDF.Reading
                 obj = ReadObject(pdf, stream);
             }
 
-            if (obj is PdfDictionary == false)
+            if (obj is HaveUnderlyingDict == false)
             {
                 return obj;
             }
 
-            PdfDictionary dict = (PdfDictionary)obj;
-
-            if (dict.ContainsKey("Subtype") && !dict.ContainsKey("Type"))
-            {
-                switch (dict.Get<Name>("Subtype"))
-                {
-                    case "Image":
-                    case "Form":
-                        dict.SetWithoutDirtying("Type", (Name)"XObject");
-                        break;
-                    case "CIDFontType0C":
-                    case "Type1C":
-                        dict.SetWithoutDirtying("Type", (Name)"Font");
-                        break;
-                    case "DeviceN": //we can ignore these as we treat color space dictionaries differently
-                    case "NChannel":
-                        break;
-                    default:
-                        throw new Exception($"unknown Subtype: " + dict.Get<Name>("Subtype"));
-                }
-            }
+            PdfDictionary dict = ((HaveUnderlyingDict)obj).UnderlyingDict;
 
             if (dict.ContainsKey("Length"))
             {
@@ -259,12 +239,7 @@ namespace FirePDF.Reading
                 }
             }
 
-            if (dict.ContainsKey("Type"))
-            {
-                return HaveUnderlyingDict.FromDictionary(dict);
-            }
-
-            return dict;
+            return obj;
         }
 
         /// <summary>
@@ -294,7 +269,7 @@ namespace FirePDF.Reading
         /// <summary>
         /// reads a dictionary from the stream at the current position
         /// </summary>
-        public static PdfDictionary ReadDictionary(Pdf pdf, Stream stream)
+        public static HaveUnderlyingDict ReadDictionary(Pdf pdf, Stream stream)
         {
             Dictionary<Name, object> dict = new Dictionary<Name, object>();
 
@@ -309,7 +284,36 @@ namespace FirePDF.Reading
                 {
                     if (stream.ReadByte() == '>')
                     {
-                        return new PdfDictionary(pdf, dict);
+                        PdfDictionary pdfDict = new PdfDictionary(pdf, dict);
+                        
+                        if (pdfDict.ContainsKey("Subtype") && !pdfDict.ContainsKey("Type"))
+                        {
+                            switch (pdfDict.Get<Name>("Subtype"))
+                            {
+                                case "Image":
+                                case "Form":
+                                    pdfDict.SetWithoutDirtying("Type", (Name)"XObject");
+                                    break;
+                                case "CIDFontType0C":
+                                case "Type1C":
+                                    pdfDict.SetWithoutDirtying("Type", (Name)"Font");
+                                    break;
+                                case "DeviceN": //we can ignore these as we treat color space dictionaries differently
+                                case "NChannel":
+                                    break;
+                                default:
+                                    throw new Exception($"unknown Subtype: " + pdfDict.Get<Name>("Subtype"));
+                            }
+                        }
+
+                        if (pdfDict.ContainsKey("Type"))
+                        {
+                            return HaveUnderlyingDict.FromDictionary(pdfDict);
+                        }
+                        else
+                        {
+                            return pdfDict;
+                        }
                     }
                     else
                     {

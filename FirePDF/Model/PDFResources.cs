@@ -32,6 +32,37 @@ namespace FirePDF.Model
             SetObjectAsDirty(path);
         }
 
+        public IEnumerable<ExtGState> GetAllExtGStates()
+        {
+            PdfDictionary extGStates = (PdfDictionary)GetObjectAtPath("ExtGState");
+            if (extGStates == null)
+            {
+                yield break;
+            }
+
+            foreach (KeyValuePair<Name, object> entry in extGStates)
+            {
+                object obj = entry.Value;
+                if (obj is ObjectReference)
+                {
+                    obj = (obj as ObjectReference).Get<object>();
+                }
+
+                if (obj is ExtGState state)
+                {
+                    yield return state;
+                }
+                else if (obj is PdfDictionary dict)
+                {
+                    yield return new ExtGState(dict);
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+        }
+
         /// <summary>
         /// returns the resource names of the fonts e.g. [/R16, /R17]
         /// </summary>
@@ -102,7 +133,7 @@ namespace FirePDF.Model
                 {
                     images.Add(objRef);
                 }
-                else if(recursive && objRef.Get<object>() is XObjectForm form)
+                else if (recursive && objRef.Get<object>() is XObjectForm form)
                 {
                     images.AddRange(form.Resources.ListImages(true));
                 }

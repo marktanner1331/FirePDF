@@ -97,8 +97,15 @@ namespace FirePDF.Model
             
             if (record != null)
             {
-                //var k = PDFReader.readIndirectObject(Pdf, existingStream, record.Value);
-                obj = (T)PdfReader.ReadIndirectObject(pdf, existingStream, record.Value);
+                try
+                {
+                    //var k = PDFReader.readIndirectObject(Pdf, existingStream, record.Value);
+                    obj = (T)PdfReader.ReadIndirectObject(pdf, existingStream, record.Value);
+                }
+                catch
+                {
+                    obj = (T)PdfReader.ReadIndirectObject(pdf, existingStream, record.Value);
+                }
             }
             else
             {

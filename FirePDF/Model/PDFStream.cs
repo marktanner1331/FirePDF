@@ -31,6 +31,31 @@ namespace FirePDF.Model
             return PdfReader.DecompressStream(Pdf, stream, UnderlyingDict);
         }
 
+        public void UpdateStream(Stream s)
+        {
+            stream = s;
+
+            ///hint:
+            ///these operations mark the underlying dictionary as dirty
+            ///PDFWriter will see this and rewrite the entire object, including the stream
+            UnderlyingDict.RemoveEntry("Filter");
+            UnderlyingDict.Set("Length", s.Length);
+
+            //isStreamDirty = true;
+            //stream = new MemoryStream();
+
+            //s.Position = 0;
+            //AsciiHexDecodeWriter.Encode(s, stream);
+
+            //startOfStream = 0;
+
+            //UnderlyingDict.Set("Filter", (Name)"ASCIIHexDecode");
+
+            //underlyingDict["Length"] = (int)stream.Length;
+
+            //isStreamDirty = true;
+        }
+
         public static PdfStream FromDictionary(PdfDictionary dict, Stream stream, long startOfStream)
         {
             if (dict.ContainsKey("Type") == false)

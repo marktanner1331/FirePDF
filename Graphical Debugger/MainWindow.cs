@@ -19,7 +19,7 @@ namespace Graphical_Debugger
         private IStreamOwner owner;
         private List<Operation> operations;
 
-        public MainWindow()
+        public MainWindow(string file)
         {
             BackColor = Color.Black;
 
@@ -41,7 +41,7 @@ namespace Graphical_Debugger
             listBox.OnCheckChanged += ListBox_onCheckChanged;
             listBox.Size = splitter.Panel1.ClientSize;
             
-            LoadPdf(@"C:\Users\Mark Tanner\Documents\clients\racing post\March\orig 4.pdf");
+            LoadPdf(file);
         }
 
         private void ListBox_onCheckChanged()

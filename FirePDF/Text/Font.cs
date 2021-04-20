@@ -95,6 +95,10 @@ namespace FirePDF.Text
                     return new CidFontType2(dictionary);
                 case "TrueType":
                     return new TrueTypeFont(dictionary);
+                case "Type1C":
+                    return new Type1CFont(dictionary);
+                case "CIDFontType0C":
+                    return new CIDFontType0C(dictionary);
                 default:
                     throw new NotImplementedException();
             }

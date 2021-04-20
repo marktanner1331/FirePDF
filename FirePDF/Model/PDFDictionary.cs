@@ -6,18 +6,24 @@ using System.Linq;
 namespace FirePDF.Model
 {
     //TODO: merge some of these interfaces
-    public class PdfDictionary : HavePdf, IHaveChildren, IEnumerable<KeyValuePair<Name, object>>
+    public class PdfDictionary : HaveUnderlyingDict, IHaveChildren, IEnumerable<KeyValuePair<Name, object>>
     {
         private readonly Dictionary<Name, object> inner;
         private bool isDirty = false;
 
-        public PdfDictionary(Pdf pdf, Dictionary<Name, object> inner) : base(pdf)
+        public PdfDictionary(Pdf pdf, Dictionary<Name, object> inner)
         {
+            base.UnderlyingDict = this;
+            base.Pdf = pdf;
+
             this.inner = inner;
         }
 
-        public PdfDictionary(Pdf pdf) : base(pdf)
+        public PdfDictionary(Pdf pdf)
         {
+            base.UnderlyingDict = this;
+            base.Pdf = pdf;
+
             inner = new Dictionary<Name, object>();
         }
 
