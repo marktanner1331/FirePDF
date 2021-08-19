@@ -26,7 +26,8 @@ namespace FirePDF.Reading
         }
 
         public PdfResources Resources => resourcesStack.Peek();
-        
+        public IStreamOwner Stream => streamStack.Peek();
+
         public Pdf Pdf => rootStream.Pdf;
         
         public void ReadStreamRecursively(IStreamOwner stream)

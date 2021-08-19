@@ -75,9 +75,11 @@ namespace FirePDF.Model
                 case byte[] bytes:
                     return BitConverter.ToString(bytes).Replace("-", "");
                 case IEnumerable<object> objects:
-                    return "[" + string.Join(" ", objects.Select(x => x.ToString()).ToArray()).Select(x => OperandToString(x)) + "]";
+                    return "[" + string.Join(" ", objects.Select(x => OperandToString(x)).ToArray()) + "]";
                 case Name name:
-                    return string.Join("", ((string)name).Select(x => x < 32 || x > 128 ? @"\u" + (int)x : x.ToString()).ToArray());
+                    return "/" + string.Join("", ((string)name).Select(x => x < 32 || x > 128 ? @"\u" + (int)x : x.ToString()).ToArray());
+                case PdfString s:
+                    return "(" + s + ")";
                 default:
                     return Convert.ToString(operand);
             }

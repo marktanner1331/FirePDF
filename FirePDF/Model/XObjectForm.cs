@@ -25,6 +25,20 @@ namespace FirePDF.Model
             BoundingBox = UnderlyingDict.Get<PdfList>("BBox").AsRectangle();
         }
 
+        public TransparencyGroup GetTransparencyGroup()
+        {
+            if (UnderlyingDict.ContainsKey("Group"))
+            {
+                object group = UnderlyingDict.Get("Group", true);
+                if(group is TransparencyGroup)
+                {
+                    return group as TransparencyGroup;
+                }
+            }
+
+            return null;
+        }
+
         public ObjectReference Serialize(PdfWriter writer)
         {
             throw new Exception("not doing serialization yet");

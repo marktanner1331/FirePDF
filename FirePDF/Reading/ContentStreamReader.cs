@@ -58,6 +58,7 @@ namespace FirePDF.Reading
                     case '(':
                         {
                             object obj = PdfReader.ReadString(stream);
+                            
                             foundOperand(obj);
                         }
                         break;

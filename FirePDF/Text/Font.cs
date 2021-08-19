@@ -25,7 +25,12 @@ namespace FirePDF.Text
         protected virtual PDFEncoding LoadEncoding()
         {
             object encodingObj = UnderlyingDict.Get("Encoding", true);
-            if (encodingObj is Name encodingName)
+
+            if(encodingObj is null)
+            {
+                return null;
+            }
+            else if (encodingObj is Name encodingName)
             {
                 return new PDFEncoding(new Cmap(encodingName));
             }
@@ -65,7 +70,7 @@ namespace FirePDF.Text
 
         public override bool IsDirty()
         {
-            if (encoding.IsValueCreated && Encoding != null && Encoding.IsDirty())
+            if (Encoding != null && encoding.IsValueCreated && Encoding.UnderlyingDict != null && Encoding.IsDirty())
             {
                 return true;
             }

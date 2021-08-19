@@ -18,6 +18,11 @@ namespace FirePDF.Text
             this.cmap = cmap;
         }
 
+        public override bool IsDirty()
+        {
+            return UnderlyingDict != null && base.IsDirty();
+        }
+
         internal void WriteToStream(MemoryStream stream)
         {
             if(cmap != null)

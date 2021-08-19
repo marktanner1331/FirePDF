@@ -20,7 +20,7 @@ namespace Samples
     {
         internal static void Main(string[] args)
         {
-            const string file = @"C:\Users\Mark\Documents\pagesuite\tickets\CS-816 - Racing Post\orig.pdf";
+            const string file = @"C:\Users\Mark\Documents\pagesuite\tickets\CS-1091 - Egmont quality\orig 2 no soft masks.pdf";
             using (Pdf pdf = new Pdf(file))
             {
                 Page page = pdf.GetPage(1);
@@ -46,7 +46,7 @@ namespace Samples
                     }
                 }
                 
-                pdf.Save(@"C:\Users\Mark\Documents\pagesuite\tickets\CS-816 - Racing Post\orig fixed.pdf", SaveType.Update);
+                pdf.Save(@"C:\Users\Mark\Documents\pagesuite\tickets\CS-1091 - Egmont quality\orig 2 no soft masks no op.pdf", SaveType.Fresh);
             }
         }
     }

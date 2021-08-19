@@ -8,6 +8,7 @@ namespace FirePDF.Model
         PdfResources Resources { get; }
         RectangleF BoundingBox { get; }
         Pdf Pdf { get; }
+        PdfDictionary UnderlyingDict { get; }
 
         Stream GetStream();
     }

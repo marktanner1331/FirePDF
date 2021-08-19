@@ -34,6 +34,7 @@ namespace FirePDF.Model
         public void UpdateStream(Stream s)
         {
             stream = s;
+            startOfStream = 0;
 
             ///hint:
             ///these operations mark the underlying dictionary as dirty

@@ -59,6 +59,13 @@ namespace FirePDF.Model
                 {
                     return Pdf.store.Get<object>(reference);
                 }
+                else if(value is PdfDictionary dict)
+                {
+                    if(dict.ContainsKey("Type"))
+                    {
+                        return PdfDictionary.FromDictionary(dict);
+                    }
+                }
 
                 return value;
             }
@@ -83,6 +90,13 @@ namespace FirePDF.Model
                 if(value is long && typeof(T) == typeof(int))
                 {
                     value = (int)(long)value;
+                }
+                else if (value is PdfDictionary dict && typeof(T) != typeof(PdfDictionary))
+                {
+                    if (dict.ContainsKey("Type"))
+                    {
+                        value = PdfDictionary.FromDictionary(dict);
+                    }
                 }
 
                 return (T)value;
@@ -113,6 +127,21 @@ namespace FirePDF.Model
                     }
                 }
             }
+        }
+
+        internal bool ContainsValue(object value, out Name existingKey)
+        {
+            foreach(KeyValuePair<Name, object> entry in inner)
+            {
+                if(entry.Value == value)
+                {
+                    existingKey = entry.Key;
+                    return true;
+                }
+            }
+
+            existingKey = null;
+            return false;
         }
 
         public bool IsDirty() => isDirty || inner.Values.Where(x => x is IHaveChildren).Any(x => ((IHaveChildren)x).IsDirty());

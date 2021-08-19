@@ -14,7 +14,7 @@ namespace Samples
     {
         internal static void Main(string[] args)
         {
-            const string file = @"C:\Users\Mark Tanner\scratch\city.pdf";
+            const string file = @"C:\Users\Mark\Downloads\News_6_GV5KMABF6.1+GV5KMABF6.1.pdf";
             using (Pdf pdf = new Pdf(file))
             {
                 Page page = pdf.GetPage(1);
@@ -29,11 +29,12 @@ namespace Samples
 
                         operations = operations.Where(x =>
                         {
-                            if (x.operatorName == "cs" && (Name)x.operands[0] == "Pattern")
+                            if (x.operatorName == "scn" && x.operands[0] is Name && (Name)x.operands[0] == "R15")
                             {
                                 return false;
                             }
-                            else if (x.operatorName == "scn" && (Name)x.operands[0] == "pat0")
+                            
+                            if (x.operatorName == "cs" && x.operands[0] is Name && (Name)x.operands[0] == "R16")
                             {
                                 return false;
                             }
@@ -59,7 +60,7 @@ namespace Samples
                     }
                 }
 
-                pdf.Save(@"C:\Users\Mark Tanner\scratch\city fixed.pdf", SaveType.Update);
+                pdf.Save(@"C:\Users\Mark\Downloads\News_6_GV5KMABF6.1+GV5KMABF6.1 fixed.pdf", SaveType.Fresh);
             }
         }
     }

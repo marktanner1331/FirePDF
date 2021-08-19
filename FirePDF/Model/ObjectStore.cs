@@ -52,7 +52,7 @@ namespace FirePDF.Model
         internal IEnumerable<T> GetAll<T>()
         {
             //hint: the newTable contains both the existing and new records
-            foreach (XrefTable.XrefRecord record in newTable.GetAllXrefRecords())
+            foreach (XrefTable.XrefRecord record in newTable.GetAllXrefRecords().ToList())
             {
                 object obj = Get<object>(record.objectNumber, record.generation);
                 if (obj is T o)
@@ -102,7 +102,7 @@ namespace FirePDF.Model
                     //var k = PDFReader.readIndirectObject(Pdf, existingStream, record.Value);
                     obj = (T)PdfReader.ReadIndirectObject(pdf, existingStream, record.Value);
                 }
-                catch
+                catch(Exception ex)
                 {
                     obj = (T)PdfReader.ReadIndirectObject(pdf, existingStream, record.Value);
                 }
@@ -118,6 +118,11 @@ namespace FirePDF.Model
 
             cache[indirectReference] = obj;
             return obj;
+        }
+
+        public IEnumerable<XrefTable.XrefRecord> ListObjects()
+        {
+            return newTable.GetAllXrefRecords();
         }
 
         /// <summary>

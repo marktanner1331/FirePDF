@@ -58,6 +58,8 @@ namespace FirePDF
             UnderlyingDict.Set("Root", store.Add(catalog.UnderlyingDict));
         }
 
+        public IEnumerable<XrefTable.XrefRecord> ListObjects() => store.ListObjects();
+
         public ObjectReference ReverseGet(object value)
         {
             return store.ReverseGet(value);

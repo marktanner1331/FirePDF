@@ -41,17 +41,103 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="../FirePDF/**/*.cs" Exclude="../FirePDF/**/FirePDF.AssemblyInfo.cs" />
+    <Compile Include="..\FirePDF\Distilling\Distiller.cs" />
+    <Compile Include="..\FirePDF\Distilling\TextDistiller.cs" />
+    <Compile Include="..\FirePDF\Model\Catalog.cs" />
+    <Compile Include="..\FirePDF\Model\ExtGState.cs" />
+    <Compile Include="..\FirePDF\Model\GraphicsState.cs" />
+    <Compile Include="..\FirePDF\Model\HaveUnderlyingDict.cs" />
+    <Compile Include="..\FirePDF\Model\IHaveChildren.cs" />
+    <Compile Include="..\FirePDF\Model\IHavePDF.cs" />
+    <Compile Include="..\FirePDF\Model\IStreamOwner.cs" />
+    <Compile Include="..\FirePDF\Model\Mask.cs" />
+    <Compile Include="..\FirePDF\Model\Name.cs" />
+    <Compile Include="..\FirePDF\Model\ObjectReference.cs" />
+    <Compile Include="..\FirePDF\Model\ObjectStore.cs" />
+    <Compile Include="..\FirePDF\Model\Operation.cs" />
+    <Compile Include="..\FirePDF\Model\PageTreeNode.cs" />
+    <Compile Include="..\FirePDF\Model\Pattern.cs" />
+    <Compile Include="..\FirePDF\Model\PatternDictionary.cs" />
+    <Compile Include="..\FirePDF\Model\PDFAnnot.cs" />
+    <Compile Include="..\FirePDF\Model\PDFDictionary.cs" />
+    <Compile Include="..\FirePDF\Model\PDFGroup.cs" />
+    <Compile Include="..\FirePDF\Model\PDFList.cs" />
+    <Compile Include="..\FirePDF\Model\PDFMetaData.cs" />
+    <Compile Include="..\FirePDF\Model\PDFMetaDataDictionary.cs" />
+    <Compile Include="..\FirePDF\Model\PDFMetaDataStream.cs" />
+    <Compile Include="..\FirePDF\Model\PDFObjectStream.cs" />
+    <Compile Include="..\FirePDF\Model\PDFOutlines.cs" />
+    <Compile Include="..\FirePDF\Model\PDFResources.cs" />
+    <Compile Include="..\FirePDF\Model\PDFStream.cs" />
+    <Compile Include="..\FirePDF\Model\PDFString.cs" />
+    <Compile Include="..\FirePDF\Model\SaveType.cs" />
+    <Compile Include="..\FirePDF\Model\SoftMask.cs" />
+    <Compile Include="..\FirePDF\Model\StructTreeRoot.cs" />
+    <Compile Include="..\FirePDF\Model\Trailer.cs" />
+    <Compile Include="..\FirePDF\Model\TransparencyGroup.cs" />
+    <Compile Include="..\FirePDF\Model\XObjectForm.cs" />
+    <Compile Include="..\FirePDF\Model\XObjectImage.cs" />
+    <Compile Include="..\FirePDF\Model\XREFStream.cs" />
+    <Compile Include="..\FirePDF\Model\XREFTable.cs" />
+    <Compile Include="..\FirePDF\Modifying\IStreamModifier.cs" />
+    <Compile Include="..\FirePDF\Modifying\RecursiveStreamRewriter.cs" />
+    <Compile Include="..\FirePDF\Page.cs" />
+    <Compile Include="..\FirePDF\PDF.cs" />
+    <Compile Include="..\FirePDF\Processors\ClippingProcessor.cs" />
+    <Compile Include="..\FirePDF\Processors\GraphicsStateProcessor.cs" />
+    <Compile Include="..\FirePDF\Processors\ImageProcessor.cs" />
+    <Compile Include="..\FirePDF\Processors\IStreamProcessor.cs" />
+    <Compile Include="..\FirePDF\Processors\LineProcessor.cs" />
+    <Compile Include="..\FirePDF\Processors\PaintingProcessor.cs" />
+    <Compile Include="..\FirePDF\Processors\StreamCollector.cs" />
+    <Compile Include="..\FirePDF\Processors\StreamProcessor.cs" />
+    <Compile Include="..\FirePDF\Reading\ASCIIReader.cs" />
+    <Compile Include="..\FirePDF\Reading\ByteReader.cs" />
+    <Compile Include="..\FirePDF\Reading\ContentStreamReader.cs" />
+    <Compile Include="..\FirePDF\Reading\PDFReader.cs" />
+    <Compile Include="..\FirePDF\Reading\ProxyStream.cs" />
+    <Compile Include="..\FirePDF\Reading\RecursiveStreamReader.cs" />
+    <Compile Include="..\FirePDF\Rendering\BoundingBoxRasterizer.cs" />
+    <Compile Include="..\FirePDF\Rendering\IRenderer.cs" />
+    <Compile Include="..\FirePDF\Rendering\LoggingRenderer.cs" />
+    <Compile Include="..\FirePDF\Rendering\NullRenderer.cs" />
+    <Compile Include="..\FirePDF\Rendering\Rasterizer.cs" />
+    <Compile Include="..\FirePDF\Rendering\TextExtractor.cs" />
+    <Compile Include="..\FirePDF\StreamHelpers\ASCIIHexDecodeWriter.cs" />
+    <Compile Include="..\FirePDF\StreamHelpers\FlateStreamReader.cs" />
+    <Compile Include="..\FirePDF\StreamHelpers\PNGPredictor.cs" />
+    <Compile Include="..\FirePDF\StreamHelpers\RawStreamReader.cs" />
+    <Compile Include="..\FirePDF\StreamPartFunctions\ClippingPathStreamPart.cs" />
+    <Compile Include="..\FirePDF\StreamPartFunctions\DrawImageStreamPart.cs" />
+    <Compile Include="..\FirePDF\StreamPartFunctions\Node.cs" />
+    <Compile Include="..\FirePDF\StreamPartFunctions\StreamPart.cs" />
+    <Compile Include="..\FirePDF\StreamPartFunctions\StreamTree.cs" />
+    <Compile Include="..\FirePDF\Text\CIDFont.cs" />
+    <Compile Include="..\FirePDF\Text\CIDFontType0C.cs" />
+    <Compile Include="..\FirePDF\Text\CIDFontType2.cs" />
+    <Compile Include="..\FirePDF\Text\CIDRange.cs" />
+    <Compile Include="..\FirePDF\Text\CIDType0Font.cs" />
+    <Compile Include="..\FirePDF\Text\CMAP.cs" />
+    <Compile Include="..\FirePDF\Text\CodeSpaceRange.cs" />
+    <Compile Include="..\FirePDF\Text\Font.cs" />
+    <Compile Include="..\FirePDF\Text\FontDescriptor.cs" />
+    <Compile Include="..\FirePDF\Text\PDFEncoding.cs" />
+    <Compile Include="..\FirePDF\Text\TextProcessor.cs" />
+    <Compile Include="..\FirePDF\Text\TextRenderingMode.cs" />
+    <Compile Include="..\FirePDF\Text\TrueTypeFont.cs" />
+    <Compile Include="..\FirePDF\Text\Type0Font.cs" />
+    <Compile Include="..\FirePDF\Text\Type1CFont.cs" />
+    <Compile Include="..\FirePDF\Text\Type1Font.cs" />
+    <Compile Include="..\FirePDF\Text\Type3Font.cs" />
+    <Compile Include="..\FirePDF\Util\Logger.cs" />
+    <Compile Include="..\FirePDF\Util\RectangleFunctions.cs" />
+    <Compile Include="..\FirePDF\Writing\ByteWriter.cs" />
+    <Compile Include="..\FirePDF\Writing\ContentStreamWriter.cs" />
+    <Compile Include="..\FirePDF\Writing\PDFWriter.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Lazy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tuple.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FirePDF\FirePDF.csproj">
-      <Project>{1BFBBBDE-01AA-495B-BEF9-FB88A938AB68}</Project>
-      <Name>FirePDF</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ContentWithTargetPath Include="../FirePDF/**/cmaps/Identity-H" CopyToOutputDirectory="PreserveNewest" TargetPath="cmaps/%(Filename)%(Extension)" />

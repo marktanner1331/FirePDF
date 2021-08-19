@@ -44,13 +44,19 @@ namespace FirePDF.Model
                 case "StructTreeRoot":
                     return new StructTreeRoot(dict);
                 case "Group":
-                    return new PdfGroup(dict);
+                    switch(dict.Get<Name>("S"))
+                    {
+                        case "Transparency":
+                            return new TransparencyGroup(dict);
+                        default:
+                            return new PdfGroup(dict);
+                    }
                 case "Encoding":
                     return new PDFEncoding(dict);
                 case "Metadata":
                     return new PdfMetaDataDictionary(dict);
                 case "Mask":
-                    return new Mask(dict);
+                    return new SoftMask(dict);
                 case "Pattern":
                     return new PatternDictionary(dict);
                 case "XRef":   //these is already wrapped up in a PDFStream

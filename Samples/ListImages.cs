@@ -23,7 +23,7 @@ namespace Samples
 
         internal static void Main1(string[] args)
         {
-            const string file = @"C:\Users\Mark Tanner\Documents\clients\media24\suid kaap page 12.pdf";
+            const string file = @"C:\Users\Mark\Documents\pagesuite\tickets\CS-1091 - Egmont quality\page.pdf";
 
             using (Pdf pdf = new Pdf(file))
             {
@@ -40,7 +40,7 @@ namespace Samples
 
         internal static void Main(string[] args)
         {
-            const string file = @"C:\Users\Mark Tanner\Documents\clients\racing post\March\html5 4.pdf";
+            const string file = @"C:\Users\Mark\Documents\pagesuite\tickets\CS-1091 - Egmont quality\page flattened 2.pdf";
 
             using (Pdf pdf = new Pdf(file))
             {

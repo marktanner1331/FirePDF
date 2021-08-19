@@ -13,7 +13,7 @@ namespace Graphical_Debugger
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainWindow(@"C:\Users\Mark\Documents\pagesuite\tickets\CS-653 - Sun\flattened.pdf"));
+            Application.Run(new MainWindow(@"C:\Users\Mark\Documents\pagesuite\tickets\231591\trueorig.pdf"));
         }
     }
 }

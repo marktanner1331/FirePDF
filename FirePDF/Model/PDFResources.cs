@@ -32,6 +32,189 @@ namespace FirePDF.Model
             SetObjectAsDirty(path);
         }
 
+        /// <summary>
+        /// adds the contents of the given resources
+        /// the names of the resources are renamed to avoid collisions
+        /// a dictionary is returned as a map from old to new
+        /// this dictionary contains fully qualified paths, e.g. XObject/form1
+        /// </summary>
+        public Dictionary<string, string> MergeResources(PdfResources other)
+        {
+            //untested!!
+
+            Dictionary<string, string> map = new Dictionary<string, string>();
+
+            foreach (string key in other.UnderlyingDict.Keys)
+            {
+                if (UnderlyingDict.ContainsKey(key) == false)
+                {
+                    UnderlyingDict.Set(key, other.UnderlyingDict.Get(key, false));
+
+                    foreach (string path in enumerateSubResourcePaths(this, key))
+                    {
+                        //these are brand new resources
+                        //so we can keep the original names
+                        map.Add(path, path);
+                    }
+                }
+                else if (UnderlyingDict.Get(key, true) is PdfList sourceList && other.UnderlyingDict.Get(key, true) is PdfList destList)
+                {
+                    //TODO check it can be merged before actually merging
+
+                    //this can be tricky
+                    //we really need these lists to match
+                    //don't really have much choice if they don't
+                    if (Enumerable.SequenceEqual(sourceList, destList) == false)
+                    {
+                        throw new Exception("Cannot merge because: " + key + " are lists which are not equal");
+                    }
+
+                    foreach (string path in enumerateSubResourcePaths(this, key))
+                    {
+                        //we can keep the original names
+                        map.Add(path, path);
+                    }
+                }
+                else if (UnderlyingDict.Get(key, true) is PdfDictionary sourceDict && other.UnderlyingDict.Get(key, true) is PdfDictionary destDict)
+                {
+                    foreach (KeyValuePair<Name, object> entry in destDict)
+                    {
+                        if (entry.Value is ObjectReference && sourceDict.ContainsValue(entry.Value, out Name existingKey))
+                        {
+                            //we have already got an entry for this value
+                            map.Add(key + "/" + entry.Key, key + "/" + existingKey);
+                        }
+                        else
+                        {
+                            //TODO
+                            //maybe in future we can check for existing direct values
+                            //that are identical, and reuse those
+                            //this happens sometimes with ExtGStates
+
+                            if (sourceDict.ContainsKey(entry.Key) == false)
+                            {
+                                //no existing key with that name, great
+                                sourceDict.Set(entry.Key, entry.Value);
+
+                                //no renaming necessary here
+                                map.Add(key + "/" + entry.Key, key + "/" + entry.Key);
+                            }
+                            else
+                            {
+                                //we already have a key with that name
+                                String tempKey = entry.Key;
+                                int i = 1;
+                                while (sourceDict.ContainsKey(tempKey + "_" + i))
+                                {
+                                    i++;
+                                }
+
+                                tempKey += "_" + i;
+
+                                sourceDict.Set(tempKey, entry.Value);
+                                map.Add(key + "/" + entry.Key, key + "/" + tempKey);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    throw new Exception("underlying types are not of the same type");
+                }
+            }
+
+            return map;
+        }
+
+        public void removeResource(string type, string name)
+        {
+            //TODO: change 'type' into an enum
+
+            PdfDictionary dict = (PdfDictionary)GetObjectAtPath(type);
+            if (dict == null)
+            {
+                return;
+            }
+
+            dict.RemoveEntry(name);
+        }
+
+        /// <summary>
+        /// returns a new resource name that is unique at the specified path
+        /// </summary>
+        /// <remarks>
+        /// Used primarily for creating new resources. I.e. to insert a new ExtGState, call generateNewResourceName("ExtGState") to generate it's name
+        /// </remarks>
+        public Name generateNewResourceName(string path)
+        {
+            if (path.Contains("/"))
+            {
+                throw new ArgumentException("path cannot contain /'s");
+            }
+
+            if (UnderlyingDict.ContainsKey(path) == false)
+            {
+                return "1";
+            }
+
+            object value = UnderlyingDict.Get(path, true);
+            if (value is PdfDictionary == false)
+            {
+                throw new Exception("Can only generate resource names for dictionaries");
+            }
+
+            PdfDictionary dict = value as PdfDictionary;
+
+            int i = 1;
+            while (dict.ContainsKey(i.ToString()))
+            {
+                i++;
+            }
+
+            return i.ToString();
+        }
+
+        /// <summary>
+        /// enumerates all the resource paths for a given key in the given PDFResources
+        /// </summary>
+        private static IEnumerable<string> enumerateSubResourcePaths(PdfResources resources, string key)
+        {
+            //untested!!
+
+            object value = resources.UnderlyingDict.Get(key, true);
+            if (value is PdfDictionary dict)
+            {
+                foreach (string key2 in dict.Keys)
+                {
+                    yield return key + "/" + key2;
+                }
+            }
+            else if (value is PdfList list)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    yield return key + "/" + i;
+                }
+            }
+            else
+            {
+                throw new NotImplementedException("unknown resource underlying type: " + value.GetType().Name);
+            }
+        }
+
+        public IEnumerable<string> enumerateResourcePaths()
+        {
+            //untested!!
+
+            foreach (string key in UnderlyingDict.Keys)
+            {
+                foreach (string path in enumerateSubResourcePaths(this, key))
+                {
+                    yield return path;
+                }
+            }
+        }
+
         public IEnumerable<ExtGState> GetAllExtGStates()
         {
             PdfDictionary extGStates = (PdfDictionary)GetObjectAtPath("ExtGState");
@@ -183,30 +366,29 @@ namespace FirePDF.Model
 
         /// <summary>
         /// returns the object at the given path, or null if it cannot be found
-        /// automatically resolves any indirect references
+        /// does not resolve any indirect references
+        /// TODO used combinedPaths, and send the boolean through instead of two methods
         /// </summary>
-        public object GetObjectAtPath(params string[] path)
+        public object GetUnresolvedObjectAtPath(params string[] path)
         {
             //TODO make this a generic method like getObjectAtPath<Font>()?
 
-            string joinedPath = string.Join("/", path);
-            if (cache.ContainsKey(joinedPath))
-            {
-                return cache[joinedPath];
-            }
-
             object root = UnderlyingDict;
+
+            int count = 0;
             foreach (string part in path)
             {
+                bool isLast = ++count == path.Length;
+
                 switch (root)
                 {
                     case PdfDictionary dictionary when dictionary.ContainsKey(part):
-                        root = dictionary.Get<object>(part);
+                        root = dictionary.Get(part, !isLast);
                         break;
                     case PdfDictionary dictionary:
                         return null;
                     case PdfResources resources:
-                        root = resources.UnderlyingDict.Get<object>(part);
+                        root = resources.UnderlyingDict.Get(part, !isLast);
                         break;
                     case IStreamOwner streamOwner when part != "Resources":
                         throw new Exception($"Accessing unknown property '{part}' on IStreamOwner");
@@ -225,7 +407,60 @@ namespace FirePDF.Model
                                 return null;
                             }
 
-                            root = temp.Get<object>(index);
+                            root = temp.Get<object>(index, !isLast);
+                            break;
+                        }
+                }
+            }
+
+            return root;
+        }
+
+        /// <summary>
+        /// returns the object at the given path, or null if it cannot be found
+        /// automatically resolves any indirect references
+        /// </summary>
+        public object GetObjectAtPath(params string[] path)
+        {
+            //TODO make this a generic method like getObjectAtPath<Font>()?
+
+            string joinedPath = string.Join("/", path);
+            if (cache.ContainsKey(joinedPath))
+            {
+                return cache[joinedPath];
+            }
+
+            object root = UnderlyingDict;
+            foreach (string part in path)
+            {
+                switch (root)
+                {
+                    case PdfDictionary dictionary when dictionary.ContainsKey(part):
+                        root = dictionary.Get(part, true);
+                        break;
+                    case PdfDictionary dictionary:
+                        return null;
+                    case PdfResources resources:
+                        root = resources.UnderlyingDict.Get(part, true);
+                        break;
+                    case IStreamOwner streamOwner when part != "Resources":
+                        throw new Exception($"Accessing unknown property '{part}' on IStreamOwner");
+                    case IStreamOwner streamOwner:
+                        root = streamOwner.Resources;
+                        break;
+                    case PdfList temp:
+                        {
+                            if (int.TryParse(part, out int index) == false)
+                            {
+                                return null;
+                            }
+
+                            if (temp.Count <= index)
+                            {
+                                return null;
+                            }
+
+                            root = temp.Get<object>(index, true);
                             break;
                         }
                 }
@@ -285,9 +520,11 @@ namespace FirePDF.Model
             }
         }
 
-        public void SetObjectAtPath(ObjectReference objectReference, string[] path)
+        public void SetObjectAtPath(object obj, params string[] path)
         {
             //TODO replace most of this with getObjectAtPath(path.take(-1))
+            //TODO also need to create the object if it doesn't exist
+
             object root = UnderlyingDict;
             for (int i = 0; i < path.Length - 1; i++)
             {
@@ -302,7 +539,8 @@ namespace FirePDF.Model
                     }
                     else
                     {
-                        throw new NotImplementedException();
+                        temp.Set(part, new PdfDictionary(Pdf));
+                        root = temp.Get<object>(part);
                     }
                 }
                 else if (root is PdfList)
@@ -332,7 +570,7 @@ namespace FirePDF.Model
             if (root is PdfDictionary)
             {
                 PdfDictionary temp = (PdfDictionary)root;
-                temp.Set(path.Last(), objectReference);
+                temp.Set(path.Last(), obj);
             }
             else if (root is PdfList)
             {
@@ -348,7 +586,7 @@ namespace FirePDF.Model
                     throw new NotImplementedException();
                 }
 
-                temp.Set(index, objectReference);
+                temp.Set(index, obj);
             }
         }
 

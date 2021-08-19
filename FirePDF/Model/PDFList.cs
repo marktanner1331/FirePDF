@@ -8,7 +8,7 @@ namespace FirePDF.Model
 {
     public class PdfList : HavePdf, IHaveChildren, IEnumerable<object>
     {
-        private List<object> inner;
+        internal List<object> inner;
         private bool isDirty = false;
 
         public PdfList(Pdf pdf) : base(pdf)
@@ -89,9 +89,9 @@ namespace FirePDF.Model
             }
         }
 
-        public void Set(int index, ObjectReference objectReference)
+        public void Set(int index, object obj)
         {
-            inner[index] = objectReference;
+            inner[index] = obj;
             isDirty = true;
         }
 
