@@ -99,3 +99,10 @@ using (Pdf pdf = new Pdf(file))
 
 ## Saving
 FirePDF automatically tracks what changes have been made, and can either save just those changes, or resave the entire PDF as fresh.
+
+## Other features
+Other features include:
+- A graphical editor similar to CosEdit, including the ability to edit the streams and save the PDF
+- A graphical debugger, which lets you selectively choose which parts of the stream are rendered, right down to individual instructions
+- A flattener that lets you combine individual images into a single image that it re-injected back into the PDF
+- Abstraction layers for editing streams
